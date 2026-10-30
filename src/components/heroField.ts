@@ -39,7 +39,7 @@ function seed(w: number, h: number): Mote[] {
       bvy,
       vx: bvx,
       vy: bvy,
-      ink: INKS[Math.random() < 0.5 ? 0 : Math.random() < 0.5 ? 1 : Math.random() < 0.6 ? 2 : 3],
+      ink: INKS[Math.random() < 0.5 ? 0 : Math.random() < 0.5 ? 1 : Math.random() < 0.8 ? 2 : 3],
       a: 0.14 + Math.random() * 0.34,
       near: 0,
     });

@@ -1,5 +1,7 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import mark from "../assets/appolino-mark.svg";
+import { runSun } from "./sunField";
+import { prefersLessMotion } from "../motion";
 import { ValidatePanel } from "./Demo";
 import { AskPanel } from "./Ask";
 import { PipelinePanel } from "./Flow";
@@ -27,6 +29,11 @@ export function Showcase() {
   const [tab, setTab] = useState<TabId>("validate");
   const tabsRef = useRef<HTMLDivElement>(null);
   const [ind, setInd] = useState({ left: 0, width: 0 });
+  const sun = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (sun.current) return runSun(sun.current, prefersLessMotion());
+  }, []);
 
   useLayoutEffect(() => {
     const place = () => {
@@ -44,7 +51,7 @@ export function Showcase() {
     <section className="showcase" id="try">
       <div className="wrap">
         <span className="dawn-glow" aria-hidden />
-        <span className="dawn" aria-hidden />
+        <canvas className="dawn" ref={sun} aria-hidden />
         <div className="tabs" role="tablist" aria-label="Screens of Appolino" ref={tabsRef}>
           {TABS.map((x) => (
             <button key={x.id} role="tab" id={`tab-${x.id}`} aria-selected={tab === x.id} aria-controls="screen" onClick={() => setTab(x.id)}>

@@ -103,12 +103,11 @@ a{color:var(--accent)}
 /* Showcase: the sun rises behind a window of the app, its tabs on top */
 .showcase{position:relative;padding-bottom:clamp(40px,6vw,72px)}
 .showcase .wrap{position:relative}
-.dawn{position:absolute;left:50%;bottom:calc(100% - 1px);width:min(48vw,520px);aspect-ratio:4/1;transform:translateX(-50%);overflow:hidden;pointer-events:none;z-index:0}
-.dawn::before{content:"";position:absolute;left:50%;top:0;width:100%;aspect-ratio:1;transform:translateX(-50%);border-radius:50%;
-  background:radial-gradient(circle at 50% 70%,#F8C877 0%,var(--sun) 40%,var(--sun-dim) 100%);animation:sunrise 1.8s var(--ease) .4s both}
+/* The sun is a canvas 4R wide and 1.5R tall whose disc centre sits below its bottom edge,
+   so a cap of R/2 shows above the window; the air around it carries the embers. */
+.dawn{position:absolute;left:50%;bottom:calc(100% - 1px);width:calc(min(48vw,520px) * 2);aspect-ratio:8/3;transform:translateX(-50%);pointer-events:none;z-index:0}
 .dawn-glow{position:absolute;left:50%;top:0;width:min(120vw,1400px);aspect-ratio:2/1;transform:translate(-50%,-62%);border-radius:50%;pointer-events:none;z-index:0;
   background:radial-gradient(ellipse at 50% 50%,rgba(233,162,59,.34) 0%,rgba(233,162,59,.12) 30%,transparent 62%)}
-@keyframes sunrise{from{transform:translate(-50%,60%)}to{transform:translate(-50%,0)}}
 .tabs{position:relative;z-index:2;display:flex;margin:0 auto;max-width:1040px;border:1px solid var(--line-2);border-bottom:0;border-radius:16px 16px 0 0;overflow:hidden;background:rgba(14,21,38,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .tabs button{position:relative;flex:1 1 0;min-width:max-content;min-height:54px;padding:0 20px;border:0;border-right:1px solid var(--line-2);background:transparent;color:var(--fg-3);font:500 15px var(--font);cursor:pointer;transition:color .2s ease,background .2s ease}
 .tabs button:last-of-type{border-right:0}
