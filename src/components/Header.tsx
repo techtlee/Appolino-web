@@ -5,6 +5,7 @@ export const NAV: [string, string][] = [
   ["try", "Try it"],
   ["platform", "Platform"],
   ["why", "Why Appolino"],
+  ["czech", "Czech data"],
   ["security", "Security"],
   ["changelog", "Changelog"],
 ];

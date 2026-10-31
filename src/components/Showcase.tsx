@@ -2,23 +2,32 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 import mark from "../assets/appolino-mark.svg";
 import { runSun } from "./sunField";
 import { prefersLessMotion } from "../motion";
+import { ImportPanel } from "./Import";
 import { ValidatePanel } from "./Demo";
+import { TransformPanel } from "./Transform";
+import { ChecksPanel } from "./Checks";
 import { AskPanel } from "./Ask";
 import { PipelinePanel } from "./Flow";
 import { JobsPanel } from "./Runs";
 import { AccessPanel } from "./Access";
 
-type TabId = "validate" | "ask" | "pipelines" | "jobs" | "access";
+type TabId = "import" | "validate" | "checks" | "transform" | "ask" | "pipelines" | "jobs" | "access";
 
 /** Each tab is a screen of the app: which rail item it lives under, its
  *  breadcrumb, and the live panel it shows. */
-const TABS: { id: TabId; label: string; rail: string; crumbs: string[]; panel: () => ReactNode }[] = [
-  { id: "validate", label: "Validate", rail: "Tables", crumbs: ["Tables", "invoices_october.xlsx", "Validate"], panel: () => <ValidatePanel /> },
-  { id: "ask", label: "✦ Ask", rail: "Tables", crumbs: ["Tables", "invoices_october.xlsx", "✦ Ask"], panel: () => <AskPanel /> },
+const TABS: { id: TabId; label: string; rail: string; crumbs: string[]; panel: (go: (t: TabId) => void) => ReactNode }[] = [
+  { id: "import", label: "Import", rail: "Tables", crumbs: ["Tables", "Upload a file"], panel: (go) => <ImportPanel onNext={() => go("validate")} /> },
+  { id: "validate", label: "Validate", rail: "Tables", crumbs: ["Tables", "Faktury", "Validate"], panel: () => <ValidatePanel /> },
+  { id: "checks", label: "Checks", rail: "Checks", crumbs: ["Checks", "Faktury"], panel: () => <ChecksPanel /> },
+  { id: "transform", label: "Transform", rail: "Results", crumbs: ["Results", "New result table", "from Faktury"], panel: () => <TransformPanel /> },
+  { id: "ask", label: "\u2726 Ask", rail: "Tables", crumbs: ["Tables", "Faktury", "\u2726 Ask"], panel: () => <AskPanel /> },
   { id: "pipelines", label: "Pipelines", rail: "Pipelines", crumbs: ["Pipelines", "Monthly invoices"], panel: () => <PipelinePanel /> },
   { id: "jobs", label: "Jobs", rail: "Jobs", crumbs: ["Jobs"], panel: () => <JobsPanel /> },
-  { id: "access", label: "Access", rail: "Tables", crumbs: ["Tables", "Staff"], panel: () => <AccessPanel /> },
+  { id: "access", label: "Access", rail: "Tables", crumbs: ["Tables", "Faktury", "Who sees what"], panel: () => <AccessPanel /> },
 ];
+
+/** Rail items that open a screen of the demo; the rest are shown, not live. */
+const RAIL_TAB: Record<string, TabId> = { Tables: "import", Results: "transform", Checks: "checks", Pipelines: "pipelines", Jobs: "jobs" };
 
 const RAIL: [string, string[]][] = [
   ["Workspace", ["Home", "Tables", "Results", "Checks"]],
@@ -26,7 +35,7 @@ const RAIL: [string, string[]][] = [
 ];
 
 export function Showcase() {
-  const [tab, setTab] = useState<TabId>("validate");
+  const [tab, setTab] = useState<TabId>("import");
   const tabsRef = useRef<HTMLDivElement>(null);
   const [ind, setInd] = useState({ left: 0, width: 0 });
   const sun = useRef<HTMLCanvasElement>(null);
@@ -62,26 +71,40 @@ export function Showcase() {
         </div>
         <div className="win-wrap">
           <div className="win" role="tabpanel" id="screen" aria-labelledby={`tab-${tab}`}>
-            <aside className="win-side" aria-hidden>
-              <div className="win-org">
+            <aside className="win-side" aria-label="Appolino navigation">
+              <div className="win-org" aria-hidden>
                 <img src={mark} alt="" />
-                Northwind Ltd
+                Severka a.s.
                 <span>▾</span>
               </div>
               {RAIL.map(([grp, items]) => (
                 <div key={grp}>
-                  <div className="grp">{grp}</div>
-                  {items.map((it) => (
-                    <div key={it} className={`it${it === t.rail ? " on" : ""}`}>
-                      <i />
-                      {it}
-                    </div>
-                  ))}
+                  <div className="grp" aria-hidden>
+                    {grp}
+                  </div>
+                  {items.map((it) =>
+                    RAIL_TAB[it] ? (
+                      <button
+                        key={it}
+                        className={`it${it === t.rail ? " on" : ""}`}
+                        aria-current={it === t.rail ? "page" : undefined}
+                        onClick={() => it !== t.rail && setTab(RAIL_TAB[it])}
+                      >
+                        <i />
+                        {it}
+                      </button>
+                    ) : (
+                      <div key={it} className="it off" aria-hidden>
+                        <i />
+                        {it}
+                      </div>
+                    ),
+                  )}
                 </div>
               ))}
-              <div className="win-user">
-                <b>JM</b>
-                Jane Miller
+              <div className="win-user" aria-hidden>
+                <b>JN</b>
+                Jana Nováková
               </div>
             </aside>
             <div className="win-main">
@@ -94,7 +117,7 @@ export function Showcase() {
                 ))}
               </div>
               <div className="win-body" key={tab}>
-                {t.panel()}
+                {t.panel(setTab)}
               </div>
             </div>
           </div>

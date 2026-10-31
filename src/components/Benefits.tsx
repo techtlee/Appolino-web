@@ -9,45 +9,55 @@ export function Benefits() {
         <div className="ben-grid">
           <div className="ben">
             <h3>Numbers people agree on</h3>
-            <p>One table, one definition, one result. Sales and finance read the same figure, from the same place.</p>
+            <p>One table, one definition, one result. Sales and finance read the same figure, and either can click it to see the rows it came from.</p>
             <div className="vis">
               <div className="report">
                 <span className="t">Sales · Revenue, October</span>
-                <span className="v">12,840.00</span>
-                <span className="ok">✓ from result “revenue_by_customer”</span>
+                <span className="v">28 504,50 Kč</span>
+                <span className="ok">✓ from result “Tržby po měsících”</span>
               </div>
               <div className="report">
                 <span className="t">Finance · Revenue, October</span>
-                <span className="v">12,840.00</span>
-                <span className="ok">✓ from result “revenue_by_customer”</span>
+                <span className="v">28 504,50 Kč</span>
+                <span className="ok">✓ from result “Tržby po měsících”</span>
               </div>
             </div>
           </div>
           <div className="ben">
             <h3>Runs while you sleep</h3>
-            <p>Pipelines run on their own schedule, so the data is where people need it when they arrive.</p>
+            <p>Pipelines run on their own schedule in your time zone, so the data is where people need it when they arrive.</p>
             <div className="vis">
               <div className="sched">
-                <div><span className="t">06:00</span>Nightly ERP sync<span className="ok">✓</span></div>
-                <div><span className="t">07:00</span>Sales report<span className="ok">✓</span></div>
-                <div><span className="t">07:30</span>Stock levels to SharePoint<span className="ok">✓</span></div>
-                <div><span className="t">08:00</span>Invoice write-back<span className="run">● running</span></div>
-                <div><span className="t">18:00</span>End-of-day export<span className="t">due</span></div>
+                <div>
+                  <span className="t">00:00</span>Bank statements<span className="ok">✓</span>
+                </div>
+                <div>
+                  <span className="t">06:00</span>Monthly invoices<span className="ok">✓</span>
+                </div>
+                <div>
+                  <span className="t">07:30</span>Sales report<span className="ok">✓</span>
+                </div>
+                <div>
+                  <span className="t">08:15</span>Ceník write-back<span className="run">● running</span>
+                </div>
+                <div>
+                  <span className="t">18:00</span>Bank statements<span className="t">due</span>
+                </div>
               </div>
             </div>
           </div>
           <div className="ben">
             <h3>Problems before the board sees them</h3>
-            <p>A failed check holds the run and names what to fix. Nobody corrects a report after it has been read.</p>
+            <p>A failed check holds the run and names what to fix. The destination keeps its last good load, so nobody corrects a report after it has been read.</p>
             <div className="vis">
               <div className="held">
-                <span className="pill-held">Blocked · Invoice write-back</span>
+                <span className="pill-held">Blocked · Monthly invoices</span>
                 <div className="log">
-                  <b>08:00:14</b> check “dates are ISO” failed: 3 rows
+                  <b>06:00:14</b> Not negative · Amount (CZK): 1 row
                   <br />
-                  <b>08:00:14</b> run held before write-back
+                  <b>06:00:14</b> held before delivery
                   <br />
-                  <b>08:00:15</b> owner notified · Retry now available
+                  <b>06:00:15</b> Teams: admins told once
                 </div>
               </div>
             </div>

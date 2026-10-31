@@ -6,6 +6,7 @@ import { Connects } from "./components/Connects";
 import { Statement } from "./components/Statement";
 import { Platform } from "./components/Platform";
 import { Benefits } from "./components/Benefits";
+import { Czech } from "./components/Czech";
 import { Trust } from "./components/Trust";
 import { Changelog } from "./components/Changelog";
 import { Contact } from "./components/Contact";
@@ -37,6 +38,7 @@ export default function App() {
         <Statement />
         <Platform />
         <Benefits />
+        <Czech />
         <Trust />
         <Changelog />
         <Contact draft={null} />
