@@ -802,9 +802,12 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 .contact{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:32px;align-items:start}
 @media(max-width:900px){.contact{grid-template-columns:minmax(0,1fr)}}
 form{padding:28px;display:grid;gap:16px}
-.f2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+/* Two fields side by side share a top, and a field never stretches to its row: when Name shows
+   its hint under it, Company keeps its own height instead of growing to match (owner,
+   2026-11-01: "Company (optional) in contact is distorted"). */
+.f2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
 @media(max-width:600px){.f2{grid-template-columns:minmax(0,1fr)}}
-.fld{display:grid;gap:6px}
+.fld{display:grid;gap:6px;align-content:start}
 .fld label{font-size:13px;color:var(--fg-3)}
 .fld input,.fld textarea{width:100%;padding:12px 14px;border-radius:10px;border:0;background:var(--bg);color:var(--fg);font:400 16px/1.4 var(--font);
   box-shadow:inset 0 0 0 1px var(--line-2),inset 0 2px 4px var(--field-shade);transition:box-shadow .2s ease}
