@@ -1,0 +1,1104 @@
+/* The demo window: what appolino does, one feature to a tab, on example data - not a copy of
+   the whole app. Each view is a head line (what is open, and the one thing to press), the
+   table, and the part of appolino that acts on it. It wears the site's own brand: Google Sans
+   Flex, charcoal ink on white, thin lines, and the sun's amber as the one colour - the pill
+   buttons are the page's own sun buttons, and warm light marks whatever is working. Green and
+   red are kept for what passed and what failed. Surfaces are white: no grey fills
+   (docs/design-system.md). Every class starts with tt- and every state with is-, because the page around
+   the window has short class names of its own (.done, .why, .grid, .seg). */
+
+.tt{
+  --ink:#141518; --ink-2:#2C2E33; --ink-3:#5C5F66; --ink-4:#76797F; --faint:#B6B8BD;
+  --line:rgba(20,21,24,.12); --line-soft:rgba(20,21,24,.065); --tint:rgba(20,21,24,.03);
+  --amber:#E9A23B; --amber-2:#F4B860; --amber-dim:#C97F23; --amber-ink:#A35E0B; --amber-deep:#8A4F08; --on-amber:#1F2A44;
+  --glow:#FFF5E6; --glow-2:#FCEBD2; --glow-line:rgba(233,162,59,.34);
+  --ok:#2F8A5B; --ok-ink:#226B45; --ok-soft:#ECF6F0; --ok-line:rgba(47,138,91,.26);
+  --err:#CF4141; --err-ink:#AE2F2F; --err-soft:#FDEFEF; --err-line:rgba(207,65,65,.28);
+  /* The page's heights (index.css :root, bdop's --e1..--e4): a card rests, a lifted part
+     floats a little (owner, 2026-11-01: "the same standard as bdop for shadowing"). */
+  --shadow-card:var(--e1);
+  --shadow-lift:var(--e3);
+  /* The page's own sun button (.btn in index.css): white on a vivid amber, so the demo's main
+     button is the same one. The shadow is a no-op rather than none, as tt-nudge adds a ring
+     after it. */
+  --sun-btn:#DE9228; --sun-btn-ink:#fff;
+  --sun-btn-shadow:0 0 0 0 transparent;
+  --code:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --ease:cubic-bezier(.2,.8,.2,1); --spring:cubic-bezier(.2,.9,.25,1.3);
+  position:relative;height:100%;display:flex;flex-direction:column;background:#fff;color:var(--ink-2);
+  font:400 14px/1.45 var(--font);text-align:left;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.tt *{box-sizing:border-box}
+.tt button,.tt input{font:inherit;color:inherit}
+.tt h4,.tt h5,.tt h6,.tt p{margin:0}
+.tt .ti{line-height:1}
+.tt .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* --- The head: a warm light falls in from the corner over what is open ------------------ */
+.tt-head{flex:none;position:relative;display:flex;align-items:center;gap:14px;min-height:76px;padding:14px 24px;border-bottom:1px solid var(--line-soft);
+  background:radial-gradient(70% 190% at 100% 0%,rgba(244,184,96,.16),rgba(244,184,96,0) 62%),#fff}
+.tt-head-ic{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:21px;color:var(--amber-ink);
+  background:radial-gradient(circle at 50% 30%,#FFF8EC,var(--glow-2));box-shadow:inset 0 0 0 1px var(--glow-line),0 8px 20px -12px rgba(233,162,59,.9)}
+.tt-head-t{min-width:0}
+.tt-head-t h4{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:500;letter-spacing:-.015em;line-height:1.25;color:var(--ink);white-space:nowrap}
+.tt-head-t small{display:block;margin-top:3px;font-size:13px;line-height:1.3;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-head-acts{margin-left:auto;flex:none;display:flex;align-items:center;gap:10px}
+
+/* --- Buttons are the site's pills: the sun one leads, the quiet one follows -------------- */
+.tt-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:38px;padding:0 18px;border:0;border-radius:999px;background:var(--tint);color:var(--ink);
+  box-shadow:inset 0 0 0 1px var(--line);font-size:14px;font-weight:500;line-height:1;white-space:nowrap;cursor:pointer;
+  transition:background .2s ease,box-shadow .2s ease,transform .14s var(--ease),filter .2s ease}
+.tt-btn .ti{font-size:16px}
+.tt-btn:hover:not(:disabled){background:rgba(20,21,24,.06);box-shadow:inset 0 0 0 1px rgba(20,21,24,.2)}
+.tt-btn.is-primary{background:var(--sun-btn);color:var(--sun-btn-ink);font-weight:600;box-shadow:var(--sun-btn-shadow);text-shadow:0 1px 1px rgba(110,55,0,.3)}
+.tt-btn.is-primary:hover:not(:disabled){background:#D0861F;box-shadow:var(--sun-btn-shadow)}
+.tt-btn.is-primary:active:not(:disabled){background:#C17A18}
+.tt-btn.is-sm{height:30px;padding:0 13px;font-size:13px;gap:5px}
+.tt-btn.is-sm .ti{font-size:14px}
+.tt-btn.is-icon{width:38px;padding:0}
+.tt-btn:disabled{opacity:.45;cursor:default}
+/* A button whose work is under way keeps its colour and says so, rather than fading out. */
+.tt-btn.is-busy:disabled{opacity:1;cursor:progress}
+/* The one to press next breathes a ring of its own light. */
+.tt-btn.is-nudge{animation:tt-nudge 2.4s ease-in-out infinite}
+@keyframes tt-nudge{0%,100%{box-shadow:var(--sun-btn-shadow),0 0 0 0 rgba(233,162,59,0)}50%{box-shadow:var(--sun-btn-shadow),0 0 0 6px rgba(233,162,59,.22)}}
+.tt-link{border:0;background:none;padding:0;color:var(--amber-ink);font-size:13px;font-weight:500;cursor:pointer;text-decoration:underline;text-decoration-color:var(--glow-line);text-underline-offset:3px}
+.tt-link:hover{color:var(--amber-deep);text-decoration-color:currentColor}
+.tt-chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:999px;background:#fff;color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line);
+  font-size:12.5px;font-weight:500;line-height:1;white-space:nowrap}
+.tt-chip .ti{font-size:14px}
+.tt-chip.is-ok{background:var(--ok-soft);color:var(--ok-ink);box-shadow:inset 0 0 0 1px var(--ok-line)}
+.tt-chip.is-sun{background:var(--glow);color:var(--amber-deep);box-shadow:inset 0 0 0 1px var(--glow-line)}
+.tt-chip.is-err{background:var(--err-soft);color:var(--err-ink);box-shadow:inset 0 0 0 1px var(--err-line)}
+.tt-side-r .tt-chip{height:24px;padding:0 10px;font-size:12px}
+.tt-spin{display:inline-block;animation:tt-spin .9s linear infinite}
+@keyframes tt-spin{to{transform:rotate(360deg)}}
+@keyframes tt-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes tt-pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:none}}
+
+/* --- The body: the table, and the feature beside it ---------------------------------- */
+.tt-main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 348px;gap:18px;padding:18px 24px 22px}
+.tt-main.is-flow{grid-template-rows:auto minmax(0,1fr);gap:16px 18px}
+.tt-main.is-flow .tt-canvas{grid-column:1/-1}
+.tt-card{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 1px var(--line),var(--shadow-card);overflow:hidden}
+.tt-gridbox{position:relative;flex:1 1 auto;min-height:0;overflow:auto}
+/* The table's foot and the side card's foot are the same height, as are the grid's header and
+   the side card's title line, so their lines run straight across the window. */
+.tt-foot{flex:none;display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 18px;border-top:1px solid var(--line-soft);font-size:13px;color:var(--ink-3)}
+.tt-foot>span{display:inline-flex;align-items:center;gap:7px;min-width:0}
+.tt-foot .ti{font-size:16px;flex:none}
+.tt-foot b{color:var(--ink);font-weight:500}
+.tt-foot .is-ok,.tt-foot b.is-ok{color:var(--ok-ink)}
+
+/* --- The grid ------------------------------------------------------------------------ */
+.tt-grid{width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px}
+.tt-grid th{position:sticky;top:0;z-index:2;height:44px;padding:0 12px;background:#fff;border-bottom:1px solid var(--line);text-align:left;
+  font-size:12.5px;font-weight:500;color:var(--ink-3);white-space:nowrap}
+.tt-th{display:inline-flex;align-items:center;gap:6px;vertical-align:middle}
+.tt-th .ti{font-size:14px;color:var(--faint)}
+.tt-th .tt-key{color:var(--amber)}
+.tt-grid td{height:42px;padding:0 12px;border-bottom:1px solid var(--line-soft);white-space:nowrap;color:var(--ink-2);transition:background .3s ease,color .3s ease}
+.tt-grid tbody tr:last-child td{border-bottom:0}
+.tt-grid tbody tr:hover td{background:rgba(244,184,96,.045)}
+.tt-grid .is-num{text-align:right}
+.tt-grid td.is-num{font-variant-numeric:tabular-nums;letter-spacing:-.005em}
+.tt-grid .tt-rn{width:46px;padding:0 0 0 18px;text-align:left;font-size:11.5px;color:var(--faint)}
+.tt-grid .tt-trunc{max-width:170px;overflow:hidden;text-overflow:ellipsis}
+.tt-grid .tt-key-v{color:var(--ink);font-weight:500}
+.tt-grid em{font-style:normal;color:var(--faint)}
+.tt-grid .tt-neg{color:var(--err-ink)}
+.tt-v{white-space:pre}
+/* A value a rule does not allow is underlined in red; one that could be cleaner, in amber.
+   Pointing at its rule warms the cell too. */
+.tt-grid td.is-bad{color:var(--err-ink)}
+.tt-grid td.is-bad .tt-v,.tt-grid td.is-soft .tt-v{padding-bottom:2px;background:linear-gradient(var(--err),var(--err)) 0 100%/100% 1.5px no-repeat}
+.tt-grid td.is-soft .tt-v{background-image:linear-gradient(var(--amber),var(--amber))}
+.tt-grid td.is-hot{background:var(--err-soft)}
+.tt-grid td.is-soft.is-hot{background:var(--glow)}
+/* An empty row that breaks a rule is tinted whole, its number included, rather than underlined
+   dash by dash. */
+.tt-grid tr.is-blank td.is-bad{background:rgba(207,65,65,.045)}
+.tt-grid tr.is-blank td.is-bad.is-hot{background:var(--err-soft)}
+.tt-grid tr.is-blank td.is-bad .tt-v{background:none}
+.tt-grid td.is-fixed{animation:tt-fixed 1.8s ease both}
+@keyframes tt-fixed{0%,35%{background:var(--ok-soft);color:var(--ok-ink)}100%{background:transparent}}
+.tt-grid tr.is-leaving td{animation:tt-leave .4s ease both}
+@keyframes tt-leave{to{opacity:0;background:var(--err-soft)}}
+/* A row arriving slides in from the left in the sun's light, then settles. */
+.tt-grid tr.is-in td{animation:tt-land .9s var(--ease) both}
+@keyframes tt-land{0%{opacity:0;transform:translateX(-12px);background:var(--glow)}35%{opacity:1;transform:none;background:var(--glow)}100%{background:transparent}}
+/* A column a step has just added is lit for a moment and keeps a faint warmth while a draft. */
+.tt-grid .is-new{background:rgba(244,184,96,.07)}
+.tt-grid th.is-new{color:var(--amber-deep);background:#FFFAF2}
+.tt-grid th.is-new .ti{color:var(--amber)}
+.tt-grid td.is-new{animation:tt-col .7s var(--ease) both}
+@keyframes tt-col{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+
+/* Cells are edited where they are, as in a spreadsheet: a click opens the value, Enter keeps it,
+   Esc puts it back. Pointing at an editable cell shows a pencil's worth of outline. */
+.tt-grid td.is-edit{cursor:text}
+.tt-grid td.is-edit:hover{box-shadow:inset 0 0 0 1px var(--glow-line)}
+.tt-grid td.is-editing{padding:0 6px;background:#fff;box-shadow:inset 0 0 0 2px var(--amber),0 0 0 4px rgba(233,162,59,.14);position:relative;z-index:1}
+.tt-cellin{width:100%;min-width:60px;height:30px;padding:0 8px;border:0;outline:none;background:none;font:inherit;color:var(--ink)}
+.tt-grid td.is-num .tt-cellin{text-align:right}
+.tt-grid td.is-typed{animation:tt-typed 1.6s ease both}
+@keyframes tt-typed{0%{background:var(--glow);box-shadow:inset 0 0 0 1.5px var(--amber)}60%{background:var(--glow);box-shadow:inset 0 0 0 1.5px rgba(233,162,59,0)}100%{background:transparent}}
+
+/* --- Tables: a manual table, each column set up with a type, each cell entered by it ---- */
+.tt-entry td{position:relative}
+.tt-entry th,.tt-entry td{padding-left:10px;padding-right:10px}
+/* The row number, as the app draws it (bdop's rownum): the number in mono, a tick whose target
+   lies over it, and the door to the row's details at the cell's right, shown on the row under
+   the pointer. A click picks the row: the number gives way to its ticked box and the row lifts
+   onto one shadow band, bold by an outline of its ink (a heavier weight would widen the
+   columns); while any row is picked, every row shows its box. */
+.tt-entry .tt-rn{position:relative;width:58px;min-width:58px;padding:0}
+.tt-rn-n{position:absolute;top:50%;left:19px;transform:translate(-50%,-50%);font:11.5px var(--code);color:var(--ink-4);pointer-events:none;transition:opacity .14s ease}
+.tt-tick{appearance:none;-webkit-appearance:none;position:absolute;top:0;left:0;z-index:2;width:34px;height:100%;margin:0;border:0;background:none;cursor:pointer;opacity:0;transition:opacity .14s ease}
+.tt-tick::before{content:"";position:absolute;top:50%;left:19px;width:17px;height:17px;transform:translate(-50%,-50%);border:1.6px solid rgba(20,21,24,.22);border-radius:5px;background:#fff;transition:background .12s ease,border-color .12s ease}
+.tt-tick:hover::before{border-color:var(--ink-4)}
+.tt-tick:checked::before,.tt-tick:indeterminate::before{background:var(--amber);border-color:var(--amber)}
+.tt-tick:checked::after{content:"";position:absolute;top:50%;left:19px;width:8px;height:4px;transform:translate(-50%,-70%) rotate(-45deg);border-left:2px solid #fff;border-bottom:2px solid #fff}
+.tt-tick:indeterminate::after{content:"";position:absolute;top:50%;left:19px;width:8px;height:2px;transform:translate(-50%,-50%);background:#fff}
+.tt-tick:checked,.tt-tick:indeterminate,.tt-entry.is-picking .tt-tick,.tt-entry thead tr:hover .tt-tick{opacity:1}
+.tt-tick:checked~.tt-rn-n,.tt-entry.is-picking .tt-rn-n{opacity:0}
+/* Under the pointer a row says it can be picked (owner, 2026-11-01): its number cell takes the
+   app's hover tint and the number gives way to an empty box, as Airtable and Notion show it. */
+.tt-entry tbody tr:hover td.tt-rn{background:#f8f6f2}
+.tt-entry tbody tr:hover .tt-tick{opacity:1}
+.tt-entry tbody tr:hover .tt-rn-n{opacity:0}
+.tt-door{position:absolute;top:50%;right:4px;transform:translateY(-50%);display:grid;place-items:center;width:20px;height:20px;padding:0;border:1px solid var(--line);border-radius:5px;background:#fff;color:var(--ink-4);cursor:pointer;
+  opacity:0;transition:opacity .14s ease,border-color .14s ease,color .14s ease}
+.tt-door .ti{font-size:13px}
+.tt-entry tbody tr:hover .tt-door,.tt-entry tbody tr:focus-within .tt-door,.tt-entry tr.is-open .tt-door,.tt-entry tr.is-picked .tt-door{opacity:1}
+.tt-door:hover{border-color:var(--amber);color:var(--amber-ink)}
+/* One shadow for the whole row, drawn by the row: a shadow per cell, shrunk by its spread,
+   left a gap at every column's edge and the row read as a string of tiles. */
+.tt-entry tbody tr.is-picked{position:relative;z-index:3;box-shadow:0 8px 18px -8px rgba(20,21,24,.26),0 -5px 14px -9px rgba(20,21,24,.18)}
+.tt-entry tbody tr.is-picked td{background:#fff;color:var(--ink);-webkit-text-stroke:.3px currentColor;border-bottom-color:transparent}
+.tt-entry tbody tr:has(+ tr.is-picked) td{border-bottom-color:transparent}
+.tt-entry tbody tr.is-open td{background:var(--glow)}
+.tt-pickbar{display:flex;align-items:center;gap:12px}
+.tt-pickbar b{font-size:13px;font-weight:500;color:var(--ink)}
+/* The row's details beside the table: each column's name under its type's icon, and its value. */
+.tt-rowfacts{margin:0;padding:4px 0}
+.tt-rowfacts div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:12px;align-items:center;padding:10px 18px;border-bottom:1px solid var(--line-soft)}
+.tt-rowfacts dt{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-4)}
+.tt-rowfacts dt .ti{font-size:14px}
+.tt-rowfacts dd{margin:0;font-size:13.5px;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+.tt-grid th.is-sel{background:#FFFAF2;box-shadow:inset 0 -2px 0 var(--amber)}
+.tt-grid th.is-sel .ti{color:var(--amber-deep)}
+.tt-grid td.is-sel{background:rgba(244,184,96,.05)}
+.tt-choicecell .tt-car{margin-left:6px;font-size:12px;color:var(--faint);vertical-align:-1px;opacity:0;transition:opacity .15s ease}
+.tt-choicecell:hover .tt-car,.tt-choicecell.is-open .tt-car{opacity:1}
+.tt-chs{display:inline-flex;flex-wrap:nowrap;gap:4px}
+.tt-chs.is-edit{flex-wrap:wrap}
+.tt-side-f .tt-link{flex:none;white-space:nowrap}
+.tt-ch::before{display:none}
+.tt-ch.is-c0{background:var(--glow);color:var(--amber-deep)}
+.tt-ch.is-c1{background:var(--ok-soft);color:var(--ok-ink)}
+.tt-ch.is-c2{background:#fff;color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line)}
+.tt-ch.is-c3{background:#F6EFE9;color:#7A4E2C}
+/* A list's choices open under the cell, as a menu: pointing at one is amber with dark ink. */
+.tt-pop{position:absolute;z-index:6;top:calc(100% - 4px);left:6px;min-width:170px;padding:5px;border-radius:12px;background:#fff;
+  box-shadow:inset 0 0 0 1px var(--line),var(--e4);display:flex;flex-direction:column;gap:2px;animation:tt-in .18s var(--ease) both}
+.tt-pop button{display:flex;align-items:center;justify-content:space-between;gap:10px;height:34px;padding:0 8px;border:0;border-radius:8px;background:none;cursor:pointer}
+.tt-pop button .ti{font-size:15px;color:var(--amber-ink)}
+.tt-pop button:hover,.tt-pop button[aria-selected="true"]:hover{background:var(--glow)}
+.tt-ch.is-c4{background:#EEF2EA;color:#4E6B3A}
+/* The column's head: its menu behind a chevron that shows on hover, as the app's does; a + at the
+   end of the row adds a column. */
+.tt-entry th.tt-colh{padding-right:28px;position:sticky}
+.tt-colm{position:absolute;top:50%;right:6px;width:22px;height:22px;margin-top:-11px;display:grid;place-items:center;border:0;border-radius:6px;background:none;color:var(--faint);
+  cursor:pointer;opacity:0;transition:opacity .15s ease,box-shadow .15s ease,color .15s ease}
+.tt-colh:hover .tt-colm,.tt-colm:focus-visible,.tt-colm[aria-expanded="true"]{opacity:1}
+.tt-colm:hover{box-shadow:inset 0 0 0 1px var(--glow-line);color:var(--amber-ink)}
+.tt-addcol{width:44px;padding:0!important;text-align:center}
+.tt-addcol>button{width:28px;height:28px;display:inline-grid;place-items:center;border:0;border-radius:8px;background:none;color:var(--amber-ink);cursor:pointer;
+  box-shadow:inset 0 0 0 1px var(--glow-line)}
+.tt-addcol>button:hover{background:var(--glow)}
+.tt-colmenu{left:0;right:auto;top:calc(100% + 4px);width:248px;padding:8px;gap:2px;text-align:left;font-weight:400;color:var(--ink-2);white-space:normal;cursor:default}
+.tt-colmenu.is-right{left:auto;right:0}
+.tt-colmenu>b{padding:2px 4px 6px;font-size:13.5px;font-weight:500;color:var(--ink)}
+.tt-colmenu>.tt-field{margin-bottom:4px}
+.tt-colmenu>button[role="menuitem"]{display:flex;align-items:center;justify-content:flex-start;gap:8px;height:34px;padding:0 8px;border:0;border-radius:8px;background:none;font-size:13px;color:var(--ink-2);text-align:left;cursor:pointer}
+.tt-colmenu>button[role="menuitem"] .ti{font-size:15px;color:var(--ink-4)}
+.tt-colmenu>button[role="menuitem"]:hover{background:var(--glow);color:var(--ink)}
+.tt-colmenu>button.is-danger,.tt-colmenu>button.is-danger .ti{color:var(--err-ink)}
+.tt-colmenu>button.is-danger:hover{background:var(--err-soft)}
+.tt-colmenu .tt-tag{margin-left:auto;height:20px}
+.tt-colmenu .tt-row{justify-content:flex-end}
+.tt-newcolpop{width:280px;gap:9px;padding:12px;color:var(--ink-2)}
+.tt-newcolpop .tt-fieldl{display:flex;flex-direction:column;gap:4px}
+.tt-btn.is-danger{background:var(--err);color:#fff;box-shadow:none}
+.tt-btn.is-danger:hover:not(:disabled){background:var(--err-ink);color:#fff;box-shadow:none}
+.tt-btn.is-on{background:var(--glow);box-shadow:inset 0 0 0 1px var(--glow-line);color:var(--amber-deep)}
+.tt-row{display:flex;align-items:center;gap:6px}
+.tt-row .tt-field{flex:1}
+.tt-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tt-row2 .tt-label{margin-bottom:6px}
+/* A choice from a list, as the app's SelectMenu: a button with the value, the list under it. */
+.tt-pick{position:relative}
+.tt-pick-b{width:100%;display:flex;align-items:center;gap:8px;height:36px;padding:0 10px 0 12px;border:0;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);
+  font-size:13.5px;color:var(--ink);text-align:left;cursor:pointer;transition:box-shadow .15s ease}
+.tt-pick.is-compact .tt-pick-b{height:34px}
+.tt-pick-b .ti{font-size:15px;color:var(--amber-ink)}
+.tt-pick-b span{flex:1}
+.tt-pick-b .tt-car{color:var(--faint);opacity:1;margin:0}
+.tt-pick-b:hover,.tt-pick-b[aria-expanded="true"]{box-shadow:inset 0 0 0 1px var(--glow-line)}
+.tt-pick-l{left:0;right:0;top:calc(100% + 4px);min-width:0;max-height:260px;overflow:auto}
+.tt-pick-l button{font-size:13px;color:var(--ink-2)}
+.tt-pick-l button span{display:inline-flex;align-items:center;gap:7px}
+.tt-pick-l button span .ti{font-size:14px;color:var(--amber-ink)}
+.tt-pick-l button[aria-selected="true"]{color:var(--ink);font-weight:500}
+/* Several from a list: find or add, chips to tick, how many are picked, Done. */
+.tt-multi{width:260px;padding:9px;gap:8px}
+.tt-chs.is-wrap{flex-wrap:wrap}
+.tt-chs button.tt-pill{border:0;cursor:pointer;gap:4px;opacity:.75}
+.tt-chs button.tt-pill.is-on{opacity:1;box-shadow:inset 0 0 0 1.5px currentColor}
+.tt-chs button.tt-pill .ti{font-size:12px}
+.tt-addv{display:flex;align-items:center;gap:6px;height:32px;padding:0 8px;border:0;border-radius:8px;background:var(--glow);color:var(--amber-deep);font-size:12.5px;cursor:pointer}
+.tt-multi-f{display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:1px solid var(--line-soft)}
+.tt-listv{display:flex;flex-direction:column;gap:8px}
+/* A value that does not fit its column, kept and flagged, as the app shows one. */
+.tt-flag{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:999px;background:var(--err-soft);color:var(--err-ink);font-size:12.5px;
+  box-shadow:inset 0 -1.5px 0 var(--err)}
+.tt-flag .ti{font-size:13px}
+/* Saving Manual: a changed cell waits in amber with a dot until it is saved. */
+.tt-grid td.is-pending{background:var(--glow);box-shadow:inset 0 0 0 1px var(--glow-line)}
+.tt-grid td.is-pending::after{content:"";position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--amber)}
+.tt-savebar{gap:14px}
+.tt-addrow{display:inline-flex;align-items:center;gap:5px;text-decoration:none;font-size:13px}
+.tt-addrow .ti{font-size:15px}
+.tt-saving{margin-left:auto;display:inline-flex;align-items:center;gap:10px}
+.tt-saving .tt-label{margin:0}
+.tt-unsaved{color:var(--amber-deep)!important}
+/* A cell left with a value that does not fit: the old value is back, and this says why. */
+.tt-toast{position:absolute;left:50%;bottom:66px;z-index:8;translate:-50% 0;display:flex;align-items:center;gap:8px;max-width:calc(100% - 32px);padding:10px 14px;border-radius:12px;
+  background:var(--ink);color:#fff;font-size:12.5px;box-shadow:var(--e4);animation:tt-in .25s var(--ease) both}
+.tt-toast .ti{font-size:15px;color:var(--amber-2)}
+/* The tour's line over the grid (TablesScreen, useTour): which step of four, and what it shows.
+   Centred by translate, so its arrival (tt-in, a transform) does not undo the centring. */
+.tt-tour{position:absolute;left:50%;bottom:62px;z-index:7;translate:-50% 0;display:flex;align-items:center;gap:10px;width:max-content;max-width:calc(100% - 32px);padding:8px 14px 8px 8px;border-radius:999px;
+  background:#fff;color:var(--ink-2);font-size:12.5px;line-height:1.35;box-shadow:inset 0 0 0 1px var(--glow-line),var(--shadow-lift);animation:tt-in .3s var(--ease) both}
+.tt-tour b{flex:none;padding:3px 9px;border-radius:999px;background:var(--glow-2);color:var(--amber-deep);font-size:11px;font-weight:600}
+/* On a phone the grid is short and the line would lie over its last rows: it takes a line of
+   its own right under them, the phone's one line saying what the loop is doing (the end of
+   this file). Its step mark runs in the text, so the sentence has the whole width and keeps to
+   two lines. */
+@media(max-width:600px){
+  .tt-tour{display:block;position:static;translate:none;width:auto;max-width:none;margin:6px;padding:7px 10px;border-radius:11px;font-size:var(--ph-cap);line-height:var(--ph-lh);text-wrap:pretty}
+  .tt-tour b{display:inline-block;margin-right:7px;padding:1px 7px;font-size:var(--ph-th);line-height:15px;vertical-align:1px}
+}
+/* The tour types without focusing the box, so it draws a caret of its own after the text. */
+.tt-grid td.is-typing::after{content:"";position:absolute;right:13px;top:50%;width:1.5px;height:15px;margin-top:-7.5px;background:var(--amber);animation:tt-caret 1s steps(1) infinite}
+@keyframes tt-caret{50%{opacity:0}}
+/* The History: every edit, newest first, each with its Undo. */
+.tt-hist{list-style:none;margin:0;padding:6px 0}
+.tt-hist li{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 18px;border-bottom:1px solid var(--line-soft);animation:tt-in .3s var(--ease) both}
+.tt-hist time{font-size:12px;color:var(--ink-4)}
+/* Extract (ReadScreen): the file as it arrived, read in place. Every line shares one grid - the
+   row number, the file's columns, a margin saying what the line turned out to be - so the lines
+   stay columns while they change. Lines skipped are struck and faded, the header ringed in
+   amber, a value read anew warms for a moment, a value that does not fit is ringed in red; when
+   the read is done the margin closes and the lines that are not the table close up. */
+.rd-sheet{--tpl:40px var(--cols) 136px;margin:14px 18px;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;font-size:13px;color:var(--ink-2)}
+.rd-sheet.is-done{--tpl:40px var(--cols) 0px}
+.rd-line{display:grid;grid-template-columns:var(--tpl);max-height:41px;border-bottom:1px solid var(--line-soft);
+  transition:max-height .55s var(--ease),opacity .45s var(--ease),background .4s ease,grid-template-columns .6s var(--ease)}
+.rd-line:last-child{border-bottom:0}
+.rd-line>span{display:block;min-width:0;height:40px;padding:0 8px;line-height:40px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity .4s ease,color .4s ease}
+.rd-rn{text-align:right;padding-right:10px!important;font-size:11.5px;color:var(--faint);border-right:1px solid var(--line-soft)}
+.rd-span{grid-column:2 / span var(--n)}
+.rd-c.is-num{text-align:right;font-variant-numeric:tabular-nums}
+.rd-colbar{border-bottom:1px solid var(--line)}
+.rd-ch{font-size:11.5px;font-weight:500;color:var(--ink-4);text-align:center}
+.rd-ch.is-typed{text-align:left;font-size:12.5px;color:var(--ink-2);animation:rd-type .5s var(--ease) both;animation-delay:calc(var(--i) * .09s)}
+.rd-ch.is-typed.is-num{text-align:right}
+.rd-ch .ti{margin-right:6px;color:var(--amber)}
+.rd-ch .tt-key{margin:0 0 0 5px}
+@keyframes rd-type{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.rd-line.is-title .rd-span{font-weight:600;color:var(--ink)}
+.rd-line.is-skipped>span:not(.rd-rn):not(.rd-why){opacity:.4;text-decoration:line-through;text-decoration-color:rgba(20,21,24,.35)}
+.rd-line.is-found{background:var(--glow);box-shadow:inset 3px 0 0 var(--amber)}
+.rd-line.is-found>span:not(.rd-rn):not(.rd-why){font-weight:600;color:var(--ink)}
+.rd-line.is-lifted{background:transparent;box-shadow:none}
+.rd-line.is-lifted>span:not(.rd-rn):not(.rd-why){opacity:.35}
+.rd-line.is-more .rd-span{font-size:12px;color:var(--ink-4)}
+.rd-line.is-gone{max-height:0;opacity:0;border-bottom-width:0}
+.rd-line.is-read .rd-c.is-conv{animation:rd-warm 1.6s var(--ease) both}
+@keyframes rd-warm{0%{background:var(--glow-2);color:var(--amber-deep)}100%{background:transparent}}
+.rd-c.is-bad{color:var(--err-ink);background:var(--err-soft);box-shadow:inset 0 0 0 1.5px var(--err-line)}
+.rd-bool{display:inline-block;padding:0 9px;border-radius:999px;font-size:11.5px;line-height:20px;background:var(--tint);color:var(--ink-3)}
+.rd-bool.is-yes{background:var(--ok-soft);color:var(--ok-ink)}
+.rd-why{font-size:11px;color:var(--ink-4);border-left:1px solid var(--line-soft);background:#FFFCF7}
+.rd-why:not(:empty)::before{content:"";display:inline-block;width:6px;height:6px;margin-right:7px;border-radius:50%;background:currentColor;vertical-align:1px}
+.rd-why.is-found{color:var(--amber-deep)}
+.rd-why.is-ok{color:var(--ok-ink)}
+.rd-why.is-warn{color:var(--err-ink)}
+.rd-sheet.is-done .rd-why{border-left:0;padding:0}
+/* What was done, beside it: a sentence a step, coming in as the step is taken. */
+.rd-log{display:grid;gap:12px;margin:0;padding:14px 16px;list-style:none}
+.rd-log li{display:grid;grid-template-columns:20px minmax(0,1fr);gap:9px;align-items:start;font-size:13px;line-height:1.45;color:var(--ink-2);animation:tt-in .4s var(--ease) both}
+.rd-log li .ti{margin-top:1px;font-size:16px;color:var(--amber)}
+.rd-log li.is-ok{font-weight:500;color:var(--ink)}
+.rd-log li.is-ok .ti{color:var(--ok-ink)}
+.rd-log li.is-warn .ti{color:var(--err-ink)}
+.rd-every{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.45;color:var(--ink-3)}
+.rd-every .ti{margin-top:2px;color:var(--amber)}
+/* On a phone the file is read in four columns that fit the width - the customer, whose values
+   nothing changes, lets go (--cols-sm) - in small type, and the margin goes: the line under the
+   sheet says what the read is doing instead. */
+@media(max-width:600px){
+  .rd-sheet,.rd-sheet.is-done{--tpl:26px var(--cols-sm);margin:6px;border-radius:9px;font-size:var(--ph-cell)}
+  .rd-span{grid-column:2/-1}
+  /* Stated at (0,2,0): .rd-line>span shows every cell, and the margin, with no track of its own
+     here, would start a second row. */
+  .rd-line>.rd-why{display:none}
+  .rd-line{max-height:27px}
+  .rd-line>span{height:26px;padding:0 5px;line-height:26px}
+  .rd-rn{padding-right:5px!important;font-size:var(--ph-th)}
+  .rd-ch,.rd-ch.is-typed{font-size:var(--ph-th)}
+  /* A typed header may take two lines rather than be cut short ("Číslo faktury" on 360px). */
+  .rd-colbar>.rd-ch.is-typed:not(.tt-sm-hide){display:flex;align-items:center;line-height:1.05;white-space:normal}
+  .rd-colbar>.rd-ch.is-typed.is-num{justify-content:flex-end}
+  .rd-ch .ti{margin-right:3px}
+  .rd-ch .tt-key{margin-left:3px}
+  .rd-bool{padding:0 6px;font-size:var(--ph-th);line-height:16px}
+  .rd-line.is-more .rd-span{font-size:var(--ph-chip)}
+}
+/* Ask: what is applied, behind one button in the head - its count in a small amber seal, the
+   steps in a menu under it, numbered, each with its own undo. */
+.tt-appwrap{position:relative;display:inline-flex}
+.tt-count{display:grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--glow-2);color:var(--amber-deep);font-size:10.5px;font-style:normal;font-weight:600}
+.tt-appmenu{position:absolute;top:calc(100% + 8px);right:0;z-index:20;display:grid;gap:2px;width:min(340px,80vw);padding:6px;border-radius:14px;background:#fff;
+  box-shadow:inset 0 0 0 1px var(--line),var(--e4);animation:tt-in .18s var(--ease) both}
+.tt-appstep{display:grid;grid-template-columns:20px 18px minmax(0,1fr) 28px;align-items:center;gap:8px;min-height:38px;padding:4px 4px 4px 8px;border-radius:9px;font-size:12.5px;color:var(--ink)}
+.tt-appstep:hover{background:var(--tint)}
+.tt-appstep-n{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--glow-2);color:var(--amber-deep);font-size:10.5px;font-weight:600}
+.tt-appstep>.ti{font-size:15px;color:var(--amber)}
+.tt-appstep-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tt-appstep button{display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:8px;background:none;color:var(--ink-3);cursor:pointer;transition:background .2s ease,color .2s ease}
+.tt-appstep button:hover:not(:disabled){background:var(--glow-2);color:var(--amber-deep)}
+.tt-appstep button .ti{font-size:15px}
+/* Transform's recipe: the source and each step as cards on one line, numbered on it, each
+   with its kind in small capitals, its name and what it does. */
+.tt-recipe{position:relative;list-style:none;margin:0;padding:12px 14px 6px;display:grid;gap:8px}
+.tt-recipe::before{content:"";position:absolute;left:28px;top:30px;bottom:26px;width:2px;border-radius:2px;background:linear-gradient(180deg,var(--amber),rgba(233,162,59,.18))}
+.tt-recipe li{position:relative;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start}
+.tt-rc-node{position:relative;z-index:1;display:grid;place-items:center;width:30px;height:30px;margin-top:8px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px var(--amber),0 0 0 4px #fff;color:var(--amber-deep);font-size:12px;font-weight:600}
+.tt-recipe .is-src .tt-rc-node{background:var(--glow-2);font-size:15px}
+.tt-rc-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 10px 10px 11px;border-radius:12px;background:#fff;
+  box-shadow:inset 0 0 0 1px var(--line),var(--e1);animation:tt-in .3s var(--ease) both}
+.tt-recipe .is-src .tt-rc-card{grid-template-columns:minmax(0,1fr);background:var(--glow)}
+.tt-rc-ic{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--glow-2);color:var(--amber-deep);font-size:16px}
+.tt-rc-t{display:grid;gap:2px;min-width:0}
+.tt-rc-t em{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--amber-ink)}
+.tt-rc-t b{font-size:13.5px;font-weight:500;color:var(--ink)}
+.tt-rc-t small{font-size:12px;color:var(--ink-3)}
+/* Adding a step: the three kinds as one switch, the kind's steps as tiles with a plus seal. */
+.tt-addbox{margin:6px 14px 14px;padding:12px;border-radius:14px;background:linear-gradient(180deg,var(--glow),#fff 70%);box-shadow:inset 0 0 0 1px var(--glow-line)}
+.tt-addbox-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.tt-addbox-h b{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--ink)}
+.tt-addbox-h b .ti{color:var(--amber)}
+.tt-seg.is-kinds button{font-size:12px;padding:0 10px}
+.tt-tiles{display:grid;gap:8px}
+.tt-tile{display:grid;grid-template-columns:34px minmax(0,1fr) 26px;gap:10px;align-items:center;width:100%;padding:10px;border:0;border-radius:12px;background:#fff;text-align:left;cursor:pointer;font-family:inherit;
+  box-shadow:inset 0 0 0 1px var(--line),var(--e1);transition:box-shadow .2s ease,transform .15s var(--ease)}
+.tt-tile:hover:not(:disabled){box-shadow:inset 0 0 0 1.5px var(--amber),0 10px 22px -14px rgba(233,162,59,.6);transform:translateY(-1px)}
+.tt-tile:disabled{cursor:default;opacity:.62;box-shadow:inset 0 0 0 1px var(--line-soft)}
+.tt-tile-ic{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--glow-2);color:var(--amber-deep);font-size:17px}
+.tt-tile:disabled .tt-tile-ic{background:var(--tint);color:var(--ink-4)}
+.tt-tile-t{display:grid;gap:2px;min-width:0}
+.tt-tile-t b{font-size:13px;font-weight:500;color:var(--ink)}
+.tt-tile-t small{font-size:11.5px;color:var(--ink-3)}
+.tt-tile-plus{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--amber);color:#fff;font-size:14px}
+.tt-tile:disabled .tt-tile-plus{background:var(--line)}
+/* A Calculate step's formula as typed, in the app's [Column] syntax: code on a faint amber tint. */
+.tt-formula{display:block;margin-top:3px;padding:3px 7px;border-radius:6px;background:var(--glow);box-shadow:inset 0 0 0 1px var(--glow-line);font:11.5px/1.45 var(--code);color:var(--amber-deep);white-space:normal;overflow-wrap:anywhere}
+/* The switch over the card beside a table: History or Transform. A tray of two, the open one a
+   white tile raised off it with its icon in amber, each with its count in a small amber seal. */
+.tt-views{display:inline-flex;gap:3px;padding:3px;border-radius:14px;background:rgba(20,21,24,.045);box-shadow:inset 0 0 0 1px var(--line-soft)}
+.tt-views button{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border:0;border-radius:11px;background:none;color:var(--ink-3);font-family:inherit;font-size:13.5px;font-weight:500;cursor:pointer;
+  transition:background .2s ease,color .2s ease,box-shadow .2s ease}
+.tt-views button .ti{font-size:16px}
+.tt-views button:hover{color:var(--ink)}
+.tt-views button[aria-checked="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(20,21,24,.08),0 6px 14px -8px rgba(20,21,24,.25),inset 0 0 0 1px var(--line-soft)}
+.tt-views button[aria-checked="true"] .ti{color:var(--amber)}
+.tt-views em{display:grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--glow-2);color:var(--amber-deep);font-size:10.5px;font-style:normal;font-weight:600}
+/* Who made the edit: an initial in their own colour, and their name with the time under it. */
+.tt-av{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;font-size:12px;font-weight:600;color:#fff;background:var(--ink-3)}
+.tt-av.is-you{background:var(--amber);color:var(--on-amber)}
+.tt-av.is-jana{background:#2F6FDB}
+.tt-av.is-petr{background:#1D8F55}
+.tt-hist small.tt-by{color:var(--ink-4);font-size:11.5px}
+/* A teammate's saved edit landing: the cell glows once, a soft amber that fades. */
+.tt-grid td.is-arrived{animation:tt-arrive 1.6s var(--ease)}
+@keyframes tt-arrive{0%{background:rgba(233,162,59,.42);box-shadow:inset 0 0 0 1.5px rgba(233,162,59,.8)}100%{background:transparent;box-shadow:inset 0 0 0 1.5px rgba(233,162,59,0)}}
+.tt-hist b{display:block;font-size:13px;font-weight:500;color:var(--ink);line-height:1.3}
+.tt-hist small{display:block;font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-hist s{color:var(--ink-4)}
+.tt-hist li.is-undone b,.tt-hist li.is-undone small{opacity:.5;text-decoration:line-through}
+.tt-hist-empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:34px 26px;text-align:center;color:var(--ink-3);font-size:13px;line-height:1.5}
+.tt-hist-empty .ti{font-size:24px;color:var(--amber)}
+.tt-facts{margin:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tt-facts div{padding:8px 10px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line-soft)}
+.tt-facts dt{font-size:11.5px;color:var(--ink-4)}
+.tt-facts dd{margin:2px 0 0;font-size:14px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.tt-setup code{font-size:12px;padding:1px 5px;border-radius:5px;background:var(--tint)}
+/* A typed value that does not fit is refused in a sentence under the cell, which stays open. */
+.tt-grid td.is-refused{box-shadow:inset 0 0 0 2px var(--err),0 0 0 4px rgba(207,65,65,.12)}
+.tt-cellerr{position:absolute;z-index:6;top:calc(100% + 4px);left:0;width:max-content;max-width:260px;padding:7px 10px;border-radius:10px;background:var(--ink);color:#fff;
+  font-size:12px;line-height:1.35;white-space:normal;box-shadow:var(--e4);animation:tt-in .2s var(--ease) both}
+/* The columns, and one column set up. */
+.tt-setup{display:flex;flex-direction:column;gap:14px;padding:14px 18px 18px;animation:tt-in .3s var(--ease) both}
+.tt-setup .tt-label{margin-bottom:6px}
+.tt-fieldl{display:block}
+.tt-field{width:100%;height:36px;padding:0 12px;border:0;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font-size:13.5px;color:var(--ink);outline:none;
+  transition:box-shadow .15s ease}
+.tt-field:focus{box-shadow:inset 0 0 0 1.5px var(--amber),0 0 0 4px rgba(233,162,59,.14)}
+.tt-chs.is-edit{margin-bottom:8px}
+.tt-chs.is-edit .tt-pill{padding-right:4px}
+.tt-chs.is-edit .tt-pill button{width:18px;height:18px;display:grid;place-items:center;margin-left:2px;border:0;border-radius:50%;background:none;color:inherit;cursor:pointer;opacity:.6}
+.tt-chs.is-edit .tt-pill button:hover{opacity:1;background:rgba(20,21,24,.08)}
+.tt-chs.is-edit .tt-pill .ti{font-size:12px}
+.tt-check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.tt-check input{width:16px;height:16px;accent-color:var(--amber)}
+
+.tt-pill{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:500;line-height:1}
+.tt-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.tt-pill.is-paid{background:var(--ok-soft);color:var(--ok-ink)}
+.tt-pill.is-open{background:#fff;color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line)}
+.tt-pill.is-open::before{background:var(--amber)}
+.tt-pill.is-overdue{background:var(--err-soft);color:var(--err-ink)}
+.tt-pill.is-held{background:var(--glow);color:var(--amber-deep);box-shadow:inset 0 0 0 1px var(--glow-line)}
+.tt-tag{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line)}
+.tt-tag .ti{font-size:13px}
+
+/* --- The card beside the table ------------------------------------------------------- */
+.tt-side{min-width:0;min-height:0;display:flex;flex-direction:column;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 1px var(--line),var(--shadow-card);overflow:hidden}
+.tt-side-h{flex:none;display:flex;align-items:center;gap:9px;height:44px;padding:0 10px 0 18px;border-bottom:1px solid var(--line)}
+.tt-side-h>.ti{flex:none;font-size:17px;color:var(--amber)}
+.tt-side-t{min-width:0;display:flex;align-items:baseline;gap:8px}
+.tt-side-t h5{font-size:14px;font-weight:500;line-height:1.25;color:var(--ink);white-space:nowrap}
+.tt-side-t small{font-size:12.5px;color:var(--ink-4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-side-r{margin-left:auto;flex:none;display:flex;align-items:center;gap:8px}
+.tt-side-b{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column}
+.tt-side-b>*{flex-shrink:0}
+.tt-side-f{flex:none;display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 18px;border-top:1px solid var(--line-soft)}
+.tt-side-f .tt-link{margin-left:auto}
+.tt-label{display:block;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4)}
+.tt-note{font-size:12.5px;line-height:1.45;color:var(--ink-3)}
+.tt-seg{display:inline-flex;gap:2px;padding:3px;border-radius:999px;background:var(--tint);box-shadow:inset 0 0 0 1px var(--line-soft)}
+.tt-seg button{height:24px;padding:0 12px;border:0;border-radius:999px;background:none;font-size:12.5px;font-weight:500;color:var(--ink-3);cursor:pointer;transition:background .2s ease,color .2s ease}
+.tt-seg button[aria-checked="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(20,21,24,.1),inset 0 0 0 1px var(--line)}
+.tt-seg button:hover:not([aria-checked="true"]){color:var(--ink)}
+
+/* --- Validate: the rules, and daylight passing over the table ------------------------ */
+.tt-rule{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:12px;min-height:48px;padding:5px 18px;border-bottom:1px solid var(--line-soft);
+  transition:background .2s ease}
+.tt-rule:last-child{border-bottom:0}
+.tt-rule.is-hover{background:linear-gradient(90deg,var(--glow),rgba(255,245,230,0) 85%)}
+.tt-rule-st{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:15px;color:var(--ink-4);box-shadow:inset 0 0 0 1px var(--line);transition:background .3s ease,color .3s ease}
+.tt-rule.is-run .tt-rule-st{color:var(--amber);box-shadow:inset 0 0 0 1.5px var(--glow-line)}
+.tt-rule.is-pass .tt-rule-st{background:var(--ok-soft);color:var(--ok-ink);box-shadow:none;animation:tt-pop .45s var(--ease) both}
+.tt-rule.is-fail .tt-rule-st{background:var(--err-soft);color:var(--err-ink);box-shadow:none;font-size:12.5px;font-weight:600;animation:tt-pop .45s var(--ease) both}
+.tt-rule.is-soft .tt-rule-st{background:var(--glow);color:var(--amber-deep);box-shadow:none;font-size:12.5px;font-weight:600;animation:tt-pop .45s var(--ease) both}
+.tt-rule b{display:block;font-size:13.5px;font-weight:500;line-height:1.3;color:var(--ink)}
+.tt-rule small{display:block;margin-top:2px;font-size:12.5px;line-height:1.35;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-rule.is-fail small{color:var(--err-ink)}
+.tt-rule.is-soft small{color:var(--amber-ink)}
+.tt-rule .tt-done{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:500;color:var(--ok-ink)}
+.tt-rules-g{padding:10px 18px 2px}
+.tt-rule-new{animation:tt-in .4s var(--ease) both}
+/* A column the input brought that the table does not have: drawn apart, dashed, until accepted. */
+.tt-grid .tt-newcol{background:repeating-linear-gradient(135deg,rgba(244,184,96,.07) 0 6px,rgba(244,184,96,0) 6px 12px);color:var(--amber-deep)}
+.tt-grid th.tt-newcol{box-shadow:inset 0 2px 0 var(--amber)}
+.tt-grid th.tt-newcol .ti{color:var(--amber)}
+.tt-grid .tt-newcol.is-hot{background:var(--glow)}
+/* A summary someone left under the data (owner, 2026-11-01: "under the table add another
+   pivot table that is detected and removed"): its title and a city's total a line, in the
+   sheet's own columns, quieter and shorter than the rows, the title set off by a gap. Found, it
+   is tinted as the empty row is; fixed, it is struck through, then the table closes up over it. */
+.tt-grid tr.tt-sum td{height:28px;border-bottom-color:transparent;font-size:12.5px;color:var(--ink-3);
+  transition:height .35s var(--ease),padding .35s var(--ease),font-size .35s var(--ease),opacity .3s ease,background .3s ease}
+.tt-grid tr.tt-sum.is-head td{height:38px;padding-top:10px;font-weight:600;color:var(--ink-2);box-shadow:inset 0 1px 0 var(--line-soft)}
+.tt-grid tr.tt-sum td.is-bad{color:var(--err-ink);background:rgba(207,65,65,.045)}
+.tt-grid tr.tt-sum td.is-bad.is-hot{background:var(--err-soft)}
+.tt-grid tr.tt-sum.is-struck td{opacity:.45;text-decoration:line-through;text-decoration-color:rgba(174,47,47,.5)}
+.tt-grid tr.tt-sum.is-closing td{height:0;padding-top:0;padding-bottom:0;font-size:0;line-height:0;opacity:0;box-shadow:none}
+/* A rule appolino suggests, added with one click. */
+.tt-suggest{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:10px;margin:10px 18px 4px;padding:9px 12px 9px 10px;border:0;border-radius:12px;background:#fff;text-align:left;
+  box-shadow:inset 0 0 0 1px var(--glow-line);cursor:pointer;transition:box-shadow .2s ease,transform .14s var(--ease)}
+.tt-suggest>.ti{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:15px;color:var(--amber-ink);background:var(--glow)}
+.tt-suggest b{display:block;font-size:13px;font-weight:500;color:var(--ink)}
+.tt-suggest small{display:block;font-size:12px;color:var(--ink-3)}
+.tt-suggest:hover{box-shadow:inset 0 0 0 1px var(--amber),0 10px 24px -16px rgba(233,162,59,.8);transform:translateY(-1px)}
+/* Ask in Validate shows the value no rule catches yet; in Transform, where a new column would go. */
+.tt-grid td.is-uncaught{box-shadow:inset 0 0 0 1.5px rgba(233,162,59,.55);border-radius:6px}
+.tt-grid .tt-ghost{min-width:130px;color:var(--ink-4);background:repeating-linear-gradient(135deg,rgba(20,21,24,.025) 0 6px,rgba(20,21,24,0) 6px 12px);border-left:1px dashed var(--line)}
+.tt-grid th.tt-ghost .ti{color:var(--amber)}
+.tt-kept{margin:14px 18px 16px;padding:12px 14px;border-radius:14px;background:var(--ok-soft);box-shadow:inset 0 0 0 1px var(--ok-line);color:var(--ok-ink);
+  display:flex;flex-direction:column;gap:6px;font-size:12.5px;animation:tt-in .4s var(--ease) both}
+.tt-kept b{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500}
+.tt-kept span{display:flex;gap:7px}
+.tt-kept span::before{content:"";flex:none;width:5px;height:5px;margin-top:7px;border-radius:50%;background:currentColor;opacity:.6}
+/* Validate's light: a band of the sun's warmth moves down the rows, a bright edge leading. */
+.tt-sweep{position:absolute;left:0;right:0;top:44px;bottom:0;z-index:1;overflow:hidden;pointer-events:none}
+.tt-sweep::before{content:"";position:absolute;left:0;right:0;top:-160px;height:160px;
+  background:linear-gradient(180deg,rgba(244,184,96,0),rgba(244,184,96,.12) 55%,rgba(255,221,160,.42) 93%,rgba(233,162,59,.95) 100%);
+  animation:tt-sweep 1.7s cubic-bezier(.45,.05,.35,1) both}
+@keyframes tt-sweep{0%{top:-160px;opacity:1}88%{opacity:1}100%{top:100%;opacity:0}}
+
+/* --- Import: the pipeline - three sources into one flow ------------------------------ */
+/* The canvas: the parts in a row, as the app draws a pipeline - cards joined by thin straight
+   arrows, a dot on each card's corner for how it went, nothing moving along the lines. The
+   lines are an SVG measured from the parts themselves. */
+/* The project's pipelines above the flow, as the app lists them: a dot for how the last run
+   went, the name, when it runs; the one shown is lit. */
+.tt-pipes{display:flex;align-items:center;gap:6px;padding:10px 14px 0 18px;overflow-x:auto;scrollbar-width:none}
+.tt-pipes::-webkit-scrollbar{display:none}
+.tt-pipes .tt-label{margin-right:6px}
+.tt-pipes button{flex:none;display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--ink-3);cursor:pointer;
+  box-shadow:inset 0 0 0 1px var(--line-soft);transition:background .2s ease,box-shadow .2s ease,color .2s ease}
+.tt-pipes button b{font-size:13px;font-weight:500;color:inherit}
+.tt-pipes button small{font-size:12px;color:var(--ink-4)}
+.tt-pipes button:hover:not(:disabled){box-shadow:inset 0 0 0 1px var(--glow-line);color:var(--ink)}
+.tt-pipes button[aria-selected="true"]{background:var(--glow);box-shadow:inset 0 0 0 1px var(--glow-line);color:var(--amber-deep)}
+.tt-pipes button:disabled{opacity:.5;cursor:default}
+.tt-dot{align-self:center;width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.tt-dot.is-ok{background:var(--ok)}
+.tt-dot.is-run{background:var(--amber);animation:tt-breath 1.6s ease-in-out infinite}
+.tt-dot.is-held{background:var(--err)}
+.tt-dot.is-on{background:var(--amber)}
+.tt-flow{position:relative;display:flex;align-items:center;gap:30px;padding:12px 22px 46px}
+.tt-flow>:not(svg){position:relative;z-index:1}
+.tt-wires{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:0}
+/* A line as the app draws one: faint where nothing has run, darker where the data went, dashed
+   where none did, and - up to the part working now - a dash in the sun's amber that walks along
+   it, as the app's own lines do. Each line leaves its part from a small round port. */
+/* The lines are the sun's amber (the owner): faint before a run, full where the data went,
+   walking where it is going now, dashed and pale where none went. */
+.tt-w{fill:none;stroke:rgba(233,162,59,.38);stroke-width:1.6;stroke-linecap:round;transition:stroke .3s ease}
+.tt-w.is-live{stroke:var(--amber);stroke-dasharray:6 7;animation:tt-walk 1.1s linear infinite}
+@keyframes tt-walk{to{stroke-dashoffset:-26}}
+.tt-w.is-done{stroke:var(--amber)}
+.tt-w.is-cut,.tt-w.is-branch{stroke:rgba(233,162,59,.35);stroke-dasharray:3 5}
+.tt-w.is-alert{stroke:var(--amber);stroke-dasharray:3 5}
+.tt-port{fill:#fff;stroke:rgba(233,162,59,.55);stroke-width:1.5;transition:fill .3s ease,stroke .3s ease}
+.tt-port.is-live,.tt-port.is-done{fill:var(--amber);stroke:var(--amber)}
+.tt-port.is-alert{stroke:var(--amber)}
+/* The trigger on the gates' line to alerting: nothing flows into Alerts, a held gate sets it
+   off - a small bolt seal on the dashed line, lit while the alert goes out. */
+/* Stated at (0,2,0): .tt-flow>:not(svg) (0,1,1) makes every part of the flow relative. */
+.tt-flow>.tt-trigger{position:absolute;z-index:2}
+.tt-trigger{translate:-50% -50%;display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px 0 7px;border-radius:999px;background:#fff;
+  box-shadow:inset 0 0 0 1px rgba(233,162,59,.4);font-size:11px;font-weight:500;color:var(--amber-ink);white-space:nowrap;transition:background .3s ease,color .3s ease,box-shadow .3s ease}
+.tt-trigger .ti{font-size:12px;color:var(--amber)}
+.tt-trigger.is-live,.tt-trigger.is-alert{background:var(--amber);color:#fff;box-shadow:0 0 0 4px rgba(233,162,59,.18)}
+.tt-trigger.is-live .ti,.tt-trigger.is-alert .ti{color:#fff}
+/* What a finished run has to say, under the flow, in the app's own banner. */
+.tt-banner{display:flex;align-items:center;gap:14px;margin:0 18px 14px;padding:9px 10px 9px 14px;border-radius:12px;background:var(--glow);box-shadow:inset 0 0 0 1px var(--glow-line);
+  color:var(--amber-deep);font-size:13px;line-height:1.4;animation:tt-in .35s var(--ease) both}
+.tt-banner .tt-btn{margin-left:auto;flex:none;background:#fff}
+.tt-banner .tt-btn .ti{color:var(--amber)}
+/* A value corrected from the banner and delivered: the same banner in green. */
+.tt-banner.is-ok{background:var(--ok-soft);box-shadow:inset 0 0 0 1px var(--ok-line);color:var(--ok-ink)}
+/* Its sentence on one line (owner, 2026-11-01), cut short rather than wrapped if a window is
+   too narrow for it; a phone lets it wrap. */
+.tt-banner>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-srcs{position:relative;flex:none;width:236px;display:flex;flex-direction:column;gap:6px}
+.tt-src{position:relative;display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:9px;height:42px;padding:0 8px 0 6px;border-radius:12px;background:#fff;
+  box-shadow:inset 0 0 0 1px var(--line),0 1px 2px rgba(20,21,24,.05);transition:box-shadow .3s ease}
+.tt-src b,.tt-node b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-src.is-on{box-shadow:inset 0 0 0 1px var(--amber),0 1px 2px rgba(20,21,24,.05)}
+.tt-src-ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px;color:var(--amber-ink);background:var(--glow)}
+.tt-src b{display:block;font-size:13px;font-weight:500;line-height:1.25;color:var(--ink)}
+.tt-src small{display:block;font-size:12px;line-height:1.3;color:var(--ink-4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-src .tt-tag{transition:background .3s ease,color .3s ease,box-shadow .3s ease}
+.tt-src.is-on .tt-tag{background:var(--glow);color:var(--amber-deep);box-shadow:inset 0 0 0 1px var(--glow-line)}
+/* A part the run never reached is drawn as the app draws an undelivered one: dashed and pale. */
+.tt-node.is-skip{box-shadow:none;outline:1px dashed rgba(20,21,24,.25);outline-offset:-1px;opacity:.6}
+/* The corner dot: amber while working (a slow breath), green when done, amber when alerting
+   has sent something, red where a gate held. */
+.tt-node::after,.tt-gates::after{content:"";position:absolute;top:-4px;right:-4px;width:9px;height:9px;border-radius:50%;background:transparent;transition:background .3s ease}
+.tt-node.is-run::after,.tt-gates.is-run::after{background:var(--amber);box-shadow:0 0 0 2px #fff;animation:tt-breath 1.6s ease-in-out infinite}
+.tt-node.is-done::after,.tt-gates.is-ok::after{background:var(--ok);box-shadow:0 0 0 2px #fff}
+.tt-node.is-sent::after{background:var(--amber);box-shadow:0 0 0 2px #fff}
+.tt-gates.is-hold::after{background:var(--err);box-shadow:0 0 0 2px #fff}
+@keyframes tt-breath{50%{opacity:.35}}
+.tt-node.is-sent small{color:var(--amber-ink)}
+.tt-grid tr.is-kept td{color:var(--ink-3)}
+/* The alert as the team receives it: a link to the run, never the data. */
+.tt-alert{position:relative;margin:2px 18px 16px;padding:11px 13px 11px 15px;border-radius:14px;background:#fff;display:flex;flex-direction:column;gap:6px;
+  box-shadow:inset 0 0 0 1px var(--glow-line),0 12px 28px -18px rgba(233,162,59,.75);animation:tt-in .4s var(--ease) both}
+.tt-alert::before{content:"";position:absolute;left:0;top:11px;bottom:11px;width:3px;border-radius:0 3px 3px 0;background:var(--amber)}
+.tt-alert-h{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--ink-3)}
+.tt-alert-h .ti{font-size:15px;color:var(--ink-2)}
+.tt-alert-h time{margin-left:auto;font-size:11.5px;font-weight:400;color:var(--ink-4)}
+.tt-alert p{font-size:12.5px;line-height:1.45;color:var(--ink-2)}
+.tt-alert p b{font-weight:600;color:var(--ink)}
+.tt-alert-l{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;color:var(--amber-ink)}
+.tt-alert-l .ti{font-size:13px}
+/* The quality gates: one card of three checks the whole delivery passes through. It warms while
+   it checks, and a gate that holds turns red and stops everything after it. */
+.tt-gates{position:relative;flex:1.3 1 0;min-width:0;max-width:260px;display:flex;flex-direction:column;gap:1px;padding:7px 8px 8px;border-radius:12px;background:#fff;
+  box-shadow:inset 0 0 0 1px var(--line),0 1px 2px rgba(20,21,24,.05);transition:box-shadow .3s ease}
+.tt-gates.is-run{box-shadow:inset 0 0 0 1px var(--amber),0 1px 2px rgba(20,21,24,.05)}
+.tt-gates.is-hold{box-shadow:inset 0 0 0 1px var(--err),0 1px 2px rgba(20,21,24,.05)}
+.tt-gates-h{display:flex;align-items:center;gap:6px;padding:1px 6px 5px;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4)}
+.tt-gates-h .ti{font-size:13px;color:var(--amber)}
+.tt-gate{display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;gap:9px;padding:3px 6px;border-radius:9px;transition:background .3s ease}
+.tt-gate-st{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;color:var(--ink-4);box-shadow:inset 0 0 0 1px var(--line);transition:background .3s ease,color .3s ease}
+.tt-gate-t{min-width:0;display:flex;align-items:baseline;gap:8px}
+.tt-gate b{flex:none;font-size:13px;font-weight:500;line-height:1.25;color:var(--ink)}
+.tt-gate small{min-width:0;font-size:12px;color:var(--ink-4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-gate.is-run{background:var(--glow)}
+.tt-gate.is-run .tt-gate-st{color:var(--amber);box-shadow:inset 0 0 0 1.5px var(--glow-line)}
+.tt-gate.is-ok .tt-gate-st{background:var(--ok-soft);color:var(--ok-ink);box-shadow:none;animation:tt-pop .45s var(--ease) both}
+.tt-gate.is-warn .tt-gate-st{background:var(--glow);color:var(--amber-deep);box-shadow:none;animation:tt-pop .45s var(--ease) both}
+.tt-gate.is-warn small{color:var(--amber-ink)}
+.tt-gate.is-hold{background:var(--err-soft)}
+.tt-gate.is-hold .tt-gate-st{background:var(--err);color:#fff;box-shadow:none;animation:tt-pop .45s var(--ease) both}
+.tt-gate.is-hold small{color:var(--err-ink)}
+.tt-gate.is-skip{opacity:.42}
+/* The run log: what the run did, line by line, as it happens. */
+.tt-log{list-style:none;margin:0;padding:10px 0 12px}
+.tt-log li{display:grid;grid-template-columns:58px 16px minmax(0,1fr);gap:8px;align-items:start;padding:5px 18px;font-size:12.5px;line-height:1.42;color:var(--ink-2);animation:tt-in .3s var(--ease) both}
+.tt-log time{font-size:11.5px;color:var(--ink-4);padding-top:1px}
+.tt-log li .ti{font-size:14px;margin-top:1px;color:var(--faint)}
+.tt-log li.is-ok .ti{color:var(--ok)}
+.tt-log li.is-warn .ti{color:var(--amber)}
+.tt-log li.is-error .ti{color:var(--err)}
+.tt-log li.is-error span{color:var(--err-ink)}
+.tt-log-empty{padding:16px 18px}
+/* What arrives today, as chips that say what they bring: an icon in a round seal of its tone -
+   green for a usual morning, amber for a file that changed shape, red for a bad value - and the
+   chosen one filled in its tone, its seal solid. */
+.tt-scn{gap:4px;padding:4px}
+.tt-scn button{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px 0 5px}
+.tt-scn button.is-ok{--tone:var(--ok-ink);--tone-soft:var(--ok-soft);--tone-line:var(--ok-line)}
+.tt-scn button.is-warn{--tone:var(--amber-deep);--tone-soft:var(--glow-2);--tone-line:var(--glow-line)}
+.tt-scn button.is-err{--tone:var(--err-ink);--tone-soft:var(--err-soft);--tone-line:var(--err-line)}
+.tt-scn-ic{display:grid;place-items:center;width:21px;height:21px;border-radius:50%;font-size:12.5px;background:var(--tone-soft);color:var(--tone);transition:background .2s ease,color .2s ease}
+.tt-scn button[aria-checked="true"]{background:var(--tone-soft);color:var(--tone);box-shadow:inset 0 0 0 1.5px var(--tone-line)}
+.tt-scn button[aria-checked="true"] .tt-scn-ic{background:var(--tone);color:#fff}
+.tt-scn button:disabled{cursor:default;opacity:.6}
+.tt-scn button[aria-checked="true"]:disabled{opacity:1}
+.tt-runs.is-left{margin-left:0}
+.tt-node{position:relative;flex:1 1 0;min-width:0;max-width:200px;display:flex;align-items:center;gap:10px;height:54px;padding:0 12px 0 10px;border-radius:12px;background:#fff;
+  box-shadow:inset 0 0 0 1px var(--line),0 1px 2px rgba(20,21,24,.05);transition:box-shadow .3s ease}
+.tt-node-ic{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px;color:var(--amber-ink);background:var(--glow)}
+.tt-node-t{min-width:0}
+.tt-node b{display:block;font-size:13.5px;font-weight:500;line-height:1.25;color:var(--ink)}
+.tt-node small{display:block;font-size:12px;line-height:1.3;color:var(--ink-4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-node.is-run{box-shadow:inset 0 0 0 1px var(--amber),0 1px 2px rgba(20,21,24,.05)}
+/* Under the flow the window has room for eight rows of 36px. */
+.tt-main.is-flow .tt-grid td{height:36px}
+.tt-merged{display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:0 7px;height:20px;border-radius:999px;font-size:11px;font-weight:500;color:var(--ok-ink);
+  background:var(--ok-soft);vertical-align:1px}
+.tt-merged .ti{font-size:12px}
+.tt-grid tr.is-held td{background:rgba(244,184,96,.08)}
+.tt-grid tr.is-held td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
+.tt-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;height:100%;min-height:180px;padding:24px;text-align:center;color:var(--ink-3);font-size:13px}
+.tt-empty .ti{font-size:26px;color:var(--amber)}
+/* The last runs, one bar a weekday: how long each took, in its outcome's colour. */
+.tt-runs{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink-4);white-space:nowrap}
+.tt-bars{display:flex;align-items:flex-end;gap:3px;height:20px}
+.tt-bars i{width:6px;border-radius:3px;background:var(--ok);opacity:.55}
+.tt-bars i.is-held{background:var(--amber);opacity:.85}
+.tt-bars i.is-new{opacity:1;animation:tt-grow .6s var(--ease) both;transform-origin:50% 100%}
+@keyframes tt-grow{from{transform:scaleY(0)}to{transform:none}}
+
+/* --- Transform: steps, applied in order --------------------------------------------- */
+.tt-steps{list-style:none;margin:0;padding:8px 0}
+.tt-step{position:relative;display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:12px;min-height:58px;padding:8px 18px;animation:tt-in .35s var(--ease) both}
+.tt-step+.tt-step::before{content:"";position:absolute;left:32px;top:-10px;height:20px;width:2px;background:var(--glow-line)}
+.tt-step-n{position:relative;z-index:1;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12.5px;font-weight:600;color:var(--amber-deep);
+  background:radial-gradient(circle at 50% 30%,#FFF8EC,var(--glow-2));box-shadow:inset 0 0 0 1px var(--glow-line)}
+.tt-step.is-src .tt-step-n{background:#fff;color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line)}
+.tt-step-n .ti{font-size:15px}
+.tt-step b{display:block;font-size:13.5px;font-weight:500;line-height:1.3;color:var(--ink)}
+.tt-step small{display:block;margin-top:1px;font-size:12.5px;line-height:1.35;color:var(--ink-3)}
+.tt-steps-note{padding:0 18px 12px}
+.tt-x{width:28px;height:28px;display:grid;place-items:center;border:0;border-radius:999px;background:none;color:var(--ink-4);font-size:15px;cursor:pointer;transition:background .15s ease,color .15s ease}
+.tt-x:hover{background:var(--err-soft);color:var(--err-ink)}
+.tt-adds{display:flex;flex-direction:column;gap:8px;padding:14px 18px 18px;border-top:1px solid var(--line-soft)}
+.tt-add{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:11px;padding:7px 12px 7px 8px;border:0;border-radius:14px;background:#fff;text-align:left;
+  box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;transition:box-shadow .2s ease,transform .14s var(--ease)}
+.tt-add-ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:17px;color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line-soft);transition:background .2s ease,color .2s ease}
+.tt-add b{display:block;font-size:13.5px;font-weight:500;line-height:1.3;color:var(--ink)}
+.tt-add small{display:block;font-size:12.5px;line-height:1.35;color:var(--ink-3)}
+.tt-add>.ti{font-size:17px;color:var(--faint);transition:color .2s ease}
+.tt-add:hover:not(:disabled){box-shadow:inset 0 0 0 1px var(--glow-line),0 12px 26px -16px rgba(233,162,59,.8);transform:translateY(-1px)}
+.tt-add:hover:not(:disabled) .tt-add-ic{background:var(--glow);color:var(--amber-ink);box-shadow:none}
+.tt-add:hover:not(:disabled)>.ti{color:var(--amber)}
+.tt-add:disabled{cursor:default;opacity:.5}
+.tt-add.is-nudge{animation:tt-nudge-add 2.4s ease-in-out infinite}
+@keyframes tt-nudge-add{0%,100%{box-shadow:inset 0 0 0 1px var(--line),0 0 0 0 rgba(233,162,59,0)}50%{box-shadow:inset 0 0 0 1px var(--glow-line),0 0 0 5px rgba(233,162,59,.18)}}
+/* The tables a result is built from, and the result, in one line above the steps. */
+.tt-lineage{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:12px 18px 10px;border-bottom:1px solid var(--line-soft)}
+.tt-lin-t{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:500;color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line);
+  animation:tt-pop .4s var(--ease) both}
+.tt-lin-t .ti{font-size:13px;color:var(--ink-4)}
+.tt-lin-t.is-out{background:var(--glow);color:var(--amber-deep);box-shadow:inset 0 0 0 1px var(--glow-line)}
+.tt-lin-t.is-out .ti{color:var(--amber-ink)}
+.tt-lin-t.is-saved{background:var(--ok-soft);color:var(--ok-ink);box-shadow:inset 0 0 0 1px var(--ok-line)}
+.tt-lin-t.is-saved .ti{color:var(--ok-ink)}
+.tt-lin-plus{font-size:13px;color:var(--ink-4)}
+.tt-lin-arrow{font-size:16px;color:var(--ink-4)}
+.tt-adds .tt-label{padding-top:4px}
+.tt-sql{margin:14px 18px;padding:12px 14px;border-radius:14px;box-shadow:inset 0 0 0 1px var(--line);font:400 11.5px/1.65 var(--code);font-variant-ligatures:none;color:var(--ink-2);
+  white-space:pre-wrap;animation:tt-in .3s var(--ease) both}
+.tt-sql .kw{color:var(--ink);font-weight:600}
+.tt-sql .ref{color:var(--amber-ink)}
+.tt-saved{margin:14px 18px;padding:14px;border-radius:14px;background:var(--ok-soft);box-shadow:inset 0 0 0 1px var(--ok-line);display:flex;flex-direction:column;gap:6px;
+  color:var(--ok-ink);font-size:13px;animation:tt-in .4s var(--ease) both}
+.tt-saved b{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:500}
+
+/* --- Ask: a conversation beside the table ------------------------------------------- */
+.tt-chat{display:flex;flex-direction:column;gap:14px;padding:16px 16px 18px}
+.tt-msg{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;animation:tt-in .35s var(--ease) both}
+.tt-av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 40%,#FFF8EC,var(--glow-2));box-shadow:inset 0 0 0 1px var(--glow-line)}
+.tt-av img{width:40px;height:40px;margin:-2px 0 0;max-width:none}
+.tt-msg-b{display:flex;flex-direction:column;gap:8px;min-width:0;font-size:13.5px;line-height:1.45;color:var(--ink-2)}
+.tt-msg-b p b{font-weight:500;color:var(--ink)}
+.tt-you{align-self:flex-end;max-width:88%;padding:9px 14px;border-radius:18px 18px 5px 18px;background:var(--ink);color:#fff;font-size:13.5px;line-height:1.4;animation:tt-in .3s var(--ease) both}
+.tt-noticed{display:flex;flex-direction:column;gap:6px}
+.tt-noticed button{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;min-height:38px;padding:7px 10px 7px 12px;border:0;border-radius:12px;background:#fff;
+  box-shadow:inset 0 0 0 1px var(--line);text-align:left;font-size:13px;cursor:pointer;transition:box-shadow .2s ease}
+.tt-noticed button .ti{font-size:15px;color:var(--amber)}
+.tt-noticed button span{color:var(--ink-2)}
+.tt-noticed button i:last-child{color:var(--faint)}
+.tt-noticed button:hover:not(:disabled){box-shadow:inset 0 0 0 1px var(--glow-line),0 8px 20px -14px rgba(233,162,59,.8)}
+.tt-noticed button:hover:not(:disabled) i:last-child{color:var(--amber)}
+.tt-noticed button:disabled{opacity:.5;cursor:default}
+.tt-sent{border-radius:12px;box-shadow:inset 0 0 0 1px var(--line);padding:9px 12px;display:flex;flex-direction:column;gap:5px;animation:tt-in .3s var(--ease) both}
+.tt-sent-h{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--ink-2)}
+.tt-sent-h .ti{font-size:14px;color:var(--ok)}
+.tt-sent dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;font-size:12px}
+.tt-sent dt{color:var(--ink-4)}
+.tt-sent dd{margin:0;font:400 11.5px var(--code);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-wait{display:flex;gap:4px;padding:8px 2px}
+.tt-wait b{width:6px;height:6px;border-radius:50%;background:var(--amber);opacity:.3;animation:tt-wait 1s ease-in-out infinite}
+.tt-wait b:nth-child(2){animation-delay:.15s}
+.tt-wait b:nth-child(3){animation-delay:.3s}
+@keyframes tt-wait{50%{opacity:1;transform:translateY(-2px)}}
+.tt-draft{display:flex;flex-direction:column;gap:8px;padding:12px 13px;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 1px var(--glow-line),0 12px 28px -18px rgba(233,162,59,.7)}
+.tt-draft .tt-label{color:var(--amber-ink)}
+.tt-draft b{font-size:14px;font-weight:500;color:var(--ink)}
+.tt-draft p{font-size:13px;color:var(--ink-3)}
+.tt-draft .acts{display:flex;align-items:center;gap:12px;margin-top:2px}
+.tt-draft.is-applied{background:var(--ok-soft);box-shadow:inset 0 0 0 1px var(--ok-line)}
+.tt-draft.is-applied .tt-label{color:var(--ok-ink)}
+.tt-draft.is-gone{opacity:.55}
+.tt-sqlline{display:block;padding:6px 8px;border-radius:8px;background:var(--tint);font:400 11px/1.45 var(--code);color:var(--ink-2);white-space:pre-wrap;word-break:break-word}
+.tt-mini{width:100%;border-collapse:collapse;font-size:12px}
+.tt-mini th{padding:4px 6px;text-align:left;font-weight:500;color:var(--ink-4);border-bottom:1px solid var(--line-soft)}
+.tt-mini td{padding:4px 6px;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+.tt-mini tr:last-child td{border-bottom:0}
+.tt-mini .was{color:var(--ink-4);text-decoration:line-through;text-decoration-color:var(--faint)}
+.tt-mini .now{color:var(--amber-deep);font-weight:500}
+.tt-mode{display:flex;flex-direction:column;gap:8px;padding-left:38px;animation:tt-in .3s var(--ease) both}
+.tt-mode .tt-note b{font-weight:500;color:var(--ink)}
+.tt-ask .tt-seg button{padding:0 10px}
+.tt-try{display:flex;flex-wrap:wrap;gap:6px}
+.tt-try button{display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:5px 12px;border:0;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);
+  font-size:12.5px;line-height:1.3;text-align:left;color:var(--ink-2);cursor:pointer;transition:box-shadow .2s ease,color .2s ease}
+.tt-try button .ti{font-size:14px;color:var(--amber)}
+.tt-try button:hover:not(:disabled){box-shadow:inset 0 0 0 1px var(--glow-line),0 6px 16px -10px rgba(233,162,59,.8);color:var(--ink)}
+.tt-try button:disabled{opacity:.5;cursor:default}
+.tt-ask .tt-side-f{padding:6px 12px}
+.tt-composer{display:flex;align-items:center;gap:8px;height:44px;padding:0 4px 0 14px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);
+  transition:box-shadow .2s ease}
+.tt-composer:focus-within{box-shadow:inset 0 0 0 1.5px var(--amber),0 0 0 5px rgba(233,162,59,.14)}
+.tt-composer>.ti{font-size:17px;color:var(--amber)}
+.tt-composer input{flex:1;min-width:0;height:36px;border:0;outline:none;background:none;font-size:13.5px;color:var(--ink)}
+.tt-composer input::placeholder{color:var(--ink-4)}
+.tt-composer .tt-btn{width:36px;height:36px;padding:0}
+.tt-meter{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-4)}
+.tt-meter .ti{font-size:13px}
+
+/* --- Narrow windows: one column that flows with the page - the head's buttons on a line of
+   their own, the feature under the table, the pipeline's parts folded into a grid. Nothing
+   scrolls inside the window but a wide table and a long list, so a thumb never gets caught. --- */
+@media(max-width:860px){
+  .tt{height:auto}
+  .tt-head{flex-wrap:wrap;gap:10px 12px;min-height:0;padding:12px 16px}
+  .tt-head-ic{width:36px;height:36px;border-radius:11px;font-size:18px}
+  .tt-head-t{flex:1 1 200px}
+  .tt-head-t h4{font-size:17px}
+  .tt-head-t small{white-space:normal}
+  .tt-head-acts{flex:1 1 100%;margin-left:0;flex-wrap:wrap;gap:8px}
+  .tt-scn{max-width:100%;overflow-x:auto;scrollbar-width:none}
+  .tt-scn::-webkit-scrollbar{display:none}
+  .tt-scn button{flex:none}
+  .tt-main,.tt-main.is-flow{display:flex;flex-direction:column;gap:14px;padding:14px 14px 18px}
+  .tt-main>*{flex:none}
+  .tt-card,.tt-side{min-height:0}
+  .tt-gridbox{max-height:380px}
+  .tt-side-b{max-height:460px}
+  .tt-flow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;padding:12px}
+  .tt-srcs,.tt-gates{grid-column:1/-1;width:auto;max-width:none;margin-bottom:4px}
+  .tt-wires,.tt-trigger{display:none}
+  .tt-node{max-width:none;height:52px;padding:0 9px;gap:8px}
+  .tt-banner{flex-wrap:wrap;margin:0 12px 12px}
+  .tt-banner>span{white-space:normal}
+  .tt-banner .tt-btn{margin-left:0}
+  .tt-runs{display:none}
+  .tt-ask .tt-side-h{height:auto;flex-wrap:wrap;gap:6px 9px;padding:8px 10px 8px 16px}
+  .tt-mode{padding-left:0}
+}
+/* --- Phones: one view a tab, the table and what is happening to it together (owner,
+   2026-11-01: "the tables are not visible at all on small screens - make it smaller, make it
+   make sense"; "merge these visuals, the table with what is happening, changing based on the
+   loop, so everyone understands; everything visible; a smaller table so it shows more at a
+   distance"). The head is a title line with its button; the table is scaled down - 11px,
+   headers 10px, rows 26px, the three or four columns that tell the story, the rest let go
+   (tt-sm-hide) - and fits the width; right under it one line says what the loop is doing now,
+   while the screen marks the cell it is about. The card beside the table steps aside but for
+   what that line needs: Extract's step being taken is the line, Validate keeps its rules as a
+   small board, Ask its conversation short. Nothing here reaches a wider window. --- */
+@media(max-width:600px){
+  /* The phone's own type scale, one for all five tabs, not the desktop's squeezed (owner,
+     2026-11-01: "the text should probably have a different size than on big screens"). */
+  .tt{--ph-title:15px;--ph-sub:11.5px;--ph-cap:12.5px;--ph-cell:11px;--ph-th:10px;--ph-chip:10.5px;--ph-btn:12.5px;--ph-lh:1.35}
+  .tt .tt-sm-hide{display:none}
+  /* The head: the title on the icon's line and the button at its end, the line about it under
+     both; Tables' switch, or Ask's promise, on a line of their own under that. */
+  .tt-head{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:6px 10px;min-height:0;padding:10px 12px}
+  .tt-head:has(.tt-appwrap){grid-template-columns:30px minmax(0,1fr) auto auto}
+  .tt-head-ic{grid-column:1;grid-row:1;width:30px;height:30px;border-radius:10px;font-size:16px}
+  .tt-head-t,.tt-head-acts{display:contents}
+  .tt-head-t h4{grid-column:2;grid-row:1;display:block;min-width:0;font-size:var(--ph-title);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tt-head-t small{grid-column:1/-1;grid-row:2;margin:0;font-size:var(--ph-sub);line-height:var(--ph-lh);white-space:normal;text-wrap:balance;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+  .tt-head-acts>*{grid-column:3;grid-row:1}
+  .tt-head-acts>.tt-appwrap{grid-column:4}
+  .tt-head-acts>.tt-views,.tt-head-acts>.tt-chip{grid-column:1/-1;grid-row:3}
+  .tt-head-acts>.tt-chip{justify-self:start}
+  .tt-head-acts>.tt-scn{display:none}
+  .tt-head .tt-btn{height:30px;padding:0 12px;gap:5px;font-size:var(--ph-btn)}
+  .tt-head .tt-btn .ti{font-size:14px}
+  .tt-head .tt-btn.is-icon{width:30px;padding:0}
+  /* Deliver's pipelines have long names ("Bank statements pipeline"): its Run button is its
+     icon alone - a spinner while it runs - so the name is read whole; the line under the table
+     says what runs. The word stays for a screen reader. */
+  .tt-head:has(.tt-scn) .tt-btn.is-primary{width:30px;padding:0;gap:0;font-size:0}
+  .tt-head .tt-chip{height:22px;padding:0 9px;gap:5px;font-size:var(--ph-chip)}
+  .tt-head .tt-chip .ti{font-size:12px}
+  .tt-views{display:flex;width:100%;padding:2px;border-radius:11px}
+  .tt-views button{flex:1;justify-content:center;height:28px;padding:0 10px;gap:6px;border-radius:9px;font-size:var(--ph-btn)}
+  .tt-views button .ti{font-size:14px}
+  .tt-views em{min-width:16px;height:16px;font-size:var(--ph-th)}
+
+  /* The table, scaled down so the whole of it shows at once. */
+  .tt-main,.tt-main.is-flow{gap:8px;padding:8px 8px 12px}
+  .tt-card,.tt-side{border-radius:12px}
+  .tt-gridbox{max-height:none}
+  .tt-grid{font-size:var(--ph-cell)}
+  /* A header may take two lines, so a long name ("Amount (CZK)") does not widen its column past
+     what its values need. */
+  .tt-grid th{height:26px;padding:0 6px;font-size:var(--ph-th);line-height:1.1;white-space:normal}
+  .tt-grid td,.tt-main.is-flow .tt-grid td{height:26px;padding:0 6px}
+  .tt-th{gap:3px}
+  .tt-th .ti{font-size:11px}
+  .tt-grid .tt-rn{width:22px;padding:0 0 0 8px;font-size:var(--ph-th)}
+  .tt-grid .tt-trunc{max-width:110px}
+  .tt-pill{height:17px;gap:4px;padding:0 6px;font-size:var(--ph-th)}
+  .tt-pill::before{width:5px;height:5px}
+  .tt-flag{height:18px;gap:3px;padding:0 6px;font-size:var(--ph-chip)}
+  .tt-flag .ti{font-size:11px}
+  .tt-merged{height:16px;gap:2px;margin-left:5px;padding:0 5px;font-size:var(--ph-th)}
+  .tt-merged .ti{font-size:10px}
+  .tt-cellin{min-width:40px;height:22px;padding:0 4px}
+  .tt-grid td.is-typing::after{right:7px;height:12px;margin-top:-6px}
+  .tt-cellerr{max-width:200px;padding:5px 8px;font-size:var(--ph-sub);line-height:var(--ph-lh)}
+  .tt-entry .tt-rn{display:none}
+  .tt-entry th.tt-colh{padding-right:18px}
+  .tt-colm{right:1px;width:16px;height:16px;margin-top:-8px}
+  .tt-addcol{width:28px}
+  .tt-addcol>button{width:22px;height:22px;border-radius:7px}
+  /* The product stays put should a column the visitor adds make the table scroll sideways. */
+  .tt-entry td:nth-child(2){position:sticky;left:0;z-index:1;background:#fff}
+  .tt-entry thead th:nth-child(2){left:0;z-index:3}
+  .tt-colmenu,.tt-newcolpop{width:min(260px,calc(100vw - 72px))}
+  .tt-foot{min-height:38px;padding:6px 12px;gap:8px;font-size:var(--ph-sub);line-height:var(--ph-lh)}
+  .tt-foot .ti{font-size:14px}
+  /* Tables' foot on one line: the head counts the rows already. */
+  .tt-savebar{flex-wrap:wrap;row-gap:6px}
+  .tt-savebar>*{white-space:nowrap}
+  .tt-savebar>.tt-addrow+span{display:none}
+  .tt-addrow{font-size:var(--ph-btn)}
+  .tt-saving{gap:8px}
+  .tt-saving .tt-label{font-size:var(--ph-th)}
+  .tt-saving .tt-seg button{height:22px;padding:0 10px;font-size:var(--ph-chip)}
+
+  /* The cards beside the table step aside: Tables' History, whose edits the line under the
+     grid names as they land, and Deliver's run log, whose run the flow shows part by part.
+     Transform's steps, a column being set up and a row's details still open under the table
+     when the visitor asks for them. */
+  .tt-side:has(.tt-hist),.tt-side:has(.tt-hist-empty),.tt-main.is-flow>.tt-side{display:none}
+  .tt-side-h{height:36px;padding:0 10px 0 12px;gap:7px}
+  .tt-side-h>.ti{font-size:15px}
+  .tt-side-t h5{font-size:var(--ph-btn)}
+  .tt-side-t small{font-size:var(--ph-th)}
+  .tt-side-r .tt-chip{height:20px;padding:0 8px;font-size:var(--ph-chip)}
+  .tt-side-b{max-height:300px}
+  .tt-side-f{min-height:42px;padding:6px 12px;gap:10px}
+  .tt-side-f .tt-btn{height:30px;padding:0 13px;font-size:var(--ph-btn)}
+  .tt-side-f .tt-note{font-size:var(--ph-sub);line-height:var(--ph-lh)}
+  .tt-side-r .tt-seg button{height:22px;padding:0 9px;font-size:var(--ph-chip)}
+  .tt-side-r .tt-btn.is-icon,.tt-side-r .tt-x{width:26px;height:26px}
+  .tt-foot .tt-link{flex:none;white-space:nowrap;font-size:var(--ph-sub)}
+
+  /* Transform's steps, under the result when it is open: the same cards and tiles, a size
+     down to the phone's scale, so the recipe reads as a list and not a squeeze. */
+  .tt-lineage{gap:5px;padding:8px 10px}
+  .tt-lin-t{height:22px;gap:4px;padding:0 8px;font-size:var(--ph-chip)}
+  .tt-lin-t .ti{font-size:12px}
+  .tt-recipe{gap:6px;padding:8px 10px 4px}
+  .tt-recipe::before{left:21px;top:22px;bottom:20px}
+  .tt-recipe li{grid-template-columns:24px minmax(0,1fr);gap:8px}
+  .tt-rc-node{width:24px;height:24px;margin-top:6px;font-size:var(--ph-th)}
+  .tt-recipe .is-src .tt-rc-node{font-size:13px}
+  .tt-rc-card{gap:8px;padding:7px 8px;border-radius:10px}
+  .tt-rc-ic{width:24px;height:24px;border-radius:7px;font-size:13px}
+  .tt-rc-t em{font-size:9px}
+  .tt-rc-t b{font-size:var(--ph-btn)}
+  .tt-rc-t small{font-size:var(--ph-sub);line-height:var(--ph-lh)}
+  .tt-formula{font-size:var(--ph-th)}
+  .tt-steps-note{padding:0 10px 8px}
+  .tt-addbox{margin:4px 10px 10px;padding:9px}
+  .tt-addbox-h b{font-size:var(--ph-btn)}
+  .tt-seg.is-kinds button{padding:0 8px;font-size:var(--ph-chip)}
+  .tt-tiles{gap:6px}
+  .tt-tile{grid-template-columns:28px minmax(0,1fr) 22px;gap:8px;padding:7px}
+  .tt-tile-ic{width:28px;height:28px;border-radius:8px;font-size:14px}
+  .tt-tile-t b{font-size:var(--ph-btn)}
+  .tt-tile-t small{font-size:var(--ph-sub);line-height:var(--ph-lh)}
+  .tt-tile-plus{width:22px;height:22px;font-size:12px}
+  .tt-sql{margin:10px;padding:10px;font-size:var(--ph-th)}
+  .tt-saved{margin:10px;padding:10px;font-size:var(--ph-sub)}
+  .tt-saved b{font-size:var(--ph-btn)}
+  /* A column being set up, or a row's details, opened from the table. */
+  .tt-setup{gap:10px;padding:10px 12px 12px}
+  .tt-rowfacts div{padding:7px 12px}
+  .tt-rowfacts dt{font-size:var(--ph-sub)}
+  .tt-rowfacts dd{font-size:var(--ph-cell)}
+
+  /* Extract: the step being taken is the line under the sheet, in the tour line's dress; the
+     steps before it, the card's title and its foot step aside, and so does the sheet's foot. */
+  .tt-main:has(.rd-log)>.tt-card>.tt-foot{display:none}
+  .tt-side:has(.rd-log){border-radius:11px;box-shadow:inset 0 0 0 1px var(--glow-line),var(--shadow-lift)}
+  .tt-side:has(.rd-log) .tt-side-h,.tt-side:has(.rd-log) .tt-side-f{display:none}
+  .tt-side:has(.rd-log:empty){visibility:hidden}
+  .rd-log{min-height:44px;align-content:center;padding:6px 10px}
+  .rd-log li:not(:last-child){display:none}
+  .rd-log li{grid-template-columns:16px minmax(0,1fr);gap:8px;font-size:var(--ph-cap);line-height:var(--ph-lh);text-wrap:pretty}
+  .rd-log li .ti{margin-top:1px;font-size:14px}
+
+  /* Validate: the rules as a board under the table, two to a line, each its answer and its
+     name; the one being fixed is lit. What each found is marked in the grid above it. */
+  .tt-main:has(.tt-rule)>.tt-card>.tt-foot,.tt-rules-g,.tt-suggest{display:none}
+  .tt-side:has(.tt-rule) .tt-side-b{max-height:none}
+  .tt-side:has(.tt-rule) .tt-side-b>div:first-child{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 4px;padding:6px}
+  .tt-rule{grid-template-columns:20px minmax(0,1fr);gap:6px;min-height:28px;padding:3px 6px;border:0;border-radius:8px}
+  .tt-rule-st{width:20px;height:20px;font-size:11px}
+  .tt-rule.is-fail .tt-rule-st,.tt-rule.is-soft .tt-rule-st{font-size:var(--ph-th)}
+  .tt-rule b{font-size:var(--ph-chip);font-weight:500;line-height:1.2}
+  .tt-rule small,.tt-rule .tt-btn,.tt-rule .tt-done{display:none}
+  .tt-rule.is-hover{background:var(--glow);box-shadow:inset 0 0 0 1px var(--glow-line)}
+  .tt-grid tr.tt-sum td{height:22px;font-size:var(--ph-cell)}
+  .tt-grid tr.tt-sum.is-head td{height:28px;padding-top:6px}
+  .tt-kept{margin:4px 8px 8px;padding:8px 10px;gap:4px;border-radius:10px;font-size:var(--ph-sub);line-height:var(--ph-lh)}
+  .tt-kept b{font-size:var(--ph-btn)}
+  .tt-kept span::before{margin-top:6px}
+
+  /* Deliver: the flow as a stepper down one rail (owner, 2026-11-01: "the Deliver pipeline on
+     smaller screens should be more stunning") - the three sources as one step with their
+     tags, the read, the four gates as a checklist ticking in turn, the table, and alerts, set
+     off by a dashed rail and lit only when a gate holds, as nothing flows into them. Each
+     step's mark sits on the rail: amber and breathing while it works, a green tick when done,
+     red where a gate held; the rail beside a step turns amber once the run reaches it. The
+     pipelines' strip and the run log step aside; the line under the table says what runs. */
+  .tt-pipes{display:none}
+  .tt-flow{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:10px 10px 10px 34px}
+  .tt-flow>.tt-srcs,.tt-flow>.tt-node,.tt-flow>.tt-gates{position:relative;flex:none;width:auto;max-width:none;height:auto;min-height:34px;margin:0;border-radius:10px}
+  /* The sources: their count, then each one's tag, lit while it is read. */
+  .tt-flow>.tt-srcs{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:5px;padding:5px 10px 5px 6px;background:#fff;
+    box-shadow:inset 0 0 0 1px var(--line),0 1px 2px rgba(20,21,24,.05);transition:box-shadow .3s ease}
+  .tt-flow>.tt-srcs:has(.is-on){box-shadow:inset 0 0 0 1px var(--amber),0 1px 2px rgba(20,21,24,.05)}
+  .tt-srcs-n{display:inline-flex;align-items:center;gap:8px;margin-right:auto}
+  .tt-srcs-n b{font-size:var(--ph-chip);font-weight:500;color:var(--ink)}
+  .tt-src{display:contents}
+  .tt-src-ic,.tt-src .tt-node-t{display:none}
+  .tt-flow .tt-tag{height:18px;padding:0 6px;font-size:9px;letter-spacing:.04em}
+  /* The read, the table and alerts: icon, name and what it did, on one line. */
+  .tt-flow>.tt-node{flex-direction:row;justify-content:flex-start;gap:8px;padding:5px 10px 5px 6px}
+  .tt-node-ic{width:22px;height:22px;border-radius:7px;font-size:12px}
+  .tt-node-t{display:flex;align-items:baseline;gap:7px;min-width:0}
+  .tt-node b{flex:none;font-size:var(--ph-chip)}
+  .tt-node small{min-width:0;font-size:var(--ph-th)}
+  /* The gates: a checklist, one gate a line, each ticking as it passes. */
+  .tt-flow>.tt-gates{display:flex;flex-direction:column;gap:1px;padding:6px 8px 7px}
+  .tt-gates-h{padding:0 2px 3px;font-size:9px}
+  .tt-gates-h .ti{font-size:11px}
+  .tt-gate{grid-template-columns:16px minmax(0,1fr);gap:7px;padding:1px 2px;border-radius:7px}
+  .tt-gate-st{width:16px;height:16px;font-size:10px}
+  .tt-gate-t{gap:6px}
+  .tt-gate b{font-size:var(--ph-chip)}
+  .tt-gate small{font-size:var(--ph-th)}
+  /* The rail: beside each step and the gap above it, faint until the run reaches the step. */
+  .tt-flow>.tt-srcs::before,.tt-flow>.tt-node::before,.tt-flow>.tt-gates::before{content:"";position:absolute;left:-15px;top:-7px;bottom:-1px;width:2px;border-radius:2px;
+    background:rgba(233,162,59,.22);transition:background .3s ease}
+  .tt-flow>.tt-srcs::before{top:50%}
+  .tt-flow>.tt-srcs:has(.is-on)::before,.tt-flow:has(>[data-part="read"]:is(.is-run,.is-done))>.tt-srcs::before,
+  .tt-flow>:is(.is-run,.is-done,.is-ok,.is-hold)::before{background:var(--amber)}
+  .tt-flow>.tt-gates.is-hold::before{background:var(--err)}
+  /* Each step's mark on the rail. */
+  .tt-flow>.tt-srcs::after,.tt-flow>.tt-node::after,.tt-flow>.tt-gates::after{content:"";position:absolute;top:50%;left:-21px;right:auto;z-index:2;display:grid;place-items:center;
+    width:14px;height:14px;margin-top:-7px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px rgba(20,21,24,.18);font:9px/1 "tabler-icons";color:#fff;animation:none}
+  .tt-flow>.tt-srcs:has(.is-on)::after,.tt-flow>.is-run::after{background:var(--amber);box-shadow:0 0 0 4px rgba(233,162,59,.2);animation:tt-breath 1.6s ease-in-out infinite}
+  .tt-flow>.tt-node.is-done::after,.tt-flow>.tt-gates.is-ok::after,.tt-flow:has(>[data-part="read"].is-done)>.tt-srcs::after{content:"\ea5e";background:var(--ok);box-shadow:none;animation:none}
+  .tt-flow>.tt-gates.is-hold::after{content:"\eb55";background:var(--err);box-shadow:none;animation:none}
+  .tt-flow>.tt-node.is-skip::after{box-shadow:inset 0 0 0 1.5px rgba(20,21,24,.1)}
+  /* Alerts: apart, on a dashed rail, quiet until a gate holds and the alert goes out. */
+  .tt-flow>[data-part="alert"]::before{bottom:50%;background:repeating-linear-gradient(180deg,rgba(233,162,59,.4) 0 3px,transparent 3px 6px)}
+  .tt-flow>[data-part="alert"].is-sent::before{background:repeating-linear-gradient(180deg,var(--amber) 0 3px,transparent 3px 6px)}
+  .tt-flow>[data-part="alert"]:not(.is-sent){opacity:.6;box-shadow:inset 0 0 0 1px var(--line-soft)}
+  .tt-flow>[data-part="alert"]:not(.is-sent)::after{content:"";background:#fff;box-shadow:inset 0 0 0 1.5px rgba(20,21,24,.15);animation:none}
+  .tt-flow>[data-part="alert"].is-sent::after{background:var(--amber);box-shadow:0 0 0 4px rgba(233,162,59,.2)}
+  /* The line saying what runs heads the table, right under the stepper, so it is in view while
+     the rows land under it; the table keeps the height of its rows while they do. */
+  .tt-main.is-flow .tt-tour{order:-1}
+  .tt-main.is-flow .tt-gridbox{min-height:235px}
+  .tt-main.is-flow .tt-empty{min-height:235px;font-size:var(--ph-sub)}
+
+  /* Ask: the conversation under the table, short and kept at its newest message, so the
+     question, the draft and its Apply are seen beside the cells they change. */
+  .tt-main:has(.tt-ask)>.tt-card>.tt-foot{display:none}
+  .tt-grid .tt-ghost{min-width:72px}
+  .tt-ask .tt-side-h{flex-wrap:nowrap;height:36px;padding:0 6px 0 12px}
+  .tt-ask .tt-seg button{height:22px;padding:0 8px;font-size:var(--ph-chip)}
+  .tt-ask .tt-side-b{max-height:190px}
+  .tt-chat{gap:8px;padding:8px 10px}
+  .tt-msg{grid-template-columns:22px minmax(0,1fr);gap:8px}
+  .tt-msg .tt-av{width:22px;height:22px}
+  .tt-msg .tt-av img{width:32px;height:32px}
+  .tt-msg-b{gap:6px;font-size:var(--ph-cap);line-height:var(--ph-lh)}
+  .tt-you{padding:6px 11px;font-size:var(--ph-cap);line-height:var(--ph-lh)}
+  .tt-noticed button{min-height:28px;padding:4px 8px;font-size:var(--ph-sub)}
+  .tt-sent{padding:6px 10px}
+  .tt-sent-h{font-size:var(--ph-sub)}
+  .tt-sent dl,.tt-sent dd{font-size:var(--ph-th)}
+  .tt-draft{gap:5px;padding:8px 10px}
+  .tt-draft b{font-size:var(--ph-cap)}
+  .tt-draft p{font-size:var(--ph-sub)}
+  .tt-mini{font-size:var(--ph-cell)}
+  .tt-mini th,.tt-mini td{padding:2px 5px}
+  .tt-mode .tt-note{font-size:var(--ph-sub);line-height:var(--ph-lh)}
+  .tt-try button{min-height:24px;padding:3px 9px;font-size:var(--ph-sub)}
+  .tt-ask .tt-side-f{min-height:0;padding:6px 8px}
+  .tt-composer{height:38px}
+  .tt-composer .tt-btn{width:30px;height:30px}
+}
+@media(prefers-reduced-motion:reduce){.tt *,.tt *::before,.tt *::after{animation:none!important;transition:none!important}}

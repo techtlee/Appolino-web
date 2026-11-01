@@ -1,19 +1,137 @@
-import { useLayoutEffect, useRef, useState } from "react";
-import mark from "../assets/appolino-mark.svg";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import sun from "../assets/appolino-sun.svg";
+import { FLAGS } from "../flags";
+import { useLang, useSetLang, useT, type Lang } from "../i18n";
 
-export const NAV: [string, string][] = [
-  ["try", "Try it"],
-  ["platform", "Platform"],
-  ["why", "Why Appolino"],
-  ["czech", "Czech data"],
-  ["security", "Security"],
-  ["changelog", "Changelog"],
+/** The sections the nav links to, named in English and Czech, as a product site's bar names
+ *  them (owner, 2026-11-01: Platform, Solutions, About, Contact): the platform is the demo,
+ *  the solutions what a team gets back - About and the country-specific data are part of
+ *  Solutions now (owner, 2026-11-01: "merge them together"), so About left the bar. The
+ *  security section stays in the bar, named Trust (owner, 2026-11-01: "security name put there
+ *  trust"); its id is still #security. The footer links to every section (FOOTER). */
+export const NAV: [string, string, string][] = [
+  ["try", "Platform", "Platforma"],
+  ["why", "Solutions", "Řešení"],
+  ["security", "Trust", "Důvěra"],
+  ["contact", "Contact", "Kontakt"],
 ];
+
+/** Every part of the page, for the footer's Product column. */
+export const FOOTER: [string, string, string][] = [
+  ["try", "Platform", "Platforma"],
+  ["platform", "Deliver", "Doručení"],
+  ["why", "Solutions", "Řešení"],
+  ["security", "Trust", "Důvěra"],
+  ...(FLAGS.changelog ? [["changelog", "Changelog", "Novinky"] as [string, string, string]] : []),
+];
+
+/** The language, as the best product sites place it (Stripe, Vercel, the Awwwards winners): a
+ *  quiet control in the bar beside the one action - a globe and the code of the language now
+ *  shown - opening a small menu that names each language in its own words, the current one
+ *  ticked. It closes on a choice, a click outside or Esc. */
+function LangSwitch() {
+  const lang = useLang();
+  const setLang = useSetLang();
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => !box.current?.contains(e.target as Node) && setOpen(false);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    addEventListener("pointerdown", away);
+    addEventListener("keydown", esc);
+    return () => {
+      removeEventListener("pointerdown", away);
+      removeEventListener("keydown", esc);
+    };
+  }, [open]);
+  const opts: [Lang, string, string][] = [
+    ["en", "EN", "English"],
+    ["cs", "CZ", "Čeština"],
+  ];
+  return (
+    <span className={`lang${open ? " is-open" : ""}`} ref={box}>
+      <button type="button" className="lang-btn" aria-haspopup="menu" aria-expanded={open} aria-label="Language / Jazyk" onClick={() => setOpen((o) => !o)}>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3 12h18M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9M12 3c-2.6 2.8-3.9 5.8-3.9 9s1.3 6.2 3.9 9" />
+        </svg>
+        <b>{lang === "cs" ? "CZ" : "EN"}</b>
+        <svg className="lang-car" viewBox="0 0 24 24" width="12" height="12" aria-hidden>
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {open && (
+        <span className="lang-menu" role="menu">
+          {opts.map(([l, short, name]) => (
+            <button
+              key={l}
+              type="button"
+              role="menuitemradio"
+              aria-checked={lang === l}
+              lang={l}
+              onClick={() => {
+                setLang(l);
+                setOpen(false);
+              }}
+            >
+              <span>{name}</span>
+              <small>{short}</small>
+              {lang === l && (
+                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden>
+                  <path d="M5 12.5l4.5 4.5L19 7.5" />
+                </svg>
+              )}
+            </button>
+          ))}
+        </span>
+      )}
+    </span>
+  );
+}
+
+/** The name as the logo sets it: lower case, the i dotless (U+0131) and its
+ *  dot a disc of the sun's amber drawn over the stem - the logo sheet's own
+ *  construction, a size and a height in em, so it is the same mark at any
+ *  size. The link around it carries the name for screen readers. */
+export function Wordmark() {
+  return (
+    <span className="prod wordmark">
+      appol<span className="i">ı</span>no
+    </span>
+  );
+}
+
+type Bar = "clear" | "night" | "day";
+
+/** The bar's look from where the page is: clear over the top of the sky,
+ *  night glass further down it, day once the rising light section has
+ *  reached the bar - the night is pinned, so this is a matter of scroll. */
+function useBarLook(): Bar {
+  const [look, setLook] = useState<Bar>("clear");
+  useEffect(() => {
+    const set = () => {
+      const bar = document.querySelector<HTMLElement>("header.top")?.offsetHeight ?? 68;
+      // Day once the light's soft edge - a fifth of the window tall - is under the bar.
+      setLook(scrollY < 24 ? "clear" : scrollY < innerHeight * 0.8 - bar ? "night" : "day");
+    };
+    set();
+    addEventListener("scroll", set, { passive: true });
+    addEventListener("resize", set);
+    return () => {
+      removeEventListener("scroll", set);
+      removeEventListener("resize", set);
+    };
+  }, []);
+  return look;
+}
 
 /** Brand, the nav beside it, actions on the right; a line of light under the section in view. */
 export function Header({ active }: { active: string }) {
   const navRef = useRef<HTMLElement>(null);
   const [ind, setInd] = useState({ left: 0, width: 0, opacity: 0 });
+  const look = useBarLook();
+  const t = useT();
 
   useLayoutEffect(() => {
     const place = () => {
@@ -23,29 +141,28 @@ export function Header({ active }: { active: string }) {
     place();
     addEventListener("resize", place);
     return () => removeEventListener("resize", place);
-  }, [active]);
+  }, [active, t]);
 
   return (
-    <header className="top">
+    <header className={look === "day" ? "top daylight" : look === "clear" ? "top clear" : "top"}>
       <div className="wrap">
-        <a href="#top" className="brand" aria-label="Appolino, back to top">
-          <img className="mark" src={mark} alt="" />
-          <span className="prod">Appolino</span>
+        <a href="#top" className="brand" aria-label={t("appolino, back to top", "appolino, zpět nahoru")}>
+          <img className="mark" src={sun} alt="" />
+          <Wordmark />
         </a>
-        <nav className="nav" ref={navRef} aria-label="Sections">
-          {NAV.map(([id, t]) => (
+        <nav className="nav" ref={navRef} aria-label={t("Sections", "Sekce")}>
+          {NAV.map(([id, en, cs]) => (
             <a key={id} href={`#${id}`} data-id={id} className={active === id ? "on" : ""}>
-              {t}
+              {t(en, cs)}
             </a>
           ))}
           <span className="nav-ind" style={ind} />
         </nav>
+        {/* One clear action, as a product site's bar has it, and the language beside it. */}
         <div className="top-actions">
-          <a className="btn2" href="#try">
-            Try it
-          </a>
+          {FLAGS.czech && <LangSwitch />}
           <a className="btn" href="#contact">
-            Book a demo
+            {t("Book a demo", "Domluvit ukázku")}
           </a>
         </div>
       </div>

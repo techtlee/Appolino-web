@@ -1,47 +1,91 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import mark from "../assets/appolino-mark.svg";
 import { runSun } from "./sunField";
 import { prefersLessMotion } from "../motion";
-import { ImportPanel } from "./Import";
-import { ValidatePanel } from "./Demo";
-import { TransformPanel } from "./Transform";
-import { ChecksPanel } from "./Checks";
-import { AskPanel } from "./Ask";
-import { PipelinePanel } from "./Flow";
-import { JobsPanel } from "./Runs";
-import { AccessPanel } from "./Access";
+import { Statement } from "./Statement";
+import { TablesScreen } from "../app/TablesScreen";
+import { ImportScreen } from "../app/ImportScreen";
+import { ValidateScreen } from "../app/ValidateScreen";
+import { AskScreen } from "../app/AskScreen";
+import { ReadScreen } from "../app/ReadScreen";
+import { useLang, useT } from "../i18n";
 
-type TabId = "import" | "validate" | "checks" | "transform" | "ask" | "pipelines" | "jobs" | "access";
+type TabId = "tables" | "import" | "validate" | "deliver" | "ask";
 
-/** Each tab is a screen of the app: which rail item it lives under, its
- *  breadcrumb, and the live panel it shows. */
-const TABS: { id: TabId; label: string; rail: string; crumbs: string[]; panel: (go: (t: TabId) => void) => ReactNode }[] = [
-  { id: "import", label: "Import", rail: "Tables", crumbs: ["Tables", "Upload a file"], panel: (go) => <ImportPanel onNext={() => go("validate")} /> },
-  { id: "validate", label: "Validate", rail: "Tables", crumbs: ["Tables", "Faktury", "Validate"], panel: () => <ValidatePanel /> },
-  { id: "checks", label: "Checks", rail: "Checks", crumbs: ["Checks", "Faktury"], panel: () => <ChecksPanel /> },
-  { id: "transform", label: "Transform", rail: "Results", crumbs: ["Results", "New result table", "from Faktury"], panel: () => <TransformPanel /> },
-  { id: "ask", label: "\u2726 Ask", rail: "Tables", crumbs: ["Tables", "Faktury", "\u2726 Ask"], panel: () => <AskPanel /> },
-  { id: "pipelines", label: "Pipelines", rail: "Pipelines", crumbs: ["Pipelines", "Monthly invoices"], panel: () => <PipelinePanel /> },
-  { id: "jobs", label: "Jobs", rail: "Jobs", crumbs: ["Jobs"], panel: () => <JobsPanel /> },
-  { id: "access", label: "Access", rail: "Tables", crumbs: ["Tables", "Faktury", "Who sees what"], panel: () => <AccessPanel /> },
+/** Each tab presents one thing appolino does, on example data (src/app):
+ *  only the table and the part of appolino that acts on it, not the whole
+ *  app around them, named in English and Czech. In the order the work goes
+ *  (owner, 2026-11-01): Extract first and open, then Transform - the table a
+ *  team fills in and the steps that build on it, one tab - then Validate,
+ *  Deliver and Ask. Every tab plays by itself until the visitor takes over. */
+const TABS: { id: TabId; en: string; cs: string; screen: () => ReactNode }[] = [
+  // Named Extract, as the step is in the trade's own words - extract, transform, validate,
+  // deliver (owner, 2026-11-01: "replace Import with Extract"). Extract is the reading itself -
+  // a file read where it lands; Deliver is the scheduled run that writes it into the table
+  // through the quality gates, with its run log and alerts, which Extract showed before (owner,
+  // 2026-11-01: "maybe Extract and Deliver should be switched"; Deliver "like that jobs log").
+  { id: "import", en: "Extract", cs: "Extrakce", screen: () => <ReadScreen /> },
+  { id: "tables", en: "Transform", cs: "Transformace", screen: () => <TablesScreen /> },
+  { id: "validate", en: "Validate", cs: "Validace", screen: () => <ValidateScreen /> },
+  { id: "deliver", en: "Deliver", cs: "Doručení", screen: () => <ImportScreen /> },
+  { id: "ask", en: "✦ Ask", cs: "✦ Zeptat se", screen: () => <AskScreen /> },
 ];
 
-/** Rail items that open a screen of the demo; the rest are shown, not live. */
-const RAIL_TAB: Record<string, TabId> = { Tables: "import", Results: "transform", Checks: "checks", Pipelines: "pipelines", Jobs: "jobs" };
+/** How far `el` has come up into the window: 0 while its top is still at
+ *  the bottom edge or below, 1 once it has risen `over` of the window's
+ *  height. */
+function risen(el: HTMLElement, over: number): number {
+  return Math.min(1, Math.max(0, (innerHeight - el.getBoundingClientRect().top) / (innerHeight * over)));
+}
 
-const RAIL: [string, string[]][] = [
-  ["Workspace", ["Home", "Tables", "Results", "Checks"]],
-  ["Automation", ["Pipelines", "Jobs", "Connections"]],
-];
+/** The window comes up out of the day as it scrolls into view - leaning
+ *  back at first, upright once its top is two fifths of the way up the
+ *  screen, so it is square by the time anyone stops to look at it, on a
+ *  short laptop screen as on a tall one: --p on the section, 0 to 1, which
+ *  the stylesheet turns into the tilt. The words over it come up out of a
+ *  blur a moment before, within the first three tenths of the screen:
+ *  --intro. */
+function riseWithScroll(section: HTMLElement, intro: HTMLElement, stage: HTMLElement): () => void {
+  let raf = 0;
+  const set = () => {
+    raf = 0;
+    section.style.setProperty("--intro", risen(intro, 0.3).toFixed(3));
+    section.style.setProperty("--p", risen(stage, 0.4).toFixed(3));
+  };
+  const on = () => {
+    if (!raf) raf = requestAnimationFrame(set);
+  };
+  set();
+  addEventListener("scroll", on, { passive: true });
+  addEventListener("resize", on);
+  return () => {
+    cancelAnimationFrame(raf);
+    removeEventListener("scroll", on);
+    removeEventListener("resize", on);
+  };
+}
 
 export function Showcase() {
   const [tab, setTab] = useState<TabId>("import");
+  const lang = useLang();
+  const tr = useT();
   const tabsRef = useRef<HTMLDivElement>(null);
   const [ind, setInd] = useState({ left: 0, width: 0 });
   const sun = useRef<HTMLCanvasElement>(null);
+  const section = useRef<HTMLElement>(null);
+  const intro = useRef<HTMLDivElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (sun.current) return runSun(sun.current, prefersLessMotion());
+  }, []);
+
+  useEffect(() => {
+    const el = section.current;
+    const words = intro.current;
+    const st = stage.current;
+    if (!el || !words || !st) return;
+    if (prefersLessMotion()) return;
+    return riseWithScroll(el, words, st);
   }, []);
 
   useLayoutEffect(() => {
@@ -52,73 +96,43 @@ export function Showcase() {
     place();
     addEventListener("resize", place);
     return () => removeEventListener("resize", place);
-  }, [tab]);
+  }, [tab, lang]);
 
   const t = TABS.find((x) => x.id === tab)!;
 
   return (
-    <section className="showcase" id="try">
-      <div className="wrap">
-        <span className="dawn-glow" aria-hidden />
-        <canvas className="dawn" ref={sun} aria-hidden />
-        <div className="tabs" role="tablist" aria-label="Screens of Appolino" ref={tabsRef}>
-          {TABS.map((x) => (
-            <button key={x.id} role="tab" id={`tab-${x.id}`} aria-selected={tab === x.id} aria-controls="screen" onClick={() => setTab(x.id)}>
-              {x.label}
-            </button>
-          ))}
-          <span className="tab-ind" style={ind} aria-hidden />
+    <section className="showcase ground" ref={section}>
+      {/* The sun stands on the horizon - this section's top edge - not on the window. */}
+      <span className="dawn-glow" aria-hidden />
+      <canvas className="dawn" ref={sun} aria-hidden />
+      {/* The first thing the day shows: what appolino is for, pinned while it lights up;
+          the demo comes after it, and "Try it" links land on the demo, not on this. */}
+      <Statement />
+      <div className="wrap" id="try">
+        <div className="show-intro" ref={intro}>
+          <p className="eyebrow">{tr("At first light", "Za úsvitu")}</p>
+          <h2>{tr("Daylight on every number.", "Denní světlo na každém čísle.")}</h2>
+          <p className="lede">
+            {tr(
+              "By sunrise, the work is done: processes simplified, information validated and every step documented and traceable.",
+              "Než vyjde slunce, je hotovo: procesy zjednodušené, informace ověřené a každý krok zdokumentovaný a dohledatelný.",
+            )}
+          </p>
         </div>
-        <div className="win-wrap">
-          <div className="win" role="tabpanel" id="screen" aria-labelledby={`tab-${tab}`}>
-            <aside className="win-side" aria-label="Appolino navigation">
-              <div className="win-org" aria-hidden>
-                <img src={mark} alt="" />
-                Severka a.s.
-                <span>▾</span>
-              </div>
-              {RAIL.map(([grp, items]) => (
-                <div key={grp}>
-                  <div className="grp" aria-hidden>
-                    {grp}
-                  </div>
-                  {items.map((it) =>
-                    RAIL_TAB[it] ? (
-                      <button
-                        key={it}
-                        className={`it${it === t.rail ? " on" : ""}`}
-                        aria-current={it === t.rail ? "page" : undefined}
-                        onClick={() => it !== t.rail && setTab(RAIL_TAB[it])}
-                      >
-                        <i />
-                        {it}
-                      </button>
-                    ) : (
-                      <div key={it} className="it off" aria-hidden>
-                        <i />
-                        {it}
-                      </div>
-                    ),
-                  )}
-                </div>
-              ))}
-              <div className="win-user" aria-hidden>
-                <b>JN</b>
-                Jana Nováková
-              </div>
-            </aside>
-            <div className="win-main">
-              <div className="win-bar">
-                {t.crumbs.map((c, i) => (
-                  <span key={c} className={i === t.crumbs.length - 1 ? "" : "crumb"}>
-                    {i === t.crumbs.length - 1 ? <b>{c}</b> : c}
-                    {i < t.crumbs.length - 1 && <span className="crumb"> / </span>}
-                  </span>
-                ))}
-              </div>
-              <div className="win-body" key={tab}>
-                {t.panel(setTab)}
-              </div>
+        <div className="stage" ref={stage}>
+          <div className="tabs" role="tablist" aria-label={tr("Screens of appolino", "Obrazovky appolina")} ref={tabsRef}>
+            {TABS.map((x) => (
+              <button key={x.id} role="tab" id={`tab-${x.id}`} aria-selected={tab === x.id} aria-controls="screen" onClick={() => setTab(x.id)}>
+                {tr(x.en, x.cs)}
+              </button>
+            ))}
+            <span className="tab-ind" style={ind} aria-hidden />
+          </div>
+          <div className="win-wrap app">
+            {/* Keyed by the language too: a switch starts the screen afresh in the other
+                language, its example data with it. */}
+            <div className="win app" role="tabpanel" id="screen" aria-labelledby={`tab-${tab}`} key={`${tab}-${lang}`}>
+              {t.screen()}
             </div>
           </div>
         </div>

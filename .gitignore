@@ -4,3 +4,13 @@ dist
 .DS_Store
 *.local
 .vite
+previews
+# The end-to-end suite's output (tests/e2e); its baselines, under tests/e2e/__screenshots__, are committed.
+test-results
+playwright-report
+blob-report
+# Internal working documents, kept on this machine and never pushed (owner, 2026-11-01): the
+# design system and the AI assistant's notes.
+DESIGN.md
+docs/design-system.md
+CLAUDE.md

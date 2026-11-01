@@ -5,34 +5,85 @@
 @font-face{font-family:'Google Sans Flex';font-weight:1 1000;font-display:swap;
   src:url(./assets/google-sans-flex-latin-ext.woff2) format('woff2');
   unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
-/* Layout: a centred hero over a tabbed window of the app, then one column of sections on a 20px dot grid; thin lines for structure, orange only where it lights something. */
-:root{
+/* Layout: a night sky over the hero, the sun rising on the horizon at the top of a tabbed
+   window of the app, and daylight under it: one column of light sections. Thin lines for
+   structure, orange only where it lights something.
+   Night is the root and the app window (.night); day is everything under the horizon
+   (.daylight), the same tokens turned over - navy ink on white paper. */
+:root,.night{
   color-scheme:dark;
+  /* Amber as text: bright on navy, deepened on white to stay readable. */
+  --sun-text:var(--sun); --sun-text-2:var(--sun-2);
+  --field-shade:rgba(0,0,0,.5);
   --bg:#0E1526; --bg-2:#141D33; --bg-3:#1A2540;
   --fg:#EEF2FB; --fg-2:#BCC5D8; --fg-3:#8590A8; --fg-4:#717C94;
   --accent:#95ADD8; --accent-dim:#3E5A8E; --accent-hover:#4C6BA1; --problem:#A7B4CC;
   /* The sun of the mark, and the navy it sits on: orange is the light on the page. */
   --sun:#E9A23B; --sun-2:#F4B860; --sun-dim:#C97F23; --sun-ink:#1F2A44; --navy:#1F2A44; --cream:#F2EFE6;
   --grad-sun:linear-gradient(90deg,#F4B860,#E9A23B);
+  /* Height, as bdop sets it (its ui-ux-and-app-flow, "Light and depth"): one light straight
+     above, so every shadow falls straight down under its box (x = 0, never sideways), inked
+     with the navy, never black; each a hairline of the ink for the edge, then soft falls of
+     growing blur. e1 a card at rest, e2 opened, e3 lifted or under the pointer, e4 what floats
+     (a menu). A card does not rise under the pointer; only what can be pressed answers with
+     height (owner, 2026-11-01: "shadow centred on the boxes everywhere, the same standard as
+     bdop"). */
+  --shadow-ink:222deg 83% 19%;
+  --e1:0 0 0 1px hsl(var(--shadow-ink) / .065),0 1px 1px hsl(var(--shadow-ink) / .04),0 2px 3px -1px hsl(var(--shadow-ink) / .06),0 4px 8px -3px hsl(var(--shadow-ink) / .07);
+  --e2:0 0 0 1px hsl(var(--shadow-ink) / .06),0 1px 1px hsl(var(--shadow-ink) / .05),0 3px 4px -1px hsl(var(--shadow-ink) / .06),0 6px 10px -2px hsl(var(--shadow-ink) / .07),0 12px 20px -4px hsl(var(--shadow-ink) / .08);
+  --e3:0 0 0 1px hsl(var(--shadow-ink) / .05),0 2px 2px hsl(var(--shadow-ink) / .06),0 4px 6px -1px hsl(var(--shadow-ink) / .07),0 8px 14px -2px hsl(var(--shadow-ink) / .08),0 16px 28px -4px hsl(var(--shadow-ink) / .1),0 28px 48px -8px hsl(var(--shadow-ink) / .13);
+  --e4:0 0 0 1px hsl(var(--shadow-ink) / .07),0 2px 3px hsl(var(--shadow-ink) / .07),0 6px 10px -2px hsl(var(--shadow-ink) / .08),0 12px 24px -4px hsl(var(--shadow-ink) / .1),0 24px 44px -8px hsl(var(--shadow-ink) / .13),0 44px 80px -14px hsl(var(--shadow-ink) / .18);
   --line:rgba(226,232,228,.07); --line-2:rgba(226,232,228,.13); --line-3:rgba(226,232,228,.22);
   --font:'Google Sans Flex','Geist',Inter,ui-sans-serif,system-ui,sans-serif;
   --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
-  --fs-h1:clamp(40px,6.2vw,72px); --fs-h2:clamp(30px,4.2vw,46px); --fs-lede:clamp(17px,1.8vw,20px);
+  /* Type for every screen (owner, 2026-11-01: "optimize text size for every screen size"):
+     headings, ledes and section intros grow and shrink with the window - a part fixed, a part
+     of the width - between a phone's floor and a large screen's ceiling, rather than standing
+     at one size until a breakpoint: h1 38px on a phone, about 74px at 1440, 80px from 1580;
+     h2 28px to 50px; a lede 16px to 21px; an intro 15px to 17.5px. Small labels, chips and the
+     demo window keep their own sizes. */
+  --fs-h1:clamp(38px,4.2vw + 14px,80px); --fs-h2:clamp(28px,2vw + 18px,50px); --fs-lede:clamp(16px,.55vw + 13px,21px);
+  --fs-intro:clamp(15px,.25vw + 13px,17.5px);
   --r:14px; --r-pill:999px;
   /* The app's motion: a settle, a spring, a page turn. */
   --ease:cubic-bezier(.2,.8,.2,1); --spring:cubic-bezier(.2,.9,.25,1.3); --turn:cubic-bezier(.6,0,.2,1);
 }
+/* Day is neutral: charcoal ink on white, with no blue in it - the blue stays in the night
+   sky above, and amber is the one colour. Surfaces are white, never grey: the demo window,
+   tables, panels and cards (--bg-2) are told apart by their thin lines and soft shadows,
+   not by a fill (the owner, 2026-10-31). Grey (--bg-3) is left only to small chips and
+   tags; selection and hover keep their own faint tints. */
+.daylight{
+  color-scheme:light;
+  --bg:#FFFFFF; --bg-2:#FFFFFF; --bg-3:#EEEEEA;
+  --fg:#141518; --fg-2:#2C2E33; --fg-3:#5C5F66; --fg-4:#76797F;
+  --accent:#A35E0B; --accent-dim:#2C2E33; --accent-hover:#7E4708; --problem:#5C5F66;
+  /* Badges, step marks and the avatar sit on a light amber here, not on black. */
+  --sun-text:#A35E0B; --sun-text-2:#8A4F08; --navy:#FCEBD2;
+  --field-shade:rgba(20,21,24,.05);
+  --line:rgba(20,21,24,.07); --line-2:rgba(20,21,24,.12); --line-3:rgba(20,21,24,.2);
+  color:var(--fg-2);
+}
+.night{color:var(--fg-2)}
+.ground{background:var(--bg)}
 *{box-sizing:border-box}
 body{margin:0}
 img{max-width:100%}
 [hidden]{display:none!important}
 html{background:var(--bg);scroll-behavior:smooth;scroll-padding-top:84px}
 body{color:var(--fg-2);font-family:var(--font);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;
-  background:radial-gradient(circle,rgba(188,197,216,.12) .9px,transparent 1.4px) 10px 10px/20px 20px,var(--bg)}
+  background:var(--bg)}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
 /* The dawn's glow is wider than a phone; clip it sideways without making main a scroller. */
 main{overflow-x:clip}
 .wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+/* A large screen gives the page a little more width, so it does not sit small in the middle of
+   a 2560 display; its text has reached its ceiling by then (--fs-*). */
+@media(min-width:1800px){
+  .wrap{max-width:1400px}
+  /* ...and from there the headings go on growing a little with it: h1 to about 92px at 2560. */
+  :root{--fs-h1:clamp(80px,3.6vw,104px);--fs-h2:clamp(50px,2.3vw,60px);--fs-lede:clamp(21px,.95vw,25px);--fs-intro:clamp(17.5px,.72vw,19px)}
+}
 @media(min-width:720px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
 h1,h2,h3,h4{margin:0;color:var(--fg);text-wrap:balance}
 h1{font-size:var(--fs-h1);font-weight:450;line-height:1.05;letter-spacing:-.03em}
@@ -41,226 +92,700 @@ h3{font-size:20px;font-weight:500;letter-spacing:-.012em;line-height:1.2}
 p{margin:0}
 .label{font-size:13px;color:var(--fg-4);font-variant-numeric:tabular-nums}
 .lede{font-size:var(--fs-lede);color:var(--fg-3);line-height:1.35;max-width:52ch}
-.intro{color:var(--fg-3);max-width:62ch}
+.intro{font-size:var(--fs-intro);color:var(--fg-3);max-width:62ch}
 .note{font-size:13px;color:var(--fg-4)}
-.empty{padding:24px 0;color:var(--fg-3)}
 a{color:var(--accent)}
 :focus-visible{outline:2px solid var(--sun);outline-offset:3px;border-radius:6px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .grad-text{background:var(--grad-sun);-webkit-background-clip:text;background-clip:text;color:transparent}
 
-/* Buttons: pills. The sun one leads, the grey one follows. */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:12px 24px;border-radius:var(--r-pill);border:0;cursor:pointer;color:var(--sun-ink);font:500 16px var(--font);text-decoration:none;white-space:nowrap;
-  background:radial-gradient(ellipse 85% 130% at 50% 55%,var(--sun-dim) 0%,var(--sun) 62%,var(--sun-2) 100%);
-  box-shadow:inset 0 0 0 1px rgba(255,220,160,.6),inset 1px 1px 0 rgba(255,241,214,.7),inset 0 0 14px rgba(255,200,120,.35),0 10px 28px -12px rgba(233,162,59,.9);
-  transition:transform .14s var(--ease),box-shadow .2s ease,filter .2s ease}
-.btn:hover{transform:translateY(-1px);filter:brightness(1.07)}
-.btn:active{transform:translateY(1px);filter:brightness(.95)}
-.btn:disabled{opacity:.5;cursor:default;transform:none;filter:none}
-.btn.sm{min-height:36px;padding:8px 16px;font-size:14px}
-.btn2{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:12px 22px;border-radius:var(--r-pill);border:0;cursor:pointer;color:var(--fg);font:500 16px var(--font);text-decoration:none;white-space:nowrap;
-  background:rgba(188,197,216,.08);box-shadow:inset 0 0 0 1px var(--line-2);transition:background .2s ease,transform .14s var(--ease),box-shadow .2s ease}
-.btn2:hover{background:rgba(188,197,216,.13);box-shadow:inset 0 0 0 1px var(--line-3);transform:translateY(-1px)}
-.btn2.sm{min-height:36px;padding:8px 16px;font-size:14px}
+/* Buttons, plain (owner, 2026-11-01: "simpler"): a flat pill of the sun's amber, and an
+   outlined one beside it - no gradient, glow or arrow. Under the pointer the first lightens
+   and the second takes a faint fill. */
+.btn,.btn2{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 22px;border-radius:var(--r-pill);border:0;cursor:pointer;
+  font:500 15px/1 var(--font);text-decoration:none;white-space:nowrap;transition:background .18s ease,box-shadow .18s ease}
+/* White on a vivid amber (owner, 2026-11-01: "why is the text in the yellow buttons not white -
+   put it there", after navy on the bright sun). White on the bright sun itself is about 2:1 and
+   barely reads, and the 4.5:1 WCAG AA asks of text this size needs the brown #AB630E the owner
+   found dull; the fill is the sun's amber a step deeper, #DE9228 - the hero's own colour
+   (owner, 2026-11-01: "use the colour like in the hero"), then "slightly darker, for better
+   visibility" of the white on it, about 2.5:1, the owner's choice; it went #D47B0B, #DD8714,
+   #E9A23B - with a shadow under the letters to hold them. Under the pointer and when pressed
+   it deepens, so the contrast only grows, as the button guide the owner pointed to asks (designerup.co, "UI
+   design pro tips: buttons"). One radius for every button, the full pill; generous padding; the
+   label never wraps; every state drawn - hover, pressed, focus, disabled. The second button is
+   an outline clear enough to be seen (the guide: ghost buttons are easily missed). */
+.btn{color:#fff;font-weight:600;background:#DE9228;text-shadow:0 1px 1px rgba(110,55,0,.3)}
+.btn:hover{background:#D0861F}
+.btn:active{background:#C17A18}
+.btn:disabled{opacity:.5;cursor:default;background:#DE9228}
+.btn2{color:var(--fg);background:transparent;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.42)}
+.btn2:hover{background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.62)}
+.btn2:active{background:rgba(255,255,255,.14)}
+.daylight .btn2{box-shadow:inset 0 0 0 1.5px rgba(20,21,24,.32)}
+.daylight .btn2:hover{background:rgba(20,21,24,.04);box-shadow:inset 0 0 0 1.5px rgba(20,21,24,.5)}
+.btn:focus-visible,.btn2:focus-visible{outline:2px solid var(--sun-2);outline-offset:3px}
+/* A finger needs some 44px (WCAG 2.5.5): on a touch screen every button is at least that tall. */
+@media(pointer:coarse){.btn,.btn2,.top .btn,.top .btn2{min-height:44px}}
 .ghost{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--fg-3);text-decoration:none;background:none;border:0;font:500 16px var(--font);cursor:pointer;padding:0;transition:color .2s ease}
 .ghost:hover{color:var(--fg)}
 .ghost:disabled{opacity:.4;cursor:default}
-.ghost.sm{min-height:36px;font-size:14px}
-.ghost .ar{transition:transform .2s var(--ease)}
-.ghost:hover .ar{transform:translateX(3px)}
-.tag{display:inline-block;padding:4px 10px;border-radius:var(--r-pill);font-size:13px;color:var(--sun-ink);font-weight:500;background:var(--sun);box-shadow:inset 0 0 0 1px rgba(255,220,160,.6)}
-.tag.quiet{background:transparent;color:var(--fg-3);box-shadow:inset 0 0 0 1px var(--line-2)}
-.card{border:1px solid var(--line-2);border-radius:var(--r);background:linear-gradient(160deg,rgba(188,197,216,.06),rgba(188,197,216,.02) 45%,rgba(188,197,216,.04))}
 .glass{border:1px solid var(--line-2);border-radius:var(--r);background:rgba(188,197,216,.04);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-.ok-line{display:flex;gap:10px;align-items:center;color:var(--fg-2);font-size:15px;animation:tray-pop .34s var(--spring) both}
-.ok-line b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--sun);color:var(--sun-ink);font-size:12px;font-weight:500}
+/* On white a card is paper raised off the page, not a tint. */
+.daylight .glass{background:#fff;box-shadow:var(--e2)}
 
 /* Header: brand, the nav beside it, actions on the right */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(14,21,38,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(14,21,38,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);transition:background .35s ease,border-color .35s ease}
+/* At the top of the page the bar is no bar at all: the sky runs up behind it. Scrolled,
+   it is a pane of night glass; past the horizon it turns to day with the page under it. */
+.top.clear{background:transparent;border-bottom-color:transparent;backdrop-filter:none;-webkit-backdrop-filter:none}
+.top.daylight{background:rgba(255,255,255,.84)}
 .top .wrap{display:flex;align-items:center;gap:8px;height:68px}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:12px}
-.brand .mark{width:28px;height:28px;border-radius:7px;display:block}
-.brand .prod{color:var(--fg);font-weight:500;font-size:19px;letter-spacing:-.01em}
+/* The lockup as the logo sheet sets it, the sun a little closer: its box is mostly its own
+   air - beams above the disc, its light on the water below - so the box is drawn larger
+   than the room it takes, the negative margins giving the air back. The disc then stands
+   about an x-height tall, its top at the ascender and its horizon through the lower half
+   of the letters, and the name keeps the logo's tighter tracking. */
+.brand{display:flex;align-items:center;gap:4px;text-decoration:none;margin-right:12px}
+.brand .mark{width:54px;height:54px;display:block;margin:-7px -4px -7px -7px}
+.brand .prod{color:var(--fg);font-weight:500;font-size:20px;letter-spacing:-.025em;line-height:1;white-space:nowrap}
+/* A phone's bar holds the logo, the language and the one button: the name never breaks. */
+@media(max-width:420px){.brand .mark{width:44px;height:44px}.brand .prod{font-size:18px}}
+/* The i is dotless and its dot is drawn: a disc of the sun's amber, an eighth of an em wide,
+   its top just over the x-height, centred on the stem - the logo's construction, so the dot
+   sits as it does in the logo files rather than where the typeface's own dot falls. */
+.wordmark .i{position:relative;display:inline-block}
+.wordmark .i::after{content:"";position:absolute;left:50%;top:.115em;width:.125em;height:.125em;border-radius:50%;background:var(--sun);transform:translateX(-50%)}
 .nav{position:relative;display:flex;gap:2px;height:100%;font-size:14px}
 .nav a{display:flex;align-items:center;padding:0 12px;color:var(--fg-3);text-decoration:none;font-weight:450;transition:color .2s ease}
 .nav a:hover,.nav a.on{color:var(--fg)}
 .nav-ind{position:absolute;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--sun) 50%,transparent);transition:left .38s var(--ease),width .38s var(--ease),opacity .3s ease;pointer-events:none}
 .top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
-.top .btn,.top .btn2{min-height:38px;padding:8px 16px;font-size:14px}
+.top .btn,.top .btn2{min-height:36px;padding:0 16px;font-size:14px}
 @media(max-width:900px){.nav{display:none}.top .btn2{display:none}}
+/* On a phone the bar holds the logo, the one action, smaller, and the language after it, not
+   before (owner, 2026-11-01: "Book a demo smaller on a small screen, the language behind it").
+   It stays 36px tall - the most it can lose and still be a fair target for a thumb. */
+@media(max-width:600px){
+  .top-actions{gap:4px}
+  .top-actions .lang{order:2}
+  .top .btn{min-height:36px;padding:0 14px;font-size:13px}
+  .lang-btn{padding:0 8px}
+}
+/* The language: a quiet control in the bar - globe, code, caret - and a small glass menu under
+   it naming each language in its own words, the current one ticked in amber. Light on the
+   night, dark on the day. */
+.lang{position:relative;display:inline-flex}
+.lang svg{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.lang-btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 10px 0 11px;border:0;border-radius:999px;background:none;color:var(--fg-2);
+  font:600 12.5px var(--font);letter-spacing:.06em;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);transition:background .2s ease,color .2s ease,box-shadow .2s ease}
+.lang-btn:hover,.lang.is-open .lang-btn{color:var(--fg);background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.3)}
+.lang-btn b{font-weight:600}
+.lang-car{opacity:.6;transition:transform .2s var(--ease)}
+.lang.is-open .lang-car{transform:rotate(180deg)}
+.lang-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:30;display:grid;gap:2px;min-width:172px;padding:6px;border-radius:14px;
+  background:rgba(14,21,38,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 24px 48px -18px rgba(0,0,0,.6);
+  animation:lang-in .18s var(--ease) both;transform-origin:top right}
+@keyframes lang-in{from{opacity:0;transform:translateY(-4px) scale(.97)}to{opacity:1;transform:none}}
+.lang-menu button{display:grid;grid-template-columns:minmax(0,1fr) auto 16px;align-items:center;gap:10px;height:38px;padding:0 10px 0 12px;border:0;border-radius:9px;background:none;
+  color:var(--fg-2);font:500 14px var(--font);text-align:left;cursor:pointer;transition:background .15s ease,color .15s ease}
+.lang-menu button:hover{background:rgba(255,255,255,.08);color:var(--fg)}
+.lang-menu button[aria-checked="true"]{color:var(--fg)}
+.lang-menu small{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--fg-4)}
+.lang-menu button svg{color:var(--sun-2);stroke-width:2.2}
+.top.daylight .lang-btn{color:var(--fg-2);box-shadow:inset 0 0 0 1px rgba(20,21,24,.14)}
+.top.daylight .lang-btn:hover,.top.daylight .lang.is-open .lang-btn{background:rgba(20,21,24,.04);box-shadow:inset 0 0 0 1px rgba(20,21,24,.26)}
+.top.daylight .lang-menu{background:rgba(255,255,255,.96);box-shadow:var(--e4)}
+.top.daylight .lang-menu button:hover{background:rgba(20,21,24,.05)}
+.top.daylight .lang-menu button svg{color:var(--sun-text)}
 
 /* Hero: centred, with the field of dots behind it */
-.hero{position:relative;overflow:hidden}
-.hero canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0}
-.hero .wrap{position:relative;z-index:1;display:grid;justify-items:center;text-align:center;gap:22px;padding-block:clamp(56px,8vw,104px) clamp(150px,16vw,210px);pointer-events:none}
+/* The night is pinned while the day rises over it: the sky holds still for one screen of
+   scrolling and the light section slides up across it, its edge a long fade from the
+   night's navy through twilight blues to white; only then does the page move on. The
+   hero reaches up under the bar, so the sky fills the window from its very top, the
+   night's own navy all the way down - the warmth belongs to the sun alone. */
+.night-pin{height:200svh;margin-top:-68px}
+/* Deep space over the hero: near black at the zenith and darker than the navy well down the
+   sky (owner, 2026-11-01: "a little darker"), the faintest violet and teal of distant light in
+   the dark, the night's own navy only from seven tenths down - so where the daybreak band
+   takes over (locked, docs/design-system.md section 6.3) nothing changed. */
+.hero{position:sticky;top:0;overflow:hidden;display:grid;height:100svh;
+  background:radial-gradient(42% 38% at 16% 28%,rgba(112,78,168,.05),rgba(112,78,168,0) 72%),
+    radial-gradient(38% 34% at 86% 20%,rgba(46,110,150,.04),rgba(46,110,150,0) 72%),
+    radial-gradient(130% 75% at 50% 0%,#010207 0%,rgba(1,2,7,.92) 42%,rgba(1,2,7,.5) 60%,rgba(1,2,7,0) 70%),
+    linear-gradient(180deg,#070B16 0%,var(--bg) 70%,#141D38 100%)}
+.curtain{position:relative;z-index:1;margin-top:-100svh}
+/* The night's edge fades to a soft, cool daybreak, not to glare: pale blue at the fold while
+   the sun stands on it, and the page turns fully white only below it (.showcase.ground). */
+.curtain::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:clamp(200px,34vh,340px);pointer-events:none;
+  background:linear-gradient(180deg,rgba(14,21,38,0) 0%,rgba(26,38,70,.3) 30%,rgba(54,74,122,.5) 55%,rgba(110,130,176,.7) 78%,rgba(176,190,218,.88) 93%,#D3DAE8 100%)}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;transform:scale(calc(1 + var(--day,0) * .08))}
+/* The first screen is the sky alone: the hero fills the window, the sun sits on its lower
+   edge, and the words come out slowly once it has risen - the eyebrow, the headline word
+   by word as stars do at dusk, then the rest. */
+.hero .wrap{position:relative;z-index:1;display:grid;justify-items:center;align-content:center;text-align:center;gap:22px;padding-block:calc(68px + clamp(40px,7vh,96px)) clamp(170px,26vh,260px);pointer-events:none;
+  opacity:calc(1 - var(--day,0) * 1.6);transform:translateY(calc(var(--day,0) * -60px))}
 .hero .wrap a,.hero .wrap button{pointer-events:auto}
-.hero h1{max-width:17ch}
-.hero h1 .w{display:inline-block;animation:rise .7s var(--spring) both}
-.hero .lede{max-width:44ch;animation:fade-up .8s var(--ease) .55s both}
-.hero .ctas{animation:fade-up .8s var(--ease) .7s both}
+.hero .eyebrow{font-size:12px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--sun-2);text-wrap:balance;animation:emerge 2s var(--ease) 1s both}
+@media(max-width:520px){.hero .eyebrow{font-size:10.5px;letter-spacing:.2em}}
+/* The slogan's two lines start at one edge, "Meets" under "Where", the slogan centred as a
+   block; the eyebrow, the line under it and the buttons stand in the middle (owner, 2026-11-01:
+   "Meets should start at the same point as Where"; then "make work simpler always in the
+   middle, not aligned from the left; Book a demo and Try it the same"). The turning word's
+   place is as wide as a typical word (Hero.tsx, Turning), so the slogan sits in the middle
+   whichever word shows, and nothing moves while it turns. */
+.hero-copy{display:grid;justify-items:center;text-align:center;gap:22px;max-width:100%}
+.hero h1{max-width:none;text-align:left}
+.hero h1 .line{display:block;white-space:nowrap}
+/* On a phone the longest turning words ("Traceability.", "dohledatelností.") do not fit
+   beside "Meets", so the turning word takes a line of its own there. */
+@media(max-width:600px){.hero h1 .line{white-space:normal}}
+.hero h1 .w{display:inline-block;animation:emerge 1.8s var(--ease) both}
+/* The slogan's turning word: every word stacked at one starting point; the place keeps one
+   width, a typical word's, and a longer word runs on past it, so nothing else on the line
+   moves. Hero.tsx, Turning.
+   How a word comes (owner, 2026-11-01, after the reference hs.mp4: "just it appears from the
+   bottom, no crazy effects"): the whole word at once rolls up into place from below, turning
+   a little on its horizontal axis as it rises, and the word before rolls on up and away the
+   same way. No letter-by-letter, no blur, no shadow. A word waiting its turn sits below,
+   tipped and unseen, and goes there without a transition. Hero.tsx, Turning. */
+/* On the line's own baseline: the word on show is the one in flow, so the place sits where
+   "Meets" sits - aligned by its bottom edge, the word had stood a little above it (owner,
+   2026-11-01: "Meets is a little lower than Trust"). */
+/* The line clips the word above and below (never sideways, so a long word runs on): the word
+   going leaves upward out of it first, and the new one comes up from its lower edge a moment
+   later, so the two are never seen over each other. */
+.hero h1 .turn{position:relative;display:inline-block;vertical-align:baseline;white-space:nowrap;text-align:left;
+  clip-path:inset(-.08em -50vw -.22em -50vw)}
+.hero h1 .turn-w{position:absolute;left:0;bottom:0;opacity:0;transform-origin:50% 100%;transform:perspective(800px) translateY(95%) rotateX(-40deg);transition:none}
+.hero h1 .turn-w.is-on{position:relative;opacity:1;transform:none;transition:transform .65s cubic-bezier(.2,.75,.25,1) .18s,opacity .35s ease .18s}
+.hero h1 .turn-w.is-off{opacity:0;transform-origin:50% 0;transform:perspective(800px) translateY(-95%) rotateX(40deg);transition:transform .45s cubic-bezier(.5,0,.75,0),opacity .3s ease .1s}
+/* The line under the slogan (owner, 2026-11-01): quiet and light, out of the dark just after
+   the last word, a moment before the buttons. */
+/* On one row where there is room (owner: "make work simpler in one row"); a phone wraps it. */
+.hero .lede{max-width:none;white-space:nowrap;margin:-4px auto 2px;font-size:clamp(17px,1.6vw,21px);line-height:1.4;color:rgba(232,236,247,.78);animation:emerge 2s var(--ease) 3.3s both}
+@media(max-width:720px){.hero .lede{white-space:normal;max-width:30ch;text-wrap:balance}}
+.hero .ctas{animation:emerge 2s var(--ease) 3.9s both}
+@keyframes emerge{from{opacity:0;filter:blur(10px);transform:translateY(12px)}to{opacity:1;filter:none;transform:none}}
 .ctas{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px}
 
 /* Showcase: the sun rises behind a window of the app, its tabs on top */
-.showcase{position:relative;padding-bottom:clamp(40px,6vw,72px)}
+.showcase{position:relative;padding-block:clamp(90px,14vh,150px) clamp(40px,6vw,72px)}
+@media(max-width:600px){.showcase{padding-top:40px}.show-intro{margin-bottom:28px}}
+/* Under the horizon it is day: from the daybreak's pale blue to clean white over the first
+   stretch, the only warmth the sun's own glow above it. */
+.showcase.ground{background:linear-gradient(180deg,#D3DAE8 0,#F1F4F9 160px,#FFFFFF 300px)}
+/* Between the statement and the window: what the demo is, said before it is shown. The
+   words come up out of a soft blur as they arrive (--intro), the window right after them
+   (--p); both set by the section as it scrolls, and both 1 when less motion is asked for. */
+.show-intro{display:grid;justify-items:center;text-align:center;gap:14px;margin-bottom:clamp(40px,6vh,64px);
+  opacity:var(--intro,1);filter:blur(calc((1 - var(--intro,1)) * 10px));transform:translateY(calc((1 - var(--intro,1)) * 34px))}
+.show-intro .eyebrow{font-size:12px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--sun-text)}
+.show-intro h2{max-width:18ch}
+.show-intro .lede{max-width:52ch}
+/* The window rises out of the day leaning back, and stands upright as it arrives - as a
+   screen does when it is opened. */
+.stage{transform-origin:50% 100%;will-change:transform;
+  transform:perspective(2200px) rotateX(calc((1 - var(--p,1)) * 24deg)) translateY(calc((1 - var(--p,1)) * 70px)) scale(calc(.9 + var(--p,1) * .1));
+  opacity:calc(.3 + var(--p,1) * .7)}
+/* On a phone the window stands upright from the first: its rise read as a stretch of empty
+   white under the intro before the table came (owner, 2026-11-01: "on mobile not such a big
+   delay on a white screen - the table should be visible"). */
+@media(max-width:600px){.stage{transform:none;opacity:1;will-change:auto}}
 .showcase .wrap{position:relative}
 /* The sun is a canvas 4R wide and 1.5R tall whose disc centre sits below its bottom edge,
-   so a cap of R/2 shows above the window; the air around it carries the embers. */
-.dawn{position:absolute;left:50%;bottom:calc(100% - 1px);width:calc(min(48vw,520px) * 2);aspect-ratio:8/3;transform:translateX(-50%);pointer-events:none;z-index:0}
-.dawn-glow{position:absolute;left:50%;top:0;width:min(120vw,1400px);aspect-ratio:2/1;transform:translate(-50%,-62%);border-radius:50%;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse at 50% 50%,rgba(233,162,59,.34) 0%,rgba(233,162,59,.12) 30%,transparent 62%)}
-.tabs{position:relative;z-index:2;display:flex;margin:0 auto;max-width:1040px;border:1px solid var(--line-2);border-bottom:0;border-radius:16px 16px 0 0;overflow:hidden;background:rgba(14,21,38,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+   so a dome of 0.6R shows above the window; the air around it carries the embers. */
+/* As the day rises the sun dissolves into it rather than sliding away: it blooms a little
+   larger and brighter, softens, and melts into the light. */
+.dawn{position:absolute;left:50%;bottom:calc(100% - 1px);width:calc(min(48vw,520px) * 2);aspect-ratio:8/3;pointer-events:none;z-index:0;transform-origin:50% 100%;
+  transform:translateX(-50%) scale(calc(1 + var(--day,0) * .32));
+  filter:blur(calc(var(--day,0) * 10px)) brightness(calc(1 + var(--day,0) * .6));
+  opacity:calc(1.3 - var(--day,0) * 1.7)}
+.dawn-glow{position:absolute;left:50%;top:0;width:min(78vw,860px);aspect-ratio:2/1;transform:translate(-50%,-58%);border-radius:50%;pointer-events:none;z-index:0;opacity:calc(1.4 - var(--day,0) * 2.2);
+  background:radial-gradient(ellipse at 50% 50%,rgba(233,162,59,.26) 0%,rgba(233,162,59,.08) 32%,transparent 60%)}
+/* On a phone the sun a quarter larger (owner, 2026-11-01: "on mobile the sun a little
+   bigger"): its canvas wider than the screen, which main clips, so the disc fills more of the
+   horizon. The only change to the locked sun, by the owner's word; a desktop is as it was. */
+@media(max-width:600px){.dawn{width:120vw}.dawn-glow{width:100vw}}
+/* The tabs are the window's own top: exactly its width on every screen, the rounded corners
+   theirs, so tab strip and window line up as one piece whatever the platform. */
+.tabs{position:relative;z-index:2;display:flex;margin:0;border:1px solid var(--line-2);border-bottom:0;border-radius:18px 18px 0 0;overflow:hidden;background:var(--bg)}
 .tabs button{position:relative;flex:1 1 0;min-width:max-content;min-height:54px;padding:0 20px;border:0;border-right:1px solid var(--line-2);background:transparent;color:var(--fg-3);font:500 15px var(--font);cursor:pointer;transition:color .2s ease,background .2s ease}
 .tabs button:last-of-type{border-right:0}
 .tabs button:hover{color:var(--fg)}
 .tabs button[aria-selected="true"]{color:var(--fg);background:rgba(188,197,216,.07)}
 .tab-ind{position:absolute;bottom:0;height:2px;background:var(--grad-sun);transition:left .38s var(--ease),width .38s var(--ease)}
 .tab-ind::before{content:"";position:absolute;left:10%;right:10%;bottom:0;height:18px;filter:blur(6px);background:radial-gradient(ellipse 60% 100% at 50% 100%,rgba(233,162,59,.5),transparent 75%)}
-@media(max-width:720px){.tabs{overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tabs button{flex:0 0 auto}}
+/* On a phone the four tabs share the width rather than scrolling, so none is cut off. */
+@media(max-width:720px){.tabs button{flex:1 1 0;min-width:0;min-height:48px;padding:0 4px;font-size:13px}}
+/* On a small phone the five names share 360 to 390 pixels, so the type follows the width -
+   about 12px at 390, 11px at 360 - and a name never runs into its neighbour or out of its tab
+   (owner, 2026-11-01: "on smaller mobile screens Extract, Transform, Validate text too big,
+   should be smaller, not overflow"). Each tab is as wide as its name and an equal share of what
+   is left, so Transform, the longest, has the room it needs even at 320. */
+@media(max-width:480px){
+  .tabs button{flex:1 1 auto;padding:0 2px;font-size:clamp(10.5px,3.05vw,13px);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:clip}
+}
 .win-wrap{position:relative;z-index:1}
 .win-wrap::after{content:"";position:absolute;left:-40px;right:-40px;bottom:-1px;height:150px;background:linear-gradient(180deg,transparent,var(--bg) 85%);pointer-events:none;z-index:3}
-.win{position:relative;display:grid;grid-template-columns:224px minmax(0,1fr);height:min(680px,82vh);border:1px solid var(--line-2);border-bottom:0;border-radius:18px 18px 0 0;background:var(--bg-2);overflow:hidden;
+.win{position:relative;display:grid;grid-template-columns:224px minmax(0,1fr);height:min(680px,82vh);border:1px solid var(--line-2);border-bottom:0;border-radius:0;background:var(--bg-2);overflow:hidden;
   box-shadow:0 -1px 0 rgba(255,220,160,.12),0 40px 100px -40px rgba(0,0,0,.7)}
-.win-side{display:flex;flex-direction:column;gap:2px;padding:14px 10px;border-right:1px solid var(--line-2);background:var(--bg);min-width:0}
-.win-org{display:flex;align-items:center;gap:10px;padding:8px 10px;margin-bottom:12px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line-2);font-weight:500;color:var(--fg);font-size:14px}
-.win-org img{width:22px;height:22px;border-radius:6px}
-.win-org span{margin-left:auto;color:var(--fg-4);font-size:11px}
-.win-side .grp{font-size:11px;color:var(--fg-4);padding:12px 10px 4px}
-.win-side .it{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;font-size:14px;color:var(--fg-2)}
-.win-side .it i{flex:none;width:13px;height:13px;border-radius:3px;box-shadow:inset 0 0 0 1.5px currentColor;opacity:.55}
-.win-side .it.on{background:rgba(188,197,216,.09);color:var(--fg)}
-.win-side .it.on i{color:var(--sun);opacity:1}
-.win-user{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px;font-size:13px;color:var(--fg-3)}
-.win-user b{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--navy);color:var(--sun-2);font-size:12px;font-weight:500}
-.win-main{display:grid;grid-template-rows:auto minmax(0,1fr);min-width:0}
-.win-bar{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid var(--line-2);font-size:14px;color:var(--fg-3);white-space:nowrap;overflow:hidden}
-.win-bar b{color:var(--fg);font-weight:500}
-.win-bar .crumb{color:var(--fg-4)}
-.win-body{overflow:auto;padding:18px 18px 120px;min-width:0;container-type:inline-size;animation:page-in-n .28s var(--ease) both}
-.panel-hint{font-size:13px;color:var(--fg-4);margin-bottom:14px}
-@media(max-width:860px){.win{grid-template-columns:minmax(0,1fr);height:min(640px,78vh)}.win-side{display:none}}
-@container (max-width:860px){.demo,.ask,.runs,.access,.detail{grid-template-columns:minmax(0,1fr)}}
+.daylight .win{box-shadow:var(--e3)}
+/* A tab of the demo (src/app) is one feature of appolino in a closed frame - its head, the
+   table and the feature beside it - with no fade at its foot, where its cards keep their
+   buttons. */
+.win.app{display:block;height:min(720px,86vh);border-bottom:1px solid var(--line-2);border-radius:0 0 16px 16px;background:#fff}
+.win-wrap.app::after{display:none}
+/* On a phone or a narrow tablet the window is as tall as what it holds, and the page scrolls;
+   on a large monitor the demo takes more of the room, wider and taller. */
+@media(max-width:860px){.win.app{height:auto}}
+@media(min-width:1800px){#try{max-width:1480px}.win.app{height:min(820px,78vh)}}
+/* The logo's sun, drawn larger than the room it takes - its box is mostly its own glow -
+   so the disc reads at this size, as in the header (.brand .mark). */
+@media(max-width:860px){.win{grid-template-columns:minmax(0,1fr);height:min(640px,78vh)}}
 
 /* Sections */
 section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)}
 .sec-head{display:grid;gap:14px;margin-bottom:40px}
-.sec-head .label{color:var(--sun)}
+.sec-head .label{color:var(--sun-text)}
 
-/* Works with */
-.connects{padding-block:40px 56px;text-align:center}
-.connects .label{margin-bottom:22px}
-.logos{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 40px}
-.logos span{display:inline-flex;align-items:center;gap:9px;font-size:18px;font-weight:500;color:var(--fg-4);letter-spacing:-.01em}
-.logos span i{width:10px;height:10px;border-radius:3px;background:currentColor;opacity:.45}
+/* Statement: pinned - the section is two and a half screens tall and its sentences hold the
+   middle of the window while the page scrolls past, the way a statement on most product sites
+   stops the reader for a moment; not pinned when less motion is asked for. It is the first
+   thing under the horizon (Showcase), rising with the day under the sun, and it hands over
+   to the demo without a rule between them: held lit a moment, it dissolves - fades, softens
+   and lifts away (--out, set by Statement) - by the time the pin lets go, while the demo's
+   intro comes up under it. The pin is the middle half of the window rather than all of it:
+   held there its words are still centred, and while the day rises they come up a quarter
+   of a window under the horizon instead of half of one, so the space under the sun is
+   never empty. */
+.statement{height:250svh;text-align:center}
+.statement .pin{position:sticky;top:25svh;height:50svh;display:grid;align-content:center;
+  opacity:calc(1 - var(--out,0));filter:blur(calc(var(--out,0) * 8px));transform:translateY(calc(var(--out,0) * -28px))}
+/* On a phone the sentence is short to read and the screen short to scroll, so it holds for
+   less (owner, 2026-11-01: "on small screens too much space, a delay between the daylight
+   text and the table"); Statement.tsx measures its stages from this height. */
+@media(max-width:600px){.statement{height:170svh}}
+.statement.still{height:auto;padding-block:clamp(96px,14vw,180px)}
+.statement.still .pin{position:static;height:auto}
+.statement p{margin:0 auto;max-width:24ch;font-size:clamp(28px,4.4vw,58px);line-height:1.12;letter-spacing:-.025em;font-weight:450;color:var(--fg);text-wrap:balance}
+.statement .s1{font-size:12px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;margin-bottom:26px;max-width:none;color:var(--sun-text)}
+/* A word that lights up turns dark and bold - bold by an outline of its own ink rather than a
+   heavier weight, which would widen it and reflow the lines while they are being read; the
+   promises light in the sun's amber. */
+.statement .w{color:rgba(20,21,24,.16);-webkit-text-stroke:0 currentColor;transition:color .45s ease,-webkit-text-stroke-width .5s ease}
+.statement .w.lit{color:var(--fg);-webkit-text-stroke-width:.026em}
+.statement .w.gold.lit{color:var(--sun-text)}
 
-/* Statement: the words light up as it scrolls into the middle of the window */
-.statement{padding-block:clamp(96px,14vw,180px);text-align:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.statement p{margin:0 auto;max-width:26ch;font-size:clamp(28px,4.2vw,54px);line-height:1.12;letter-spacing:-.025em;font-weight:450;color:var(--fg);text-wrap:balance}
-.statement .s1{font-size:clamp(20px,2.4vw,32px);margin-bottom:22px;max-width:30ch}
-.statement .w{color:var(--fg-4);transition:color .4s ease}
-.statement .w.lit{color:var(--fg)}
-.statement .s1 .w.lit{color:var(--fg-3)}
-
-/* Platform: a sticky list of themes on the left, each theme on the right */
+/* Deliver: the one part of the platform the demo does not show - a head, one load written four
+   ways on a destination's rows, and two notes under it. It was five themes beside a sticky
+   list once; the demo and Security say the other four now. */
 .platform{padding-block:clamp(64px,9vw,104px)}
-.platform .wrap{display:grid;grid-template-columns:240px minmax(0,1fr);gap:48px;align-items:start}
-.pnav{position:sticky;top:96px;display:grid;gap:2px}
-.pnav a{padding:10px 14px;border-left:2px solid var(--line-2);color:var(--fg-4);text-decoration:none;font-size:17px;transition:color .2s ease,border-color .2s ease}
-.pnav a:hover{color:var(--fg-2)}
-.pnav a.on{color:var(--fg);border-left-color:var(--sun)}
-.themes{display:grid}
-.theme{padding:40px 0 48px;border-top:1px solid var(--line-2)}
-.theme:first-child{padding-top:0;border-top:0}
-.theme .lead{font-size:clamp(19px,2vw,24px);line-height:1.35;color:var(--fg-3);max-width:36em;letter-spacing:-.01em}
-.theme .lead b{color:var(--fg);font-weight:500}
-.vis{position:relative;margin:28px 0;border:1px solid var(--line-2);border-radius:16px;background:var(--bg-2);padding:28px;min-height:280px;display:grid;place-items:center;overflow:hidden}
-.vis::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,rgba(188,197,216,.1) .9px,transparent 1.4px) 10px 10px/20px 20px;pointer-events:none}
+.platform .sec-head{margin-bottom:32px}
+/* The two ways forward, side by side over the write modes: each an icon, which path, its name
+   and one sentence; the first warm, the second plain. */
+/* The two paths share their rows (subgrid) - mark, tag, title, text, list - so their parts
+   stand level and the lists, seven lines each, end together (owner, 2026-11-01: "the same
+   ending, not an empty box at the end"). */
+.paths{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:repeat(5,auto);column-gap:18px;margin-bottom:24px}
+.path{display:grid;grid-row:span 5;grid-template-rows:subgrid;row-gap:6px;padding:24px 26px;border-radius:18px;background:#fff;box-shadow:var(--e1)}
+.path:first-child{box-shadow:inset 0 0 0 1px rgba(233,162,59,.4),var(--e1);background:linear-gradient(160deg,rgba(233,162,59,.07),#fff 55%)}
+.path-ic{display:grid;place-items:center;width:42px;height:42px;margin-bottom:8px;border-radius:12px;font-size:21px;color:var(--sun-text);background:rgba(233,162,59,.1);box-shadow:inset 0 0 0 1px rgba(233,162,59,.32)}
+.path small{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--sun-text)}
+.path h3{font-size:20px}
+.path p{color:var(--fg-3);font-size:15px;max-width:48ch}
+.path ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:0}
+.path li{position:relative;padding:8px 0 8px 24px;border-top:1px solid var(--line);font-size:14.5px;color:var(--fg-2);line-height:1.4}
+.path li::before{content:"";position:absolute;left:3px;top:13px;width:9px;height:5px;border-left:1.6px solid var(--sun-text);border-bottom:1.6px solid var(--sun-text);transform:rotate(-45deg)}
+@media(max-width:700px){.paths{grid-template-columns:minmax(0,1fr);grid-template-rows:none;row-gap:18px}.path{grid-row:auto;grid-template-rows:none}}
+.vis{position:relative;margin:0 0 32px;border:1px solid var(--line-2);border-radius:18px;background:var(--bg-2);padding:clamp(18px,3vw,36px);min-height:280px;display:grid;place-items:center;overflow:hidden;
+  box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 24px 48px -32px rgba(20,29,56,.28)}
 .vis>*{position:relative}
-.subs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}
-.subs div{padding-top:18px;border-top:1px solid var(--line-2)}
-.subs h3{font-size:17px;margin-bottom:8px}
-.subs p{color:var(--fg-3);font-size:15px}
-@media(max-width:900px){.platform .wrap{grid-template-columns:minmax(0,1fr);gap:24px}.pnav{position:static;display:flex;overflow-x:auto;gap:6px;scrollbar-width:none}.pnav a{border-left:0;border-bottom:2px solid var(--line-2);white-space:nowrap;font-size:15px}.pnav a.on{border-bottom-color:var(--sun)}}
-@media(max-width:600px){.subs{grid-template-columns:minmax(0,1fr)}}
 
-/* Small drawn visuals, shared by Platform and Why */
-.chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);font-size:13px;color:var(--fg-2);white-space:nowrap}
-.chip .ext{font-size:10px;font-weight:600;padding:2px 5px;border-radius:4px;background:var(--navy);color:var(--sun-2);letter-spacing:.02em}
-.chip .ok{color:var(--sun);font-weight:500}
-.mini-flow{display:grid;grid-template-columns:auto 56px minmax(0,1fr);align-items:center;gap:16px;width:100%;max-width:760px}
-.mini-flow .files{display:grid;gap:8px}
-.mini-flow .arrow{height:2px;background:linear-gradient(90deg,var(--line-3),var(--sun));position:relative;border-radius:2px}
-.mini-flow .arrow::after{content:"";position:absolute;right:-1px;top:50%;width:8px;height:8px;border-top:2px solid var(--sun);border-right:2px solid var(--sun);transform:translateY(-50%) rotate(45deg)}
-.mini-table{border-radius:12px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);overflow:hidden;min-width:0}
-.mini-table .bar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line-2);font-size:13px;color:var(--fg)}
-.mini-table .bar .ok{color:var(--sun);font-weight:500}
-@media(max-width:640px){.mini-flow{grid-template-columns:minmax(0,1fr)}.mini-flow .arrow{width:2px;height:28px;margin:0 auto;background:linear-gradient(180deg,var(--line-3),var(--sun))}.mini-flow .arrow::after{right:50%;top:auto;bottom:-1px;transform:translateX(50%) rotate(135deg)}}
-.steps-card{width:min(100%,560px);border-radius:12px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);overflow:hidden}
-.steps-card .hd{padding:10px 16px;border-bottom:1px solid var(--line-2);font-size:13px;color:var(--fg);display:flex;justify-content:space-between}
-.step-row{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 16px;border-bottom:1px solid var(--line);font-size:14px}
-.step-row:last-child{border-bottom:0}
-.step-row .n{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;background:var(--bg-3);color:var(--fg-3);box-shadow:inset 0 0 0 1px var(--line-2)}
-.step-row b{color:var(--fg);font-weight:500}
-.step-row span{color:var(--fg-3)}
-.step-row .act{font-size:13px;color:var(--fg-4)}
-.step-row.ask{background:rgba(233,162,59,.07)}
-.step-row.ask .n{background:transparent;box-shadow:none;color:var(--sun);font-size:14px}
-.step-row.ask .act{display:flex;gap:10px}
-.step-row.ask .act b{color:var(--sun)}
-.lanes{display:grid;gap:14px;width:min(100%,680px)}
-.lane{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;align-items:center;font-size:14px}
-.lane .nm{color:var(--fg-2)}
-.lane .nm small{display:block;font-size:12px;color:var(--fg-4)}
-.lane .ln{position:relative;height:2px;background:var(--line-2);border-radius:2px}
-.lane .mk{position:absolute;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--sun)}
-.lane .mk.due{background:transparent;box-shadow:inset 0 0 0 2px var(--sun);opacity:.6}
-.lane .mk.now{background:#FFF3DF;box-shadow:0 0 0 4px rgba(233,162,59,.3),0 0 16px 2px rgba(233,162,59,.6)}
-.lane .mk.held{background:var(--problem)}
-.lanes .hours{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;font-size:12px;color:var(--fg-4)}
-.lanes .hours div{display:flex;justify-content:space-between}
-.lanes .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:var(--fg-4);margin-top:6px}
-.lanes .legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
-@media(max-width:600px){.lane,.lanes .hours{grid-template-columns:110px minmax(0,1fr)}}
-.matrix{border-collapse:collapse;font-size:14px;width:min(100%,640px);background:var(--bg);border-radius:12px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line-2)}
-.matrix th,.matrix td{padding:10px 14px;text-align:center;border-bottom:1px solid var(--line)}
-.matrix th{font-weight:500;color:var(--fg-3);font-size:13px}
-.matrix td:first-child,.matrix th:first-child{text-align:left;color:var(--fg)}
-.matrix tr:last-child td{border-bottom:0}
-.matrix .y{color:var(--sun);font-weight:500}
-.matrix .n{color:var(--fg-4)}
-.matrix-wrap{overflow-x:auto;width:100%;display:grid;justify-items:center}
-
-/* Why: two big lines, then three cards with a drawing each */
+/* Solutions (#why): two big lines and what appolino is, then cards - six cases, six for the files
+   of a team's own country, two half-width ones for how a load is written - and the road through
+   the work. About, the country-specific data and Deliver's notes had places of their own until
+   the owner folded them in (2026-11-01: "about is more like solutions section", "merge this to
+   solutions also", "this should somehow be in Solutions, incorporated"), so everything here is
+   drawn as the cards are - a picture on a warm light, then what it means. */
 .why{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)}
+.why .sec-head{margin-bottom:0}
 .why h2{max-width:none}
 .why h2 span{display:block;color:var(--fg-4)}
-.ben-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:44px}
-.ben{padding:24px;border-radius:16px;border:1px solid var(--line-2);background:var(--bg-2);display:grid;gap:10px;align-content:start}
-.ben h3{font-size:18px}
-.ben p{color:var(--fg-3);font-size:15px}
-.ben .vis{margin:14px 0 0;min-height:200px;padding:20px;border-radius:12px;background:var(--bg)}
-.ben .vis::before{display:none}
-.report{display:grid;gap:4px;padding:12px 14px;border-radius:10px;background:var(--bg-2);box-shadow:inset 0 0 0 1px var(--line-2);width:100%;max-width:260px}
-.report .t{font-size:12px;color:var(--fg-4)}
-.report .v{font-size:22px;color:var(--fg);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.report .ok{font-size:12px;color:var(--sun)}
-.sched{display:grid;gap:8px;width:100%;max-width:280px;font-size:13px}
-.sched div{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:10px;align-items:center;color:var(--fg-2)}
-.sched .t{color:var(--fg-4);font-variant-numeric:tabular-nums}
-.sched .ok{color:var(--sun)}
-.sched .run{color:#FFF3DF}
-.held{display:grid;gap:10px;width:100%;max-width:300px;font-size:13px}
-.held .pill-held{justify-self:start;padding:4px 10px;border-radius:999px;background:rgba(167,180,204,.14);color:var(--fg);box-shadow:inset 0 0 0 1px rgba(167,180,204,.4);font-weight:500}
-.held .log{padding:10px 12px;border-radius:10px;background:var(--bg-2);box-shadow:inset 0 0 0 1px var(--line-2);font:12px/1.6 var(--mono);color:var(--fg-3)}
-.held .log b{color:var(--fg);font-weight:500}
-@media(max-width:900px){.ben-grid{grid-template-columns:minmax(0,1fr)}}
+/* Each card is a white sheet resting on the page: what it means, then its picture under a warm
+   light. */
+/* The cards are one row that scrolls sideways (owner, 2026-11-01: "like 3 visible with arrows
+   beside them, that you can scroll, click"): three to a view, two on a small laptop or a tablet,
+   one and the edge of the next on a phone, each snapping to the row's start; no scrollbar, the
+   bar under the row (.sol-progress) says where the view is. The row is a grid of three rows and
+   every card spans them (subgrid), so all the cards are one height and their drawings, titles
+   and texts stand level whichever is tallest. The padding above and below - taken back by the
+   margins - is room for the cards' shadows, which the scrolling box would otherwise clip. */
+.sol-car{position:relative;display:grid;grid-template-columns:minmax(0,1fr);margin-top:48px}
+.ben-grid{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 36px) / 3);grid-template-rows:auto auto auto;column-gap:18px;
+  overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:6px;scrollbar-width:none;padding:8px 6px 56px;margin:-8px -6px -40px}
+.ben-grid::-webkit-scrollbar{display:none}
+.ben-grid:focus-visible{outline-offset:6px}
+/* A card is its title and a line or two first, then its picture filling the rest (owner,
+   2026-11-01: "headlines on top of the card, not such big empty spaces"): one padding all round,
+   one gap between the text and the picture, the picture's box running to the card's foot. */
+/* Shadows as bdop draws them (owner, 2026-11-01: "centred on the boxes, the same standard as
+   bdop"): one light straight above, so every shadow falls straight down, inked navy; a card rests
+   at the first height (--e1, which carries its own hairline edge) and does not rise under the
+   pointer - only what can be pressed answers with height. */
+.ben{scroll-snap-align:start;display:grid;grid-row:span 3;grid-template-rows:subgrid;align-content:start;gap:12px;padding:14px;border-radius:22px;background:var(--bg);
+  box-shadow:var(--e1,0 0 0 1px rgba(20,21,24,.1),0 1px 2px rgba(20,21,24,.04),0 12px 28px -18px rgba(20,21,24,.25))}
+.ben h3{font-size:19px;padding:10px 10px 0}
+.ben p{color:var(--fg-3);font-size:15px;padding:0 10px 4px}
+/* Every picture is one height (owner, 2026-11-01: "perfectly aligned, no empty space"), its parts
+   spread evenly down it rather than bunched with a blank band under them - with the titles of a
+   line or two and texts of two or three, the cards stand level and meet at the bottom with an
+   even margin. A phone's narrower card wraps more, so its pictures are a little taller. */
+.ben .vis{--vis-h:310px;height:var(--vis-h);margin:0;padding:20px 18px;border:0;border-radius:16px;display:grid;place-items:center;align-content:space-evenly;box-shadow:none;
+  background:radial-gradient(ellipse 80% 70% at 50% 0%,rgba(233,162,59,.13),transparent 72%),var(--bg-2)}
+@media(max-width:640px){.ben .vis{--vis-h:352px}}
+/* A picture's source, a pill over it: the statement both of Numbers people agree on's reports
+   read. (The schedule's day and time zone and the country's tag were pills like it until the owner
+   took them off, 2026-11-01: "don't put this tag in the card".) */
+.ben .vis .src{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--fg-2);padding:5px 12px;border-radius:999px;background:var(--bg);box-shadow:inset 0 0 0 1px rgba(233,162,59,.45)}
+.ben .vis .src small{color:var(--fg-4);font-size:11.5px}
+/* One income statement, Sales' figures beside Finance's, equal line by line - each = lighting in
+   turn - and the gross margin ruled off as a statement rules it. */
+.agree{gap:12px;justify-items:center;align-content:center}
+.ben .vis.agree{padding-inline:14px}
+.agree .pl{display:grid;grid-template-columns:minmax(0,1fr) auto 24px auto;align-items:center;width:100%;padding:6px 12px;border-radius:12px;background:var(--bg);
+  box-shadow:inset 0 0 0 1px var(--line-2);font-size:12.5px}
+.agree .pl>span{padding:5px 0;min-width:0}
+.agree .pl .hd{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-4);text-align:right}
+.agree .pl .k{color:var(--fg-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:10px}
+.agree .pl .v{color:var(--fg);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.agree .pl .e{text-align:center;font-weight:600;color:var(--sun-text);animation:pl-eq 4.8s ease calc(var(--i) * .5s) infinite both}
+@keyframes pl-eq{0%,4%{opacity:.25}12%,80%{opacity:1}100%{opacity:.25}}
+.agree .pl .tot{border-top:1px solid var(--line-2);font-weight:600;color:var(--fg)}
+.agree .pl .pct{padding-top:2px;font-size:11.5px;color:var(--fg-4)}
+.agree .pl .e.pct{color:var(--sun-text)}
+.agree .ok{font-size:12.5px;color:var(--sun-text)}
+/* A morning's runs on a rail from dawn into day, each with what started it - its schedule, or a
+   file arriving - under the day and the time zone they run in, the next one already listed. */
+/* The rail runs the picture's full height, its runs spread evenly down it. */
+.ben .vis.rail-day{align-content:stretch}
+.rail-day ol{position:relative;list-style:none;margin:0;padding:4px 0 4px 26px;display:grid;align-self:stretch;align-content:space-between;width:100%;max-width:300px}
+.rail-day ol::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;border-radius:2px;
+  background:linear-gradient(180deg,#1F2A44 0%,#3B4A78 20%,#E9A23B 34%,#F4D2A0 62%,#E6EBF3 100%)}
+.rail-day li{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13.5px;color:var(--fg-2)}
+.rail-day li::before{content:"";position:absolute;left:-24px;top:50%;width:12px;height:12px;margin-top:-6px;border-radius:50%;background:var(--sun);box-shadow:0 0 0 3px var(--bg-2)}
+.rail-day li:first-child::before{background:#2E3B63}
+.rail-day li.due::before{background:var(--bg);box-shadow:0 0 0 3px var(--bg-2),inset 0 0 0 2px var(--line-3)}
+.rail-day li.run::before{animation:run-dot 1.4s ease-in-out infinite}
+@keyframes run-dot{50%{box-shadow:0 0 0 3px var(--bg-2),0 0 0 8px rgba(233,162,59,.25)}}
+.rail-day .t{color:var(--fg-4);font-variant-numeric:tabular-nums;font-size:12.5px}
+.rail-day .n{min-width:0;line-height:1.25}
+.rail-day .n small{display:block;font-size:11.5px;color:var(--fg-4)}
+.rail-day .s{font-size:12px;color:var(--sun-text)}
+.rail-day li.due .s{color:var(--fg-4)}
+/* A bad load stopped at its gate. */
+.gate{gap:12px;justify-items:start;align-content:center;width:100%}
+.ben .vis.gate{padding-inline:14px}
+.gate .flow{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.gate .step{font-size:11.5px;padding:4px 8px;border-radius:999px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);color:var(--fg-2);white-space:nowrap}
+.gate .step.ok::before{content:"✓ ";color:var(--sun-text)}
+.gate .step.held{color:var(--fail);font-weight:500;box-shadow:inset 0 0 0 1px rgba(176,74,74,.45),0 0 0 4px rgba(176,74,74,.08)}
+.gate .step.off{opacity:.45}
+.gate .to{color:var(--fg-4);font-size:12px}
+.gate .log{width:100%;padding:10px 12px;border-radius:10px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);font:12px/1.65 var(--mono);color:var(--fg-3)}
+.gate .log b{color:var(--fg);font-weight:500}
+.gate .keep{font-size:12.5px;color:var(--fg-3)}
+.gate .keep::before{content:"● ";color:var(--sun)}
+/* Six branch files, each ticked in turn as it is checked, gathered by two lines into one report
+   with its little chart and when it rebuilds itself. */
+.sol-merge{gap:6px;justify-items:center;width:100%}
+/* Files, the lines joining them and the report keep together, a little larger to fill the box. */
+.ben .vis.sol-merge{align-content:center;gap:8px}
+.sol-files{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%;max-width:290px}
+.sol-file{display:flex;align-items:center;gap:6px;min-width:0;height:27px;padding:0 9px;border-radius:8px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);font-size:12px;color:var(--fg-2)}
+.sol-file i{flex:none;font-size:14px;color:var(--sun-text)}
+.sol-file span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sol-file b{flex:none;font-size:11px;font-weight:600;color:var(--sun-text);animation:file-ok 7s var(--ease) calc(var(--i) * .35s) infinite both}
+@keyframes file-ok{0%,3%{opacity:0;transform:scale(.3)}9%,86%{opacity:1;transform:none}94%,100%{opacity:0;transform:none}}
+.sol-join{display:block;width:100%;max-width:290px;height:18px;overflow:visible}
+.sol-join path{fill:none;stroke:var(--sun);stroke-width:1.5;stroke-linecap:round;vector-effect:non-scaling-stroke;opacity:.7}
+.sol-report{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 14px;width:100%;max-width:290px;padding:10px 12px;border-radius:12px;background:var(--bg);
+  box-shadow:inset 0 0 0 1px rgba(233,162,59,.45)}
+.sol-report .h{font-size:13.5px;font-weight:500;color:var(--fg)}
+.sol-report .m{grid-row:2;font-size:11.5px;color:var(--fg-4)}
+.sol-report .bars{grid-row:1/3;grid-column:2;display:flex;align-items:flex-end;gap:3px;height:32px}
+.sol-report .bars i{width:7px;border-radius:2px 2px 0 0;background:linear-gradient(180deg,var(--sun-2),var(--sun))}
+.sol-report .next{grid-column:1/-1;margin-top:6px;padding-top:7px;border-top:1px solid var(--line);font-size:11.5px;color:var(--sun-text)}
+/* A plan kept by hand, moved in: three typed columns, a region picked from its list (open over
+   the rows under it), the edited figure lit, and the edit as History names it. */
+.sol-plan{gap:10px;align-content:center;width:100%}
+/* Full width, not centred as .ben .vis places its drawings: the table and its History line are
+   as wide as the card, so the line's long middle gives way rather than its end. */
+.ben .vis.sol-plan{padding-inline:14px;justify-items:stretch}
+.sol-sheet{border-radius:12px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);font-size:12px;color:var(--fg-2)}
+.sol-sheet .cap{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-2)}
+.sol-sheet .cap b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;font-weight:500;color:var(--fg)}
+.sol-sheet .r{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(0,1fr);border-bottom:1px solid var(--line)}
+.sol-sheet .r:last-child{border-bottom:0}
+.sol-sheet .r>span{padding:4px 10px;line-height:16px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sol-sheet .r>span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.sol-sheet .hd>span{font-size:11px;color:var(--fg-4)}
+.sol-sheet .hd i{margin-right:4px;font-size:12px;vertical-align:-1px}
+.sol-sheet .r>.pick{position:relative;overflow:visible;display:flex;align-items:center;gap:4px;box-shadow:inset 0 0 0 1.5px var(--sun);border-radius:4px}
+.sol-sheet .pick em{flex:1;min-width:0;font-style:normal;overflow:hidden;text-overflow:ellipsis}
+.sol-sheet .pick>i{flex:none;font-size:12px;color:var(--sun-text)}
+.sol-sheet .r>.ed{background:rgba(233,162,59,.12);color:var(--fg)}
+.sol-menu{position:absolute;left:-1px;right:-1px;top:calc(100% + 3px);z-index:1;display:grid;gap:1px;padding:4px;border-radius:9px;background:var(--bg);
+  box-shadow:var(--e4,inset 0 0 0 1px var(--line-2),0 12px 24px -10px rgba(20,21,24,.3))}
+.sol-menu span{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:2px 7px;border-radius:5px;line-height:16px}
+.sol-menu .on{background:rgba(233,162,59,.12);color:var(--fg)}
+.sol-menu i{font-size:12px;color:var(--sun-text)}
+.sol-hist{display:flex;align-items:center;gap:8px;min-width:0;font-size:12px;color:var(--fg-3)}
+.sol-hist .av{flex:none;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--sun);color:#fff;font-size:11px;font-weight:600}
+.sol-hist .w{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums}
+.sol-hist small{flex:none;display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--sun-text)}
+/* The workbook a team keeps, still open, and the routine round it - files gathered, the same
+   steps, the results written back - each cell lighting as it is written, then the next. */
+.sol-xl{gap:10px;align-content:center;width:100%}
+.ben .vis.sol-xl{padding-inline:14px;justify-items:stretch}
+.sol-book{border-radius:12px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);overflow:hidden;font-size:12px;color:var(--fg-2)}
+.sol-book .bar{display:flex;align-items:center;gap:6px;min-width:0;padding:8px 10px;border-bottom:1px solid var(--line-2)}
+.sol-book .bar i{flex:none;font-size:15px;color:var(--sun-text)}
+.sol-book .bar b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;font-weight:500;color:var(--fg)}
+.sol-book .bar small{flex:none;margin-left:auto;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--fg-4)}
+.sol-book .bar small::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--sun)}
+.sol-cells{display:grid;grid-template-columns:24px repeat(3,minmax(0,1fr))}
+.sol-cells span{padding:5px 8px;line-height:16px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.sol-cells span:nth-child(4n){border-right:0}
+.sol-cells span:nth-last-child(-n+4){border-bottom:0}
+.sol-cells .h{padding:3px 0;text-align:center;font-size:10.5px;color:var(--fg-4)}
+.sol-cells .k{font-weight:500;color:var(--fg)}
+.sol-cells .n{text-align:right;font-variant-numeric:tabular-nums}
+.sol-cells .w{animation:cell-back 7s ease calc(1.2s + var(--i) * .6s) infinite both}
+@keyframes cell-back{0%,4%{background:transparent;box-shadow:none}10%{background:rgba(233,162,59,.32);box-shadow:inset 0 0 0 1.5px var(--sun)}24%,90%{background:rgba(233,162,59,.1);box-shadow:none}100%{background:transparent}}
+.sol-flow{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 5px}
+.sol-flow span{padding:3px 8px;border-radius:999px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);font-size:11.5px;color:var(--fg-2);white-space:nowrap}
+.sol-flow span.ok::before{content:"✓ ";color:var(--sun-text)}
+.sol-flow span.on{color:var(--fg);background:rgba(233,162,59,.12);box-shadow:inset 0 0 0 1px rgba(233,162,59,.5)}
+.sol-flow b{font-weight:400;font-size:11.5px;color:var(--fg-4)}
+.sol-run{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--fg-3)}
+.sol-run i{flex:none;font-size:14px;color:var(--sun-text)}
+/* With less motion asked for, the ticks, the equals and the written cells and rows stand in
+   their end state rather than looping at the global rule's near-zero length. */
+@media (prefers-reduced-motion:reduce){
+  .sol-file b,.sol-cells .w,.agree .pl .e{animation:none}
+  .sol-cells .w{background:rgba(233,162,59,.1)}
+}
+/* The files of a team's own country, one row of three cards (owner, 2026-11-01: "maybe add it as
+   a card", "sort them somehow into cards to fit"), drawn as one system (owner: "make these cards'
+   text size better aligned"): each picture a kind's name over its cases, one case to a row, no tag
+   (owner: "don't put any tags"). The first holds one case of each kind; the other two loop through
+   their kinds by themselves (owner: "only the visual is changing in the card, an auto loop"),
+   every case of the kind on show listed at once (owner: "show more in general"), one row marked in
+   turn. Every kind's list is laid in one place, the one on show visible, so the picture keeps the
+   height of the tallest and nothing under it moves as it loops. */
+/* The list fills the picture: its rows share the height left under the kind's name, so a short
+   list's rows stand taller rather than leave a blank strip under them. */
+.ben .vis.sol-kind{container-type:inline-size;padding-inline:14px;justify-items:stretch;align-content:stretch}
+.sol-views{display:grid;align-self:stretch}
+.sol-views>span{grid-area:1/1;display:grid;grid-template-rows:auto minmax(0,1fr);gap:6px;transition:opacity .45s ease}
+.sol-views>span:not(.on){opacity:0;visibility:hidden}
+.sol-kind-hd{display:flex;align-items:center;gap:10px;min-width:0}
+.sol-kind-hd b{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-2)}
+.sol-ic{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:9px;font-size:16px;color:var(--sun-text);background:rgba(233,162,59,.1);box-shadow:inset 0 0 0 1px rgba(233,162,59,.3)}
+/* Every row in three columns, headed "As written" and "Read as": the value in mono, the arrow in
+   a column of its own, the reading - the same sizes in all three cards. A value or a reading too
+   long for its column wraps inside it, so the arrows stay in line and nothing is cut short. */
+.sol-list{display:grid;grid-template-rows:min-content;grid-auto-rows:auto;align-content:stretch;list-style:none;margin:0;padding:4px;border-radius:12px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2)}
+.sol-list li{display:grid;grid-template-columns:minmax(0,1.2fr) 14px minmax(0,1fr);gap:0 8px;align-items:baseline;align-content:center;padding:3px 8px;border-radius:7px;font-size:12.5px;line-height:1.4;transition:background .4s ease}
+.sol-list li+li{box-shadow:0 -1px 0 var(--line)}
+.sol-list li.on{background:rgba(233,162,59,.11);box-shadow:none}
+.sol-list li.on+li{box-shadow:none}
+.sol-list li.hd{padding-block:5px 4px;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-4)}
+.sol-list .from{font:11.5px/1.4 var(--mono);color:var(--fg-3);overflow-wrap:anywhere}
+.sol-list li>b{font-weight:400;text-align:center;color:var(--sun-text)}
+.sol-list .to{color:var(--fg);overflow-wrap:anywhere}
+.sol-list .to.bad{color:var(--fail)}
+.sol-list .to.keep{color:var(--blue)}
+/* In a very narrow card a row is two lines - the value, then the arrow and the reading under it -
+   rather than both broken mid-word; the arrows still line up. */
+@container (max-width:230px){
+  .sol-list li{grid-template-columns:14px minmax(0,1fr);row-gap:0}
+  .sol-list .from{grid-column:1/-1}
+  .sol-list li.hd{display:flex;gap:14px}
+}
+/* Every load is safe, here alone since it left Trust (owner, 2026-11-01), where Deliver's write
+   modes and load receipt stood (owner: "put this away totally"): a band under the cards, as it
+   stood in Trust (owner: "keep it under it like before") - its name in small amber capitals,
+   then the four promises in a row, each an icon in a small amber seal, its name and its
+   sentence; two by two on a tablet, one under another on a phone. */
+.sol-safe{margin-top:18px;padding:22px 24px 24px;border-radius:18px;background:var(--bg);box-shadow:var(--e1,0 0 0 1px rgba(20,21,24,.1),0 1px 2px rgba(20,21,24,.04),0 12px 28px -18px rgba(20,21,24,.25))}
+.sol-safe-h{display:block;margin-bottom:16px;font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--sun-text)}
+.sol-safe-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
+.sol-safe-i{display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;align-items:start;font-size:14px;line-height:1.45;color:var(--fg-3)}
+.sol-safe-i>.ti{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:rgba(233,162,59,.1);box-shadow:inset 0 0 0 1px rgba(233,162,59,.32);color:var(--sun-text);font-size:18px}
+.sol-safe-i b{display:block;margin-bottom:2px;font-weight:500;color:var(--fg)}
+@media(max-width:1000px){.sol-safe-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.sol-safe{padding:20px 18px}.sol-safe-row{grid-template-columns:minmax(0,1fr);gap:18px}}
+/* The two arrows, round, beside the row - outside it where the window leaves room, over its
+   edges where it does not, and under it on a phone, either side of the bar. Grey at an end. */
+.sol-arrow{position:absolute;top:50%;translate:0 -50%;z-index:2;display:grid;place-items:center;width:46px;height:46px;padding:0;border:0;border-radius:50%;background:var(--bg);
+  color:var(--fg);font-size:20px;cursor:pointer;box-shadow:var(--e1,0 0 0 1px rgba(20,21,24,.1),0 1px 2px rgba(20,21,24,.04),0 12px 28px -18px rgba(20,21,24,.25));
+  transition:background .2s ease,box-shadow .2s ease,opacity .2s ease}
+.sol-arrow:hover:not(:disabled){background:#FFF8EE;box-shadow:var(--e3,0 0 0 1px rgba(20,21,24,.1),0 2px 4px rgba(20,21,24,.06),0 18px 36px -16px rgba(20,21,24,.32))}
+.sol-arrow:disabled{opacity:.35;cursor:default}
+.sol-arrow.prev{left:-72px}
+.sol-arrow.next{right:-72px}
+.sol-progress{position:relative;justify-self:center;width:140px;height:3px;margin-top:8px;border-radius:3px;background:var(--line-2);overflow:hidden}
+.sol-progress span{position:absolute;top:0;bottom:0;border-radius:3px;background:var(--sun);transition:left .15s linear,width .15s linear}
+@media(max-width:1379px){.sol-arrow.prev{left:-14px}.sol-arrow.next{right:-14px}}
+@media(max-width:1279px){.ben-grid{grid-auto-columns:calc((100% - 18px) / 2)}}
+@media(max-width:640px){
+  .ben-grid{grid-column:1/-1;grid-auto-columns:88%;column-gap:12px}
+  .sol-car{grid-template-columns:auto minmax(0,1fr) auto;align-items:center;column-gap:16px}
+  .sol-arrow{position:static;translate:none;grid-row:2;margin-top:8px}
+  .sol-arrow.prev{grid-column:1}
+  .sol-arrow.next{grid-column:3}
+  .sol-progress{grid-row:2;grid-column:2;justify-self:stretch;width:auto;margin-top:8px}
+}
+/* On a phone (owner, 2026-11-01: "better visible on small screens, 3 cards like just edges,
+   smaller, empty spaces limited"): the row runs the full width of the screen and one card sits
+   in its middle, the cards either side showing only their edges; each card snaps to the centre,
+   the padding at both ends letting the first and last centre too. The cards are tighter - less
+   padding, smaller type, the picture as tall as the tallest picture needs rather than a fixed
+   box, so all stay one height with no blank band - and the arrows stand either side of the bar
+   under the row, raised so they read as buttons. */
+@media(max-width:600px){
+  .ben-grid{grid-auto-columns:84vw;column-gap:10px;margin-inline:-16px;padding-inline:8vw;scroll-padding-inline:0}
+  .ben{scroll-snap-align:center;gap:10px;padding:12px}
+  .ben h3{font-size:18px;padding:6px 8px 0}
+  .ben p{font-size:14.5px;line-height:1.45;padding:0 8px 2px}
+  .ben .vis{height:auto;padding:14px 12px}
+  .ben .vis.sol-kind,.ben .vis.sol-plan,.ben .vis.sol-xl{padding-inline:10px}
+  .sol-list li{padding-block:2px}
+  .ben .vis .src{gap:4px;padding:4px 10px;font-size:11.5px;white-space:nowrap}
+  .ben .vis .src small{font-size:10.5px}
+  .agree .pl{padding:6px 10px;font-size:12px}
+  .agree .pl .k{padding-right:6px}
+  .agree .pl{grid-template-columns:minmax(0,1fr) auto 18px auto}
+  /* The arrows sit on the centred card's edges, half way down it - over the picture, never the
+     title or text (owner, 2026-11-01: "on mobile keep those arrows in the middle of the card") -
+     and the bar alone under the row. Out of the grid's areas, they are placed against the whole
+     row: its middle, less half the bar under it, and the card's edge, 8vw in from the screen's
+     less the page's 16px gutter. */
+  .sol-car{grid-template-columns:minmax(0,1fr)}
+  .ben-grid{grid-column:1}
+  .sol-arrow{position:absolute;grid-row:auto;grid-column:auto;top:calc(50% - 14px);translate:0 -50%;margin:0;width:38px;height:38px;font-size:18px;
+    box-shadow:var(--e3,0 0 0 1px rgba(20,21,24,.1),0 2px 4px rgba(20,21,24,.06),0 18px 36px -16px rgba(20,21,24,.32))}
+  .sol-arrow.prev{left:calc(8vw - 16px - 19px)}
+  .sol-arrow.next{right:calc(8vw - 16px - 19px)}
+  .sol-arrow:not(:disabled){color:var(--sun-text)}
+  .sol-arrow:disabled{opacity:.35;pointer-events:none}
+  .sol-progress{grid-row:2;grid-column:1;justify-self:center;width:120px;height:4px}
+}
+/* The road from a file to a report: the demo's four tabs as four numbered steps on one line,
+   joined by a rule, as a process reads - under the owner's line that headed About - and Ask
+   under them. A sheet like the cards, white. */
+.sol-road{margin-top:18px;padding:clamp(22px,3.2vw,40px);border-radius:22px;background:var(--bg);
+  box-shadow:var(--e1,0 0 0 1px rgba(20,21,24,.1),0 1px 2px rgba(20,21,24,.04),0 12px 28px -18px rgba(20,21,24,.25))}
+.sol-road-head{display:grid;gap:10px;margin-bottom:30px}
+.sol-kicker{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--sun-text)}
+.sol-road h3{font-size:clamp(22px,2.6vw,30px);font-weight:450;letter-spacing:-.02em;line-height:1.15}
+.sol-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px;position:relative}
+.sol-steps::before{content:"";position:absolute;left:18px;right:18px;top:18px;height:1px;background:linear-gradient(90deg,rgba(233,162,59,.6),rgba(233,162,59,.15))}
+.sol-steps li{position:relative;display:grid;gap:8px;align-content:start}
+.sol-n{display:grid;place-items:center;width:36px;height:36px;margin-bottom:6px;border-radius:50%;background:var(--sun);color:#fff;font-weight:600;font-size:15px;box-shadow:0 0 0 6px var(--bg)}
+.sol-steps h4{font-size:17px;font-weight:500;color:var(--fg)}
+.sol-steps p{font-size:14.5px;color:var(--fg-3)}
+.sol-ask{margin-top:28px;padding-top:20px;border-top:1px solid var(--line);font-size:15px;color:var(--fg-3)}
+.sol-ask span{color:var(--sun-text)}
+/* On a tablet the road's steps go two by two. */
+@media(max-width:900px){
+  .sol-steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sol-steps::before{display:none}
+}
+/* On a phone the road runs down the page: each number on the left, a rule joining it to the
+   next, the step beside it. */
+@media(max-width:600px){
+  .sol-sheet .r{grid-template-columns:minmax(0,1.3fr) minmax(0,.95fr) minmax(0,1fr)}
+  .sol-sheet .r>span{padding-inline:7px}
+  .sol-steps{grid-template-columns:minmax(0,1fr);gap:22px}
+  .sol-steps li{grid-template-columns:36px minmax(0,1fr);column-gap:16px;row-gap:4px}
+  .sol-steps li .sol-n{grid-row:1/3;margin:0}
+  .sol-steps li:not(:last-child)::before{content:"";position:absolute;left:17.5px;top:42px;bottom:-18px;width:1px;background:rgba(233,162,59,.4)}
+  .sol-steps h4{align-self:center}
+}
 
 /* Trust grid */
 .trust{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)}
-.trust-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 32px;margin-top:44px;border-top:1px solid var(--line-2)}
-.trust-grid div{padding:24px 0;border-bottom:1px solid var(--line)}
-.trust-grid h3{font-size:18px;margin-bottom:6px}
-.trust-grid p{color:var(--fg-3);font-size:15px}
-@media(max-width:800px){.trust-grid{grid-template-columns:minmax(0,1fr)}}
+.trust .sec-head{margin-bottom:0}
+/* Three columns as enterprise platforms set security out: an icon, a short title, and a list
+   of claims one line each, ticked in amber - read at a glance, checkable one by one. */
+/* Trust's three frames, a band above the columns (owner: "more appealing"): each a card whose
+   top is warm morning light - cream going to a soft amber, the sun's glow rising from its lower
+   edge - with its seal and name in it; under it, one line and what it rests on. It was a piece
+   of the hero's night until the owner asked for it "not blue, friendlier, in the scheme"
+   (2026-11-01). */
+.frames{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:40px}
+.frame{display:grid;grid-template-rows:auto 1fr;border-radius:20px;overflow:hidden;background:#fff;box-shadow:var(--e1);
+  transition:transform .35s var(--ease),box-shadow .35s ease}
+/* Seen by structure, not by more yellow (owner: "improve the shading for visibility", then
+   "less bright yellow, like before"): the top stays a pale cream with a faint glow, and what
+   sets it off is drawn - a thin amber line along the card's top edge, a hairline under the
+   head, a firmer edge and shadow round the card - as product sites set off a feature card. */
+.frame-top{position:relative;display:flex;align-items:center;gap:14px;padding:24px 22px 20px;color:var(--fg);border-bottom:1px solid rgba(233,162,59,.24);
+  background:radial-gradient(110% 100% at 50% 150%,rgba(244,184,96,.34),rgba(244,184,96,0) 62%),
+    linear-gradient(180deg,#FFFCF7 0%,#FFF3E2 100%)}
+.frame-top::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,rgba(233,162,59,.35),#E9A23B 50%,rgba(233,162,59,.35))}
+.frame-ic{flex:none;display:grid;place-items:center;width:50px;height:50px;border-radius:50%;font-size:24px;color:var(--sun-text);
+  background:#fff;box-shadow:inset 0 0 0 1.5px rgba(233,162,59,.6),var(--e1)}
+.frame h3{font-size:18px;font-weight:500;color:var(--fg);margin:0}
+/* The line at the top, what it rests on at the foot: the three cards are one height, so their
+   texts start level and their tags stand on one line however long each text runs (owner,
+   2026-11-01: "align the text in the cards"). */
+.frame-b{padding:16px 22px 20px;display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.frame p{font-size:14.5px;line-height:1.5;color:var(--fg-2);margin:0}
+.frame small{margin-top:auto;font-size:11.5px;font-weight:600;letter-spacing:.04em;color:var(--sun-text);padding:4px 10px;border-radius:999px;background:rgba(233,162,59,.08);box-shadow:inset 0 0 0 1px rgba(233,162,59,.3)}
+@media(max-width:900px){.frames{grid-template-columns:minmax(0,1fr)}}
+.pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:18px}
+.pillar{padding:24px 24px 14px;border-radius:18px;background:var(--bg);box-shadow:var(--e1)}
+.pillar-ic{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:rgba(233,162,59,.1);box-shadow:inset 0 0 0 1px rgba(233,162,59,.32);color:var(--sun-text);font-size:20px}
+.pillar h3{font-size:18px;margin:18px 0 6px}
+.pillar p{font-size:14.5px;color:var(--fg-3);margin-bottom:14px}
+/* Where data lives is a choice of two, so it is drawn as two: stacked tiles, each with its
+   icon, its name, one line and the places it covers, an "or" seal on the seam between them.
+   The first carries the sun's warmth, the second the ink's - both white, never grey. */
+.pillar-opts{display:grid;gap:10px;margin-bottom:14px}
+/* Both plain and alike (owner: "option 2 more plain"): white, a hairline, an amber outline
+   icon - the choice is in the words, not in two different looks. */
+.opt{position:relative;display:grid;grid-template-columns:38px minmax(0,1fr);gap:12px;align-items:start;padding:13px 14px;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 1px var(--line-2)}
+.opt-ic{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;font-size:19px;color:var(--sun-text);background:rgba(233,162,59,.08);box-shadow:inset 0 0 0 1px rgba(233,162,59,.3)}
+.opt-t{display:grid;gap:2px;min-width:0}
+.opt-t small{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--sun-text)}
+.opt-t b{font-size:15px;font-weight:500;color:var(--fg)}
+.opt-t>span{font-size:13px;line-height:1.4;color:var(--fg-3)}
+.opt-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.opt-tags em{font-style:normal;font-size:11px;padding:2px 8px;border-radius:999px;color:var(--fg-2);box-shadow:inset 0 0 0 1px var(--line-2)}
+.opt-or{position:absolute;left:50%;top:-15px;translate:-50% 0;z-index:1;display:grid;place-items:center;width:28px;height:20px;border-radius:999px;background:#fff;
+  box-shadow:inset 0 0 0 1px var(--line-2);font-size:11px;font-weight:500;color:var(--fg-4)}
+/* Service you can rely on: under the three columns, one box of six commitments, three to a row
+   (two on a tablet, one on a phone), each an icon in an amber seal, its name and one line
+   (Trust.tsx, SERVICE). On the page's heights (--e1), as every card. */
+.svc{margin-top:18px;padding:22px 24px 24px;border-radius:18px;background:var(--bg);box-shadow:var(--e1)}
+.svc-h{display:block;margin-bottom:18px;font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--sun-text)}
+.svc-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px 26px}
+.svc-i{display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;align-items:start;margin:0;font-size:14px;line-height:1.45;color:var(--fg-3)}
+.svc-i>.ti{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:rgba(233,162,59,.1);box-shadow:inset 0 0 0 1px rgba(233,162,59,.32);color:var(--sun-text);font-size:18px}
+.svc-i b{display:block;margin-bottom:2px;font-weight:500;color:var(--fg)}
+@media(max-width:1000px){.svc-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.svc{padding:20px 18px}.svc-row{grid-template-columns:minmax(0,1fr);gap:16px}}
+.pillar ul{list-style:none;margin:0;padding:0}
+/* Regular weight in the softer ink, as the Deliver paths' lists: set medium in full ink, every
+   line read as bold (owner, 2026-11-01: "do these Trust cards have all text in bold?"). */
+.pillar li{position:relative;padding:9px 0 9px 26px;border-top:1px solid var(--line);font-size:14.5px;font-weight:400;line-height:1.4;color:var(--fg-2)}
+.pillar li::before{content:"";position:absolute;left:3px;top:14px;width:10px;height:5px;border-left:1.6px solid var(--sun-text);border-bottom:1.6px solid var(--sun-text);transform:rotate(-45deg)}
+@media(max-width:900px){.pillars{grid-template-columns:minmax(0,1fr)}}
 
 /* Changelog */
 .changelog{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)}
@@ -283,7 +808,7 @@ form{padding:28px;display:grid;gap:16px}
 .fld{display:grid;gap:6px}
 .fld label{font-size:13px;color:var(--fg-3)}
 .fld input,.fld textarea{width:100%;padding:12px 14px;border-radius:10px;border:0;background:var(--bg);color:var(--fg);font:400 16px/1.4 var(--font);
-  box-shadow:inset 0 0 0 1px var(--line-2),inset 0 2px 4px rgba(0,0,0,.5);transition:box-shadow .2s ease}
+  box-shadow:inset 0 0 0 1px var(--line-2),inset 0 2px 4px var(--field-shade);transition:box-shadow .2s ease}
 .fld textarea{min-height:120px;resize:vertical}
 .fld input:focus,.fld textarea:focus{outline:none;box-shadow:inset 0 0 0 1px var(--sun),0 0 0 3px rgba(233,162,59,.18)}
 .fld .err{font-size:13px;color:var(--problem)}
@@ -292,15 +817,13 @@ form{padding:28px;display:grid;gap:16px}
 .done pre{margin:0;padding:16px;border-radius:10px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);font:13px/1.6 var(--mono);color:var(--fg-2);white-space:pre-wrap;overflow-wrap:anywhere}
 .done .row{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center}
 .contact-side{display:grid;gap:20px}
-.contact-side ul{margin:0;padding-left:18px;display:grid;gap:8px;color:var(--fg-2)}
-.contact-side li::marker{color:var(--sun)}
+.contact-side>.label{color:var(--sun-text)}
 
 /* Footer */
 footer{border-top:1px solid var(--line-2);padding-block:48px 28px}
 footer .wrap{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:32px}
 .foot-brand{display:grid;gap:12px;align-content:start}
 .foot-brand .brand{margin:0}
-.foot-brand p{color:var(--fg-4);font-size:14px;max-width:28ch}
 footer h4{margin:0 0 12px;font-size:13px;color:var(--fg-4);font-weight:500}
 footer ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 footer ul a{color:var(--fg-2);text-decoration:none;font-size:14px;transition:color .2s ease}
@@ -309,134 +832,48 @@ footer ul a:hover{color:var(--fg)}
 @media(max-width:720px){footer .wrap{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.foot-brand{grid-column:1/-1}}
 
 /* The grid, as the app draws a table */
-.grid-scroll{overflow-x:auto;min-width:0}
 .grid{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
 .grid th{position:sticky;top:0;text-align:left;font-weight:500;color:var(--fg-3);font-size:13px;padding:10px 12px;border-bottom:1px solid var(--line-2);background:var(--bg-2);white-space:nowrap}
 .grid td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--fg-2);white-space:nowrap;transition:background .25s ease,box-shadow .25s ease}
 .grid tr:last-child td{border-bottom:0}
 .grid tbody tr:hover td{background:rgba(188,197,216,.03)}
 .grid .num{text-align:right}
-.grid .txt{text-align:left;color:var(--fg-3)}
-.grid .rn{width:36px;color:var(--fg-4);text-align:right;font-size:12px}
-.grid td.bad{box-shadow:inset 0 -2px 0 rgba(167,180,204,.45)}
-.grid td.hot{background:rgba(167,180,204,.14);color:var(--fg)}
-.grid td.fixed{animation:cell-fix 1.2s var(--ease)}
-.grid em{color:var(--fg-4);font-style:normal;font-size:13px}
 .grid.mini{font-size:13px}
-.grid .lock{color:var(--problem);font-size:10px;vertical-align:2px}
-.grid .hidden-col{color:var(--fg-4)}
 @keyframes cell-fix{0%{background:rgba(233,162,59,.4);color:#fff}100%{background:transparent}}
 
-/* Validate panel */
-.demo{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:20px;align-items:start}
-@media(max-width:860px){.demo{grid-template-columns:minmax(0,1fr)}}
-.grid-card{overflow:hidden;min-width:0}
-.grid-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line-2)}
-.grid-name{color:var(--fg);font-weight:500;font-size:15px}
-.findings{padding:20px 24px;display:grid;gap:14px}
-.find-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.find-head h3{font-size:22px;margin-top:2px}
-.find-list{list-style:none;margin:0;padding:0;display:grid}
-.find-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 10px;margin:0 -10px;border-radius:10px;border-bottom:1px solid var(--line);animation:tray-pop .34s var(--spring) both;transition:background .2s ease}
-.find-list li:last-child{border-bottom:0}
-.find-list li.on{background:rgba(167,180,204,.08)}
-.find-list .ft{color:var(--fg);font-size:15px}
-.find-list .fd{color:var(--fg-3);font-size:13px;margin-top:2px}
-.find-foot{display:flex;gap:20px;border-top:1px solid var(--line);padding-top:8px}
-
-/* Ask panel */
-.ask{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:20px;align-items:start}
-@media(max-width:860px){.ask{grid-template-columns:minmax(0,1fr)}}
-.ask-side{display:grid;gap:10px}
-.ask-chip{text-align:left;padding:12px 16px;border-radius:12px;border:1px solid var(--line-2);background:transparent;color:var(--fg-2);font:400 15px var(--font);cursor:pointer;transition:border-color .2s ease,background .2s ease,color .2s ease,transform .14s var(--ease)}
-.ask-chip:hover{border-color:var(--line-3);color:var(--fg);transform:translateX(2px)}
-.ask-chip.on{border-color:rgba(233,162,59,.6);background:rgba(233,162,59,.1);color:var(--fg)}
-.ask-panel{padding:20px;display:grid;gap:16px;min-width:0}
-.ask-input{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 14px;border-radius:12px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2),inset 0 2px 4px rgba(0,0,0,.5)}
-.ask-input:focus-within{box-shadow:inset 0 0 0 1px var(--sun),0 0 0 3px rgba(233,162,59,.18)}
-.ask-input input{flex:1;min-width:0;border:0;background:none;color:var(--fg);font:400 16px var(--font);outline:none;padding:8px 0}
-.spark-ico{color:var(--sun);font-size:16px}
-.ask-miss{color:var(--fg-3);font-size:15px}
-.ask-wait{display:flex;gap:6px;padding:6px 2px}
-.ask-wait b{width:6px;height:6px;border-radius:50%;background:var(--sun);animation:wait 1s ease-in-out infinite}
-.ask-wait b:nth-child(2){animation-delay:.15s}.ask-wait b:nth-child(3){animation-delay:.3s}
-@keyframes wait{0%,100%{opacity:.25;transform:none}50%{opacity:1;transform:translateY(-3px)}}
-.ask-step{display:grid;gap:14px;animation:page-in-n .28s var(--ease) both}
-.ask-step-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}
-.ask-step pre{margin:0;padding:14px 16px;border-radius:10px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);font:13px/1.6 var(--mono);color:var(--fg-2);overflow-x:auto}
-.ask-step .row{display:flex;gap:16px;align-items:center}
-
-/* Pipeline panel */
-.track{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:8px}
-.rail{position:absolute;left:12.5%;right:12.5%;top:21px;height:2px;background:var(--line-2);border-radius:2px}
-.rail .fill{position:absolute;inset:0 auto 0 0;background:var(--grad-sun);border-radius:2px;width:0}
-.rail .packet{position:absolute;top:50%;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:#FFF3DF;box-shadow:0 0 0 4px rgba(233,162,59,.3),0 0 18px 4px rgba(233,162,59,.75);opacity:0;left:0}
-.scan{position:absolute;top:0;width:25%;height:44px;border-radius:999px;background:radial-gradient(ellipse 50% 60% at 50% 50%,rgba(233,162,59,.22),transparent 70%);opacity:0;transition:left .38s var(--ease),opacity .3s ease;pointer-events:none}
-.step{position:relative;display:grid;justify-items:center;gap:12px;padding:0 8px;background:none;border:0;cursor:pointer;color:inherit;font-family:var(--font);text-align:center}
-.node{position:relative;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--bg-2);box-shadow:inset 0 0 0 1px var(--line-3);color:var(--fg-3);font-size:14px;font-variant-numeric:tabular-nums;transition:box-shadow .3s ease,color .3s ease,background .3s ease,transform .3s var(--spring)}
-.step:hover .node{transform:translateY(-2px)}
-.step .nm{color:var(--fg-2);font-weight:500;font-size:16px;transition:color .2s ease}
-.step .st{font-size:13px;color:var(--fg-4);min-height:18px}
-.step[aria-selected="true"] .nm{color:var(--fg)}
-.step[aria-selected="true"] .node{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 6px rgba(149,173,216,.08);color:var(--fg)}
-.step.ok .node{background:var(--navy);color:var(--sun-2);box-shadow:inset 0 0 0 1px rgba(233,162,59,.7)}
-.step.flag .node{background:var(--bg-3);color:var(--problem);box-shadow:inset 0 0 0 1px var(--problem),0 0 0 6px rgba(167,180,204,.1);animation:shake .4s ease}
-.step.flag .st{color:var(--problem)}
-.step.ok .st{color:var(--sun)}
-.spark{position:absolute;left:50%;top:22px;width:4px;height:4px;margin:-2px;border-radius:50%;background:var(--sun);animation:spark .7s var(--ease) forwards;pointer-events:none}
-.detail{margin-top:28px;padding:24px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;overflow:hidden}
-@media(max-width:760px){.detail{grid-template-columns:minmax(0,1fr)}.step .nm{font-size:14px}.step .st{display:none}}
-.detail .in-n{animation:page-in-n .28s var(--ease) both}.detail .in-p{animation:page-in-p .28s var(--ease) both}
-.detail ul{margin:0;padding-left:18px;display:grid;gap:6px;color:var(--fg-2)}
-.detail li::marker{color:var(--sun)}
-.detail .out{display:grid;gap:6px;align-content:start}
-.proc-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-top:16px}
-
-/* Jobs panel */
-.chart-card{padding:20px;display:grid;gap:12px;min-width:0}
-.chart-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
-.chart-top .big{font-size:26px;color:var(--fg);font-weight:450;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.chart{width:100%;min-height:260px}
-.runs{display:grid;grid-template-columns:minmax(0,8fr) minmax(0,4fr);gap:20px;align-items:start}
-@media(max-width:860px){.runs{grid-template-columns:minmax(0,1fr)}}
-.run-figs{display:grid;gap:4px}
-.run-fig{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
-.run-fig:last-child{border-bottom:0}
-.run-fig .dot{width:10px;height:10px;border-radius:50%}
-.run-fig .n{font-size:32px;font-weight:450;letter-spacing:-.02em;color:var(--fg);line-height:1;font-variant-numeric:tabular-nums}
-.run-fig p:last-child{grid-column:2;color:var(--fg-3);font-size:14px}
-
-/* Access panel */
-.access{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:20px;align-items:start}
-@media(max-width:860px){.access{grid-template-columns:minmax(0,1fr)}}
-.access-card{padding:20px;display:grid;gap:16px;min-width:0}
-.access-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+/* A segmented choice: Deliver's write modes */
 .seg{display:inline-flex;padding:3px;gap:2px;border-radius:12px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);position:relative}
 .seg button{position:relative;z-index:1;min-height:34px;padding:6px 14px;border:0;border-radius:9px;background:none;color:var(--fg-3);font:500 14px var(--font);cursor:pointer;transition:color .2s ease}
 .seg button:hover{color:var(--fg)}
 .seg button[aria-checked="true"]{color:#fff}
-.seg .knob{position:absolute;top:3px;bottom:3px;border-radius:9px;background:var(--accent-dim);box-shadow:inset 0 0 0 1px rgba(149,173,216,.55);transition:left .3s var(--spring),width .3s var(--spring)}
+/* On the light page a chosen option is a white tab raised off a light track, its label in
+   ink - never a black box. */
+.daylight .seg{background:var(--bg-3)}
+.daylight .seg button[aria-checked="true"]{color:var(--fg)}
 .veil{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--bg-3);box-shadow:inset 0 0 0 1px var(--line-2);font-size:12px;color:var(--fg-4);animation:tray-pop .3s var(--spring) both}
-.access-side{display:grid;gap:16px}
-.can{padding:18px 22px;display:grid;gap:10px;animation:tray-pop .34s var(--spring) both}
-.can ul{margin:0;padding-left:20px;display:grid;gap:6px;font-size:15px}
-.can .yes{color:var(--fg-2)}.can .yes li::marker{content:"✓  ";color:var(--sun)}
-.can .no{color:var(--fg-4)}.can .no li::marker{content:"–  ";color:var(--fg-4)}
-.audit-log{padding:18px 22px;display:grid;gap:10px}
-.audit-log ul{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:14px;color:var(--fg-2)}
-.audit-log li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px;animation:tray-pop .34s var(--spring) both}
-.audit-log li:not(:first-child){color:var(--fg-4);animation:none}
-.audit-log .at{color:var(--fg-4);font-variant-numeric:tabular-nums}
 
 @keyframes rise{from{opacity:0;transform:translateY(.45em)}to{opacity:1;transform:none}}
-@keyframes fade-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@keyframes pop{0%{transform:scale(.6)}100%{transform:scale(1)}}
 @keyframes tray-pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
-@keyframes page-in-n{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
-@keyframes page-in-p{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
-@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 @keyframes spark{from{opacity:1;transform:translate(0,0) scale(1)}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.4)}}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}
   html{scroll-behavior:auto}
+}
+/* A phone's own type, a step under the larger screens' (owner, 2026-11-01: "isn't all text a
+   little too big for small screens? update"): every role about 1-2px smaller at 480px and
+   under - headings, statement, cards' titles and texts, the Trust lists - so long blocks run
+   to fewer lines. A form's fields stay at 16px: an iPhone zooms into any field set smaller.
+   Last in the file, so it wins over each role's own rule at the same weight; the demo window
+   has its own phone scale (--ph-*, app.css). */
+@media(max-width:480px){
+  :root{--fs-h1:clamp(35px,4.2vw + 14px,80px);--fs-h2:clamp(25px,2vw + 18px,50px);--fs-lede:clamp(15.5px,.55vw + 13px,21px);--fs-intro:clamp(14px,.25vw + 13px,17.5px)}
+  .statement p{font-size:25px}
+  .path h3{font-size:18px}
+  .path p{font-size:14px}
+  .path li{font-size:13.5px}
+  .ben h3{font-size:17px}
+  .ben p{font-size:13.5px}
+  .frame h3,.pillar h3{font-size:17px}
+  .frame p,.pillar p,.pillar li{font-size:13.5px}
+  .svc-i{font-size:13.5px}
 }

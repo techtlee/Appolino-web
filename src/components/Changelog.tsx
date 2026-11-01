@@ -10,7 +10,7 @@ export function Changelog() {
   return (
     <section className="changelog" id="changelog">
       <div className="wrap">
-        <h2>Appolino keeps getting better.</h2>
+        <h2>appolino keeps getting better.</h2>
         <div className="cl-grid">
           {ENTRIES.map(([d, h, p]) => (
             <article className="cl" key={d}>
