@@ -7,7 +7,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 export const SECTIONS = ["top", "try", "platform", "why", "security", "contact"] as const;
 
 /** The phone layout's breakpoint (index.css, app.css): the tabs share the width, the cards
- *  centre, the turning word takes a line of its own. */
+ *  centre, the slogan is sized to the screen. */
 export const PHONE_MAX = 600;
 /** Up to here the nav is hidden and the demo window grows with what it holds. */
 export const NARROW_MAX = 900;

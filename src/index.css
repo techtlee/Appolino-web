@@ -239,11 +239,17 @@ a{color:var(--accent)}
 .hero-copy{display:grid;justify-items:center;text-align:center;gap:22px;max-width:100%}
 .hero h1{max-width:none;text-align:left}
 .hero h1 .line{display:block;white-space:nowrap}
-/* On a phone the longest turning words ("Traceability.", "dohledatelností.") do not fit
-   beside "Meets", so the turning word takes a line of its own there - its wrapper made a block,
-   since its place is only a typical word wide and a long word would otherwise run on past the
-   screen's edge beside "Meets" (the e2e layout check, 2026-11-01: 22px past at 360). */
-@media(max-width:600px){.hero h1 .line{white-space:normal}.hero h1 .w:has(> .turn){display:block}}
+/* On a phone the turning word stays beside "Meets" (owner, 2026-11-01: "why on a small screen
+   is Reliability under Meets"): the slogan is never wider than 9.4% of the screen a line, which
+   keeps "Meets Consistency.", the widest pair, 16px clear of either edge down to 320px (measured
+   in the browser: it fits up to 9.65vw). Above 375px the usual size is smaller than that anyway,
+   so only the smallest phones see it shrink. Czech's longest word ("dohledatelností.") does not
+   fit at any readable size, so in Czech the word still takes a line of its own. */
+@media(max-width:600px){
+  .hero h1{font-size:min(var(--fs-h1),9.4vw)}
+  html[lang="cs"] .hero h1 .line{white-space:normal}
+  html[lang="cs"] .hero h1 .w:has(> .turn){display:block}
+}
 .hero h1 .w{display:inline-block;animation:emerge 1.8s var(--ease) both}
 /* The slogan's turning word: every word stacked at one starting point; the place keeps one
    width, a typical word's, and a longer word runs on past it, so nothing else on the line

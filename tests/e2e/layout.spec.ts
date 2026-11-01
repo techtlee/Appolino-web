@@ -78,11 +78,12 @@ test.describe("@layout the page holds together", () => {
     }
   });
 
-  test("every turning word of the slogan fits inside the hero, on a phone on a line of its own", async ({ page }) => {
-    // Fixed 2026-11-01 (index.css: the turning word's wrapper a block on a phone); held here.
-    // Every word is in the page from the start, stacked at one starting point (Hero.tsx,
-    // Turning), so each one's reach is measured without waiting for it to turn. A longer word
-    // runs on past the slogan's block by design; it must still stop short of the page's gutter.
+  test("every turning word of the slogan fits inside the hero, beside Meets on every screen", async ({ page }) => {
+    // On a phone the slogan is sized to keep the widest word beside Meets (index.css, 9.4vw;
+    // owner, 2026-11-01, "why is Reliability under Meets"). Every word is in the page from the
+    // start, stacked at one starting point (Hero.tsx, Turning), so each one's reach is measured
+    // without waiting for it to turn. A longer word runs on past the slogan's block by design;
+    // it must still stop short of the page's gutter.
     await openHome(page);
     const words = await page.locator(".hero h1 .turn").evaluate((turn) => {
       const gutter = parseFloat(getComputedStyle(document.querySelector(".hero .wrap")!).paddingRight);
@@ -92,12 +93,10 @@ test.describe("@layout the page holds together", () => {
     });
     expect(words.length, "the turning words").toBeGreaterThanOrEqual(7);
     expect.soft(words.filter((w) => w.over > 0), "words that run past the hero's gutter").toEqual([]);
-    if (isPhone(page)) {
-      const meets = (await page.locator(".hero h1 .w", { hasText: /^Meets$/ }).boundingBox())!;
-      const turn = (await page.locator(".hero h1 .turn").boundingBox())!;
-      expect.soft(turn.y, "on a phone, the turning word under Meets").toBeGreaterThanOrEqual(meets.y + meets.height * 0.6);
-      expect.soft(Math.abs(turn.x - meets.x), "starting where Meets starts").toBeLessThanOrEqual(1);
-    }
+    const meets = (await page.locator(".hero h1 .w", { hasText: /^Meets$/ }).boundingBox())!;
+    const turn = (await page.locator(".hero h1 .turn").boundingBox())!;
+    expect.soft(Math.abs(turn.y + turn.height - (meets.y + meets.height)), "the turning word on Meets's line").toBeLessThanOrEqual(meets.height * 0.25);
+    expect.soft(turn.x, "after Meets, not under it").toBeGreaterThanOrEqual(meets.x + meets.width);
   });
 });
 

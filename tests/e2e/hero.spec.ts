@@ -8,7 +8,7 @@
 
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./support/test";
-import { expectUnchanged, isPhone, openHome } from "./support/page";
+import { expectUnchanged, openHome } from "./support/page";
 
 const turning = (page: Page) => page.locator(".hero h1 .turn-w.is-on");
 const meets = (page: Page) => page.locator(".hero h1 .w", { hasText: /^Meets$/ });
@@ -86,8 +86,8 @@ test.describe("@flow the hero's turning word", () => {
     }
     const xs = seen.map((t) => t.meetsX);
     expect(Math.max(...xs) - Math.min(...xs), `Meets stood at ${xs.map(Math.round).join(", ")}`).toBeLessThanOrEqual(0.5);
-    // Side by side, "Meets" and the word share a baseline; a phone's own line is layout.spec's.
-    if (!isPhone(page)) for (const t of seen) expect(Math.abs(t.offset!), `"${t.word}" on Meets's baseline`).toBeLessThanOrEqual(1);
+    // Side by side on every screen, "Meets" and the word share a baseline.
+    for (const t of seen) expect(Math.abs(t.offset!), `"${t.word}" on Meets's baseline`).toBeLessThanOrEqual(1);
     // Only the word on show is read; the others are hidden from a screen reader.
     await expect(page.locator(".hero h1 .turn-w[aria-hidden='false']")).toHaveCount(1);
   });
