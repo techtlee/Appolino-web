@@ -108,7 +108,6 @@ export function Hero() {
       <div className="wrap">
         {/* The slogan's lines on one left edge, the rest centred (index.css, .hero-copy). */}
         <div className="hero-copy">
-          <p className="eyebrow">{t("The data platform for business teams", "Datová platforma pro firemní týmy")}</p>
           {/* Read by a screen reader as the slogan itself, not as its turning words. */}
           <h1 aria-label={t("Where Simplicity Meets Precision.", "Kde se jednoduchost potkává s přesností.")}>
             <span className="line" aria-hidden>

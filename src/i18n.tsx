@@ -42,7 +42,9 @@ export function LangProvider({ children }: { children: ReactNode }) {
   }, []);
   useEffect(() => {
     document.documentElement.lang = lang;
-    document.title = lang === "cs" ? "appolino · Datová platforma pro firemní týmy" : "appolino · The data platform for business teams";
+    // The slogan, not a category (owner, 2026-11-01: "remove 'the data platform for business
+    // teams'").
+    document.title = lang === "cs" ? "appolino · Kde se jednoduchost potkává s přesností" : "appolino · Where Simplicity Meets Precision";
   }, [lang]);
   const value = useMemo(() => ({ lang, setLang }), [lang, setLang]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

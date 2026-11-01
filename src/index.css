@@ -222,15 +222,14 @@ a{color:var(--accent)}
   background:linear-gradient(180deg,rgba(14,21,38,0) 0%,rgba(26,38,70,.3) 30%,rgba(54,74,122,.5) 55%,rgba(110,130,176,.7) 78%,rgba(176,190,218,.88) 93%,#D3DAE8 100%)}
 .hero canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;transform:scale(calc(1 + var(--day,0) * .08))}
 /* The first screen is the sky alone: the hero fills the window, the sun sits on its lower
-   edge, and the words come out slowly once it has risen - the eyebrow, the headline word
-   by word as stars do at dusk, then the rest. */
+   edge, and the words come out slowly once it has risen - the headline word by word as stars
+   do at dusk, then the rest. No line over the slogan: "The data platform for business teams"
+   stood there until the owner had it removed (2026-11-01). */
 .hero .wrap{position:relative;z-index:1;display:grid;justify-items:center;align-content:center;text-align:center;gap:22px;padding-block:calc(68px + clamp(40px,7vh,96px)) clamp(170px,26vh,260px);pointer-events:none;
   opacity:calc(1 - var(--day,0) * 1.6);transform:translateY(calc(var(--day,0) * -60px))}
 .hero .wrap a,.hero .wrap button{pointer-events:auto}
-.hero .eyebrow{font-size:12px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--sun-2);text-wrap:balance;animation:emerge 2s var(--ease) 1s both}
-@media(max-width:520px){.hero .eyebrow{font-size:10.5px;letter-spacing:.2em}}
 /* The slogan's two lines start at one edge, "Meets" under "Where", the slogan centred as a
-   block; the eyebrow, the line under it and the buttons stand in the middle (owner, 2026-11-01:
+   block; the line under it and the buttons stand in the middle (owner, 2026-11-01:
    "Meets should start at the same point as Where"; then "make work simpler always in the
    middle, not aligned from the left; Book a demo and Try it the same"). The turning word's
    place is as wide as a typical word (Hero.tsx, Turning), so the slogan sits in the middle

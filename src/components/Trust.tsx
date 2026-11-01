@@ -130,7 +130,9 @@ const PILLARS: { icon: string; title: Two; lead: Two; options?: Option[]; items:
       ["Project isolation", "Oddělené projekty"],
       ["Full audit trail, retained 1 to 10 years", "Úplná auditní stopa, uchovaná 1 až 10 let"],
       ["Every operator access logged", "Každý přístup operátora zaznamenaný"],
-      ["Built to OWASP Top 10, TLS in transit", "Postaveno podle OWASP Top 10, TLS při přenosu"],
+      // "Encrypted in transit" is what TLS means, said so a business reader knows it (owner,
+      // 2026-11-01: "what does TLS in transit mean").
+      ["Built to OWASP Top 10, encrypted in transit", "Postaveno podle OWASP Top 10, šifrováno při přenosu"],
     ],
   },
 ];
