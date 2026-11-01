@@ -491,7 +491,7 @@ function Screen({ lang }: { lang: Lang }) {
       </Head>
       <div className="tt-main">
         <div className="tt-card">
-          <div className="tt-gridbox">
+          <div className="tt-gridbox" tabIndex={0} role="region" aria-label={t("Table", "Tabulka")}>
             <Grid rows={rows} region={ex.region} accepted={accepted} flagged={flagged} hot={hot} flash={flash} leaving={leaving} typed={typed} edit={edit} sum={summary ? ex.sum : null} sumGoing={sumGoing} />
             {phase === "running" && <span className="tt-sweep" key={sweep} aria-hidden />}
           </div>

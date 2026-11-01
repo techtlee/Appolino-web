@@ -619,7 +619,7 @@ export function AskScreen() {
       </Head>
       <div className="tt-main">
         <div className="tt-card">
-          <div className="tt-gridbox" ref={gridRef}>
+          <div className="tt-gridbox" tabIndex={0} role="region" aria-label={t("Table", "Tabulka")} ref={gridRef}>
             {on.has("pivot") ? <Pivot rows={rows} /> : <Grid rows={rows} on={on} mode={mode} typed={typed} edit={edit} />}
           </div>
           <div className="tt-foot">

@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:docker": "node tests/e2e/docker.mjs",
+    "test:e2e:update": "node tests/e2e/docker.mjs --update"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -16,6 +20,7 @@
     "vega-lite": "^6.4.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.63.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

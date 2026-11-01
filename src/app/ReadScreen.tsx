@@ -150,7 +150,7 @@ export function ReadScreen() {
       </Head>
       <div className="tt-main">
         <div className="tt-card">
-          <div className="tt-gridbox">
+          <div className="tt-gridbox" tabIndex={0} role="region" aria-label={t("Table", "Tabulka")}>
             <Sheet S={S} stage={stage} rowsRead={rowsRead} />
           </div>
           <div className="tt-foot">

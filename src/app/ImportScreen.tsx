@@ -664,7 +664,7 @@ export function ImportScreen() {
       <div className="tt-main is-flow">
         <Flow p={p} t={t} start={start} running={running} />
         <div className="tt-card">
-          <div className="tt-gridbox">
+          <div className="tt-gridbox" tabIndex={0} role="region" aria-label={tr("Table", "Tabulka")}>
             <Landed p={p} t={t} />
           </div>
           {/* Where Tables puts its tour's line, over the grid's last rows: keyed by

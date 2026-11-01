@@ -1,0 +1,6 @@
+/* Applied while a part of the page is screenshot on its own (visual.spec.ts): the bar is stuck
+   to the top of the window, and would be drawn over whichever part stood under it. It has its
+   own screenshots. */
+header.top {
+  visibility: hidden !important;
+}

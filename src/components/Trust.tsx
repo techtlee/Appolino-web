@@ -243,7 +243,15 @@ export function Trust() {
               </div>
               <div className="frame-b">
                 <p>{t(...f.text)}</p>
-                <small>{t(...f.proof)}</small>
+                {/* Each thing it rests on its own pill, wrapping whole: one pill for the lot broke
+                    mid-phrase on a narrow card ("audit / trail"; the e2e layout check). */}
+                <span className="frame-tags">
+                  {t(...f.proof)
+                    .split(" · ")
+                    .map((x) => (
+                      <small key={x}>{x}</small>
+                    ))}
+                </span>
               </div>
             </div>
           ))}

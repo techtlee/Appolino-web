@@ -1,0 +1,8 @@
+/* Applied while a screenshot is taken (visual.spec.ts). The sky is drawn from today's date and a
+   random field of faint stars, and the sun's embers drift: neither can be the same twice, so both
+   canvases are blanked, leaving the page's own night and daybreak behind them. A mask would not
+   do: it paints over everything in its box, and the sky's box is the whole hero, words and all. */
+.hero canvas,
+canvas.dawn {
+  visibility: hidden !important;
+}

@@ -3,23 +3,41 @@ import { useT } from "../i18n";
 
 export type Draft = { text: string; at: number };
 type Fields = { name: string; company: string; email: string; msg: string };
+/** Filling in, on its way, arrived, or ended with the text to copy: because sending is not set
+ *  up in this build ("copy"), or because it did not go through ("failed"). */
+type Stage = "form" | "sending" | "sent" | "copy" | "failed";
 
-/**
- * The form checks itself and prepares the message, in English or Czech. There is no backend
- * yet, so it ends with the text to copy rather than pretending to send it.
- */
+/** Where the form is sent: the Worker in cloudflare/contact-worker.js, its URL written into the
+ *  build from VITE_CONTACT_URL (.env.production). A build without one ends with the text to copy
+ *  rather than pretending to send it. */
+const SEND_TO = import.meta.env.VITE_CONTACT_URL;
+
+/** Sends the form; true once the Worker says it went. Sent as text/plain, a simple request, so
+ *  the browser asks no permission first: one round trip. */
+async function send(f: Fields, trap: string): Promise<boolean> {
+  const form = { name: f.name.trim(), company: f.company.trim(), email: f.email.trim(), msg: f.msg.trim(), website: trap };
+  try {
+    const r = await fetch(SEND_TO!, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(form) });
+    return r.ok;
+  } catch {
+    return false;
+  }
+}
+
+/** The form checks itself and sends the message, in English or Czech. */
 export function Contact({ draft }: { draft: Draft | null }) {
   const t = useT();
   const [f, setF] = useState<Fields>({ name: "", company: "", email: "", msg: "" });
   const [err, setErr] = useState<Partial<Record<keyof Fields, string>>>({});
-  const [done, setDone] = useState(false);
+  const [stage, setStage] = useState<Stage>("form");
+  const [trap, setTrap] = useState("");
   const [copied, setCopied] = useState("");
   const pre = useRef<HTMLPreElement>(null);
 
   useEffect(() => {
     if (!draft) return;
     setF((x) => ({ ...x, msg: draft.text }));
-    setDone(false);
+    setStage("form");
   }, [draft]);
 
   const upd = (k: keyof Fields) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -35,11 +53,14 @@ export function Contact({ draft }: { draft: Draft | null }) {
     if (!/^\S+@\S+\.\S+$/.test(f.email.trim())) er.email = t("Enter an email like name@company.com.", "Zadejte e-mail ve tvaru jmeno@firma.cz.");
     if (!f.msg.trim()) er.msg = t("Write a few words about what you're dealing with.", "Napište pár slov o tom, co řešíte.");
     setErr(er);
-    if (Object.keys(er).length === 0) {
-      setCopied("");
-      setDone(true);
-    }
+    if (Object.keys(er).length || stage === "sending") return;
+    setCopied("");
+    if (!SEND_TO) return setStage("copy");
+    setStage("sending");
+    send(f, trap).then((ok) => setStage(ok ? "sent" : "failed"));
   };
+
+  const first = f.name.trim().split(" ")[0];
 
   const text = t(
     `Name: ${f.name}${f.company ? `\nCompany: ${f.company}` : ""}\nEmail: ${f.email}\n\n${f.msg}`,
@@ -82,17 +103,27 @@ export function Contact({ draft }: { draft: Draft | null }) {
             </p>
           </div>
 
-          {done ? (
-            <div className="glass done">
+          {stage === "sent" ? (
+            <div className="glass done" role="status">
+              <p className="label">{t("Message sent", "Zpráva odeslána")}</p>
+              <h3>{t(`Thanks, ${first}.`, `Děkujeme, ${first}.`)}</h3>
+              <p style={{ color: "var(--fg-3)" }}>{t(`It reached us. We'll write back to ${f.email.trim()}.`, `Došla nám. Odpovíme na ${f.email.trim()}.`)}</p>
+            </div>
+          ) : stage === "copy" || stage === "failed" ? (
+            <div className="glass done" role="status">
               <p className="label">{t("Your message is ready", "Zpráva je připravená")}</p>
-              <h3>{t(`Thanks, ${f.name.trim().split(" ")[0]}.`, `Děkujeme, ${f.name.trim().split(" ")[0]}.`)}</h3>
-              <p style={{ color: "var(--fg-3)" }}>{t("Sending is not connected yet. Copy the message and email it to us.", "Odesílání zatím není zapojené. Zkopírujte zprávu a pošlete nám ji e-mailem.")}</p>
+              <h3>{t(`Thanks, ${first}.`, `Děkujeme, ${first}.`)}</h3>
+              <p style={{ color: "var(--fg-3)" }}>
+                {stage === "failed"
+                  ? t("It did not go through. Copy the message and email it to us.", "Zprávu se nepodařilo odeslat. Zkopírujte ji a pošlete nám ji e-mailem.")
+                  : t("Sending is not connected yet. Copy the message and email it to us.", "Odesílání zatím není zapojené. Zkopírujte zprávu a pošlete nám ji e-mailem.")}
+              </p>
               <pre ref={pre}>{text}</pre>
               <div className="row">
                 <button className="btn" onClick={copy}>
                   {t("Copy message", "Zkopírovat zprávu")}
                 </button>
-                <button className="ghost" onClick={() => setDone(false)}>
+                <button className="ghost" onClick={() => setStage("form")}>
                   {t("Edit", "Upravit")}
                 </button>
               </div>
@@ -118,9 +149,15 @@ export function Contact({ draft }: { draft: Draft | null }) {
                   )}
                 />,
               )}
+              {/* A field no person sees or reaches: a bot that fills in every input fills in this
+                  one too, and the Worker sends nothing it carries. */}
+              <div hidden>
+                <label htmlFor="f-website">Website</label>
+                <input id="f-website" tabIndex={-1} autoComplete="off" value={trap} onChange={(e) => setTrap(e.target.value)} />
+              </div>
               <div>
-                <button className="btn" type="submit">
-                  {t("Prepare message", "Připravit zprávu")}
+                <button className="btn" type="submit" disabled={stage === "sending"}>
+                  {!SEND_TO ? t("Prepare message", "Připravit zprávu") : stage === "sending" ? t("Sending", "Odesílám") : t("Send message", "Odeslat zprávu")}
                 </button>
               </div>
             </form>

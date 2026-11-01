@@ -175,7 +175,11 @@ export function Side({
         </div>
         {right && <div className="tt-side-r">{right}</div>}
       </div>
-      <div className="tt-side-b">{children}</div>
+      {/* Focusable and named, since it scrolls: a keyboard reaches what it holds (axe). A group,
+          not a second region: the card is the region, under the same name. */}
+      <div className="tt-side-b" tabIndex={0} role="group" aria-label={title}>
+        {children}
+      </div>
       {foot && <div className="tt-side-f">{foot}</div>}
     </section>
   );

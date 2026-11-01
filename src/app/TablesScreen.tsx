@@ -618,7 +618,7 @@ export function TablesScreen() {
       </Head>
       <div className="tt-main">
         <div className="tt-card">
-          <div className="tt-gridbox" ref={gridRef}>
+          <div className="tt-gridbox" tabIndex={0} role="region" aria-label={t("Table", "Tabulka")} ref={gridRef}>
             {/* While Transform is open with steps in, the grid shows what they make of the
                 table; closed, it is the table again, to edit. */}
             {result ? (

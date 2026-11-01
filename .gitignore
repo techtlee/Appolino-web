@@ -9,6 +9,7 @@ previews
 test-results
 playwright-report
 blob-report
+.e2e-dist
 # Internal working documents, kept on this machine and never pushed (owner, 2026-11-01): the
 # design system and the AI assistant's notes.
 DESIGN.md

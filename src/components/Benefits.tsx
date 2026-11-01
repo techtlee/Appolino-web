@@ -587,8 +587,15 @@ function Carousel({ label, children }: { label: string; children: ReactNode }) {
     look();
     el.addEventListener("scroll", on, { passive: true });
     addEventListener("resize", on);
+    // Asked again whenever the row or a card changes size - fonts arriving, pictures laying out -
+    // since a first look taken before the cards had their widths left Next greyed out until a
+    // swipe (the e2e carousel check, iPad Mini in WebKit, 2026-11-01).
+    const ro = new ResizeObserver(on);
+    ro.observe(el);
+    for (const card of el.children) ro.observe(card);
     return () => {
       cancelAnimationFrame(raf);
+      ro.disconnect();
       el.removeEventListener("scroll", on);
       removeEventListener("resize", on);
     };
