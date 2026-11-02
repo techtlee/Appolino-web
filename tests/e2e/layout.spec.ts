@@ -12,7 +12,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "./support/test";
 import { layoutProblems } from "./support/layout";
 import { TABS, screen, walk } from "./support/demo";
-import { isPhone, openHome, scrollThrough, scrollToMiddle, settle, width } from "./support/page";
+import { openHome, scrollThrough, scrollToMiddle, settle, width } from "./support/page";
 
 type Box = { x: number; y: number; width: number; height: number };
 const bottom = (b: Box) => b.y + b.height;
