@@ -8,12 +8,17 @@
    the window has short class names of its own (.done, .why, .grid, .seg). */
 
 .tt{
-  --ink:#141518; --ink-2:#2C2E33; --ink-3:#5C5F66; --ink-4:#76797F; --faint:#B6B8BD;
+  --ink:#26262A; --ink-2:#4A4A46; --ink-3:#6C6C69; --ink-4:#7A7A75; --faint:#C4C4BF;
   --line:rgba(20,21,24,.12); --line-soft:rgba(20,21,24,.065); --tint:rgba(20,21,24,.03);
-  --amber:#E9A23B; --amber-2:#F4B860; --amber-dim:#C97F23; --amber-ink:#A35E0B; --amber-deep:#8A4F08; --on-amber:#1F2A44;
-  --glow:#FFF5E6; --glow-2:#FCEBD2; --glow-line:rgba(233,162,59,.34);
-  --ok:#2F8A5B; --ok-ink:#226B45; --ok-soft:#ECF6F0; --ok-line:rgba(47,138,91,.26);
-  --err:#CF4141; --err-ink:#AE2F2F; --err-soft:#FDEFEF; --err-line:rgba(207,65,65,.28);
+  /* The app's own colours (owner, 2026-11-09: "reálně jsou tmavě modré"): its navy accent where
+     the sun's amber was - the names kept, so every rule follows - its soft navy for what is lit,
+     and its navy main buttons; green and red the app's own. --amber-rgb is the accent as
+     channels, for its tints. */
+  --amber:#082058; --amber-2:#16336B; --amber-dim:#0C2D78; --amber-ink:#082058; --amber-deep:#0C2D78; --on-amber:#FFFFFF;
+  --amber-rgb:8,32,88;
+  --glow:#F4F6FB; --glow-2:#EEF1F8; --glow-line:rgba(8,32,88,.18);
+  --ok:#4A9D6F; --ok-ink:#2F7A50; --ok-soft:#E9F4EE; --ok-line:rgba(47,138,91,.26);
+  --err:#D64545; --err-ink:#B83232; --err-soft:#FDECEC; --err-line:rgba(207,65,65,.28);
   /* The page's heights (index.css :root, bdop's --e1..--e4): a card rests, a lifted part
      floats a little (owner, 2026-11-01: "the same standard as bdop for shadowing"). */
   --shadow-card:var(--e1);
@@ -21,7 +26,7 @@
   /* The page's own sun button (.btn in index.css): white on a vivid amber, so the demo's main
      button is the same one. The shadow is a no-op rather than none, as tt-nudge adds a ring
      after it. */
-  --sun-btn:#DE9228; --sun-btn-ink:#fff;
+  --sun-btn:#082058; --sun-btn-ink:#fff;
   --sun-btn-shadow:0 0 0 0 transparent;
   --code:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --ease:cubic-bezier(.2,.8,.2,1); --spring:cubic-bezier(.2,.9,.25,1.3);
@@ -35,9 +40,9 @@
 
 /* --- The head: a warm light falls in from the corner over what is open ------------------ */
 .tt-head{flex:none;position:relative;display:flex;align-items:center;gap:14px;min-height:76px;padding:14px 24px;border-bottom:1px solid var(--line-soft);
-  background:radial-gradient(70% 190% at 100% 0%,rgba(244,184,96,.16),rgba(244,184,96,0) 62%),#fff}
+  background:radial-gradient(70% 190% at 100% 0%,rgba(var(--amber-rgb),.16),rgba(var(--amber-rgb),0) 62%),#fff}
 .tt-head-ic{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:21px;color:var(--amber-ink);
-  background:radial-gradient(circle at 50% 30%,#FFF8EC,var(--glow-2));box-shadow:inset 0 0 0 1px var(--glow-line),0 8px 20px -12px rgba(233,162,59,.9)}
+  background:radial-gradient(circle at 50% 30%,var(--glow),var(--glow-2));box-shadow:inset 0 0 0 1px var(--glow-line),0 8px 20px -12px rgba(var(--amber-rgb),.9)}
 .tt-head-t{min-width:0}
 .tt-head-t h4{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:500;letter-spacing:-.015em;line-height:1.25;color:var(--ink);white-space:nowrap}
 .tt-head-t small{display:block;margin-top:3px;font-size:13px;line-height:1.3;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -49,8 +54,8 @@
   transition:background .2s ease,box-shadow .2s ease,transform .14s var(--ease),filter .2s ease}
 .tt-btn .ti{font-size:16px}
 .tt-btn:hover:not(:disabled){background:rgba(20,21,24,.06);box-shadow:inset 0 0 0 1px rgba(20,21,24,.2)}
-.tt-btn.is-primary{background:var(--sun-btn);color:var(--sun-btn-ink);font-weight:600;box-shadow:var(--sun-btn-shadow);text-shadow:0 1px 1px rgba(110,55,0,.3)}
-.tt-btn.is-primary:hover:not(:disabled){background:#D0861F;box-shadow:var(--sun-btn-shadow)}
+.tt-btn.is-primary{background:var(--sun-btn);color:var(--sun-btn-ink);font-weight:600;box-shadow:var(--sun-btn-shadow)}
+.tt-btn.is-primary:hover:not(:disabled){background:#0C2D78;box-shadow:var(--sun-btn-shadow)}
 .tt-btn.is-primary:active:not(:disabled){background:#C17A18}
 .tt-btn.is-sm{height:30px;padding:0 13px;font-size:13px;gap:5px}
 .tt-btn.is-sm .ti{font-size:14px}
@@ -60,7 +65,7 @@
 .tt-btn.is-busy:disabled{opacity:1;cursor:progress}
 /* The one to press next breathes a ring of its own light. */
 .tt-btn.is-nudge{animation:tt-nudge 2.4s ease-in-out infinite}
-@keyframes tt-nudge{0%,100%{box-shadow:var(--sun-btn-shadow),0 0 0 0 rgba(233,162,59,0)}50%{box-shadow:var(--sun-btn-shadow),0 0 0 6px rgba(233,162,59,.22)}}
+@keyframes tt-nudge{0%,100%{box-shadow:var(--sun-btn-shadow),0 0 0 0 rgba(var(--amber-rgb),0)}50%{box-shadow:var(--sun-btn-shadow),0 0 0 6px rgba(var(--amber-rgb),.22)}}
 .tt-link{border:0;background:none;padding:0;color:var(--amber-ink);font-size:13px;font-weight:500;cursor:pointer;text-decoration:underline;text-decoration-color:var(--glow-line);text-underline-offset:3px}
 .tt-link:hover{color:var(--amber-deep);text-decoration-color:currentColor}
 .tt-chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:999px;background:#fff;color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line);
@@ -98,7 +103,7 @@
 .tt-th .tt-key{color:var(--amber)}
 .tt-grid td{height:42px;padding:0 12px;border-bottom:1px solid var(--line-soft);white-space:nowrap;color:var(--ink-2);transition:background .3s ease,color .3s ease}
 .tt-grid tbody tr:last-child td{border-bottom:0}
-.tt-grid tbody tr:hover td{background:rgba(244,184,96,.045)}
+.tt-grid tbody tr:hover td{background:rgba(var(--amber-rgb),.045)}
 .tt-grid .is-num{text-align:right}
 .tt-grid td.is-num{font-variant-numeric:tabular-nums;letter-spacing:-.005em}
 .tt-grid .tt-rn{width:46px;padding:0 0 0 18px;text-align:left;font-size:11.5px;color:var(--faint)}
@@ -127,8 +132,8 @@
 .tt-grid tr.is-in td{animation:tt-land .9s var(--ease) both}
 @keyframes tt-land{0%{opacity:0;transform:translateX(-12px);background:var(--glow)}35%{opacity:1;transform:none;background:var(--glow)}100%{background:transparent}}
 /* A column a step has just added is lit for a moment and keeps a faint warmth while a draft. */
-.tt-grid .is-new{background:rgba(244,184,96,.07)}
-.tt-grid th.is-new{color:var(--amber-deep);background:#FFFAF2}
+.tt-grid .is-new{background:rgba(var(--amber-rgb),.07)}
+.tt-grid th.is-new{color:var(--amber-deep);background:var(--glow)}
 .tt-grid th.is-new .ti{color:var(--amber)}
 .tt-grid td.is-new{animation:tt-col .7s var(--ease) both}
 @keyframes tt-col{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
@@ -137,11 +142,11 @@
    Esc puts it back. Pointing at an editable cell shows a pencil's worth of outline. */
 .tt-grid td.is-edit{cursor:text}
 .tt-grid td.is-edit:hover{box-shadow:inset 0 0 0 1px var(--glow-line)}
-.tt-grid td.is-editing{padding:0 6px;background:#fff;box-shadow:inset 0 0 0 2px var(--amber),0 0 0 4px rgba(233,162,59,.14);position:relative;z-index:1}
+.tt-grid td.is-editing{padding:0 6px;background:#fff;box-shadow:inset 0 0 0 2px var(--amber),0 0 0 4px rgba(var(--amber-rgb),.14);position:relative;z-index:1}
 .tt-cellin{width:100%;min-width:60px;height:30px;padding:0 8px;border:0;outline:none;background:none;font:inherit;color:var(--ink)}
 .tt-grid td.is-num .tt-cellin{text-align:right}
 .tt-grid td.is-typed{animation:tt-typed 1.6s ease both}
-@keyframes tt-typed{0%{background:var(--glow);box-shadow:inset 0 0 0 1.5px var(--amber)}60%{background:var(--glow);box-shadow:inset 0 0 0 1.5px rgba(233,162,59,0)}100%{background:transparent}}
+@keyframes tt-typed{0%{background:var(--glow);box-shadow:inset 0 0 0 1.5px var(--amber)}60%{background:var(--glow);box-shadow:inset 0 0 0 1.5px rgba(var(--amber-rgb),0)}100%{background:transparent}}
 
 /* --- Tables: a manual table, each column set up with a type, each cell entered by it ---- */
 .tt-entry td{position:relative}
@@ -185,9 +190,9 @@
 .tt-rowfacts dt{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-4)}
 .tt-rowfacts dt .ti{font-size:14px}
 .tt-rowfacts dd{margin:0;font-size:13.5px;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
-.tt-grid th.is-sel{background:#FFFAF2;box-shadow:inset 0 -2px 0 var(--amber)}
+.tt-grid th.is-sel{background:var(--glow);box-shadow:inset 0 -2px 0 var(--amber)}
 .tt-grid th.is-sel .ti{color:var(--amber-deep)}
-.tt-grid td.is-sel{background:rgba(244,184,96,.05)}
+.tt-grid td.is-sel{background:rgba(var(--amber-rgb),.05)}
 .tt-choicecell .tt-car{margin-left:6px;font-size:12px;color:var(--faint);vertical-align:-1px;opacity:0;transition:opacity .15s ease}
 .tt-choicecell:hover .tt-car,.tt-choicecell.is-open .tt-car{opacity:1}
 .tt-chs{display:inline-flex;flex-wrap:nowrap;gap:4px}
@@ -330,7 +335,7 @@
 .rd-c.is-bad{color:var(--err-ink);background:var(--err-soft);box-shadow:inset 0 0 0 1.5px var(--err-line)}
 .rd-bool{display:inline-block;padding:0 9px;border-radius:999px;font-size:11.5px;line-height:20px;background:var(--tint);color:var(--ink-3)}
 .rd-bool.is-yes{background:var(--ok-soft);color:var(--ok-ink)}
-.rd-why{font-size:11px;color:var(--ink-4);border-left:1px solid var(--line-soft);background:#FFFCF7}
+.rd-why{font-size:11px;color:var(--ink-4);border-left:1px solid var(--line-soft);background:var(--glow)}
 .rd-why:not(:empty)::before{content:"";display:inline-block;width:6px;height:6px;margin-right:7px;border-radius:50%;background:currentColor;vertical-align:1px}
 .rd-why.is-found{color:var(--amber-deep)}
 .rd-why.is-ok{color:var(--ok-ink)}
@@ -383,7 +388,7 @@
 /* Transform's recipe: the source and each step as cards on one line, numbered on it, each
    with its kind in small capitals, its name and what it does. */
 .tt-recipe{position:relative;list-style:none;margin:0;padding:12px 14px 6px;display:grid;gap:8px}
-.tt-recipe::before{content:"";position:absolute;left:28px;top:30px;bottom:26px;width:2px;border-radius:2px;background:linear-gradient(180deg,var(--amber),rgba(233,162,59,.18))}
+.tt-recipe::before{content:"";position:absolute;left:28px;top:30px;bottom:26px;width:2px;border-radius:2px;background:linear-gradient(180deg,var(--amber),rgba(var(--amber-rgb),.18))}
 .tt-recipe li{position:relative;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start}
 .tt-rc-node{position:relative;z-index:1;display:grid;place-items:center;width:30px;height:30px;margin-top:8px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px var(--amber),0 0 0 4px #fff;color:var(--amber-deep);font-size:12px;font-weight:600}
 .tt-recipe .is-src .tt-rc-node{background:var(--glow-2);font-size:15px}
@@ -404,14 +409,14 @@
 .tt-tiles{display:grid;gap:8px}
 .tt-tile{display:grid;grid-template-columns:34px minmax(0,1fr) 26px;gap:10px;align-items:center;width:100%;padding:10px;border:0;border-radius:12px;background:#fff;text-align:left;cursor:pointer;font-family:inherit;
   box-shadow:inset 0 0 0 1px var(--line),var(--e1);transition:box-shadow .2s ease,transform .15s var(--ease)}
-.tt-tile:hover:not(:disabled){box-shadow:inset 0 0 0 1.5px var(--amber),0 10px 22px -14px rgba(233,162,59,.6);transform:translateY(-1px)}
+.tt-tile:hover:not(:disabled){box-shadow:inset 0 0 0 1.5px var(--amber),0 10px 22px -14px rgba(var(--amber-rgb),.6);transform:translateY(-1px)}
 .tt-tile:disabled{cursor:default;opacity:.62;box-shadow:inset 0 0 0 1px var(--line-soft)}
 .tt-tile-ic{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--glow-2);color:var(--amber-deep);font-size:17px}
 .tt-tile:disabled .tt-tile-ic{background:var(--tint);color:var(--ink-4)}
 .tt-tile-t{display:grid;gap:2px;min-width:0}
 .tt-tile-t b{font-size:13px;font-weight:500;color:var(--ink)}
 .tt-tile-t small{font-size:11.5px;color:var(--ink-3)}
-.tt-tile-plus{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--amber);color:#fff;font-size:14px}
+.tt-tile-plus{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--amber);color:var(--on-amber);font-size:14px}
 .tt-tile:disabled .tt-tile-plus{background:var(--line)}
 /* A Calculate step's formula as typed, in the app's [Column] syntax: code on a faint amber tint. */
 .tt-formula{display:block;margin-top:3px;padding:3px 7px;border-radius:6px;background:var(--glow);box-shadow:inset 0 0 0 1px var(--glow-line);font:11.5px/1.45 var(--code);color:var(--amber-deep);white-space:normal;overflow-wrap:anywhere}
@@ -433,7 +438,7 @@
 .tt-hist small.tt-by{color:var(--ink-4);font-size:11.5px}
 /* A teammate's saved edit landing: the cell glows once, a soft amber that fades. */
 .tt-grid td.is-arrived{animation:tt-arrive 1.6s var(--ease)}
-@keyframes tt-arrive{0%{background:rgba(233,162,59,.42);box-shadow:inset 0 0 0 1.5px rgba(233,162,59,.8)}100%{background:transparent;box-shadow:inset 0 0 0 1.5px rgba(233,162,59,0)}}
+@keyframes tt-arrive{0%{background:rgba(var(--amber-rgb),.42);box-shadow:inset 0 0 0 1.5px rgba(var(--amber-rgb),.8)}100%{background:transparent;box-shadow:inset 0 0 0 1.5px rgba(var(--amber-rgb),0)}}
 .tt-hist b{display:block;font-size:13px;font-weight:500;color:var(--ink);line-height:1.3}
 .tt-hist small{display:block;font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tt-hist s{color:var(--ink-4)}
@@ -455,7 +460,7 @@
 .tt-fieldl{display:block}
 .tt-field{width:100%;height:36px;padding:0 12px;border:0;border-radius:10px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font-size:13.5px;color:var(--ink);outline:none;
   transition:box-shadow .15s ease}
-.tt-field:focus{box-shadow:inset 0 0 0 1.5px var(--amber),0 0 0 4px rgba(233,162,59,.14)}
+.tt-field:focus{box-shadow:inset 0 0 0 1.5px var(--amber),0 0 0 4px rgba(var(--amber-rgb),.14)}
 .tt-chs.is-edit{margin-bottom:8px}
 .tt-chs.is-edit .tt-pill{padding-right:4px}
 .tt-chs.is-edit .tt-pill button{width:18px;height:18px;display:grid;place-items:center;margin-left:2px;border:0;border-radius:50%;background:none;color:inherit;cursor:pointer;opacity:.6}
@@ -511,7 +516,7 @@
 .tt-rules-g{padding:10px 18px 2px}
 .tt-rule-new{animation:tt-in .4s var(--ease) both}
 /* A column the input brought that the table does not have: drawn apart, dashed, until accepted. */
-.tt-grid .tt-newcol{background:repeating-linear-gradient(135deg,rgba(244,184,96,.07) 0 6px,rgba(244,184,96,0) 6px 12px);color:var(--amber-deep)}
+.tt-grid .tt-newcol{background:repeating-linear-gradient(135deg,rgba(var(--amber-rgb),.07) 0 6px,rgba(var(--amber-rgb),0) 6px 12px);color:var(--amber-deep)}
 .tt-grid th.tt-newcol{box-shadow:inset 0 2px 0 var(--amber)}
 .tt-grid th.tt-newcol .ti{color:var(--amber)}
 .tt-grid .tt-newcol.is-hot{background:var(--glow)}
@@ -532,9 +537,9 @@
 .tt-suggest>.ti{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:15px;color:var(--amber-ink);background:var(--glow)}
 .tt-suggest b{display:block;font-size:13px;font-weight:500;color:var(--ink)}
 .tt-suggest small{display:block;font-size:12px;color:var(--ink-3)}
-.tt-suggest:hover{box-shadow:inset 0 0 0 1px var(--amber),0 10px 24px -16px rgba(233,162,59,.8);transform:translateY(-1px)}
+.tt-suggest:hover{box-shadow:inset 0 0 0 1px var(--amber),0 10px 24px -16px rgba(var(--amber-rgb),.8);transform:translateY(-1px)}
 /* Ask in Validate shows the value no rule catches yet; in Transform, where a new column would go. */
-.tt-grid td.is-uncaught{box-shadow:inset 0 0 0 1.5px rgba(233,162,59,.55);border-radius:6px}
+.tt-grid td.is-uncaught{box-shadow:inset 0 0 0 1.5px rgba(var(--amber-rgb),.55);border-radius:6px}
 .tt-grid .tt-ghost{min-width:130px;color:var(--ink-4);background:repeating-linear-gradient(135deg,rgba(20,21,24,.025) 0 6px,rgba(20,21,24,0) 6px 12px);border-left:1px dashed var(--line)}
 .tt-grid th.tt-ghost .ti{color:var(--amber)}
 .tt-kept{margin:14px 18px 16px;padding:12px 14px;border-radius:14px;background:var(--ok-soft);box-shadow:inset 0 0 0 1px var(--ok-line);color:var(--ok-ink);
@@ -545,7 +550,7 @@
 /* Validate's light: a band of the sun's warmth moves down the rows, a bright edge leading. */
 .tt-sweep{position:absolute;left:0;right:0;top:44px;bottom:0;z-index:1;overflow:hidden;pointer-events:none}
 .tt-sweep::before{content:"";position:absolute;left:0;right:0;top:-160px;height:160px;
-  background:linear-gradient(180deg,rgba(244,184,96,0),rgba(244,184,96,.12) 55%,rgba(255,221,160,.42) 93%,rgba(233,162,59,.95) 100%);
+  background:linear-gradient(180deg,rgba(var(--amber-rgb),0),rgba(var(--amber-rgb),.12) 55%,rgba(var(--amber-rgb),.3) 93%,rgba(var(--amber-rgb),.95) 100%);
   animation:tt-sweep 1.7s cubic-bezier(.45,.05,.35,1) both}
 @keyframes tt-sweep{0%{top:-160px;opacity:1}88%{opacity:1}100%{top:100%;opacity:0}}
 
@@ -578,13 +583,13 @@
    it, as the app's own lines do. Each line leaves its part from a small round port. */
 /* The lines are the sun's amber (the owner): faint before a run, full where the data went,
    walking where it is going now, dashed and pale where none went. */
-.tt-w{fill:none;stroke:rgba(233,162,59,.38);stroke-width:1.6;stroke-linecap:round;transition:stroke .3s ease}
+.tt-w{fill:none;stroke:rgba(var(--amber-rgb),.38);stroke-width:1.6;stroke-linecap:round;transition:stroke .3s ease}
 .tt-w.is-live{stroke:var(--amber);stroke-dasharray:6 7;animation:tt-walk 1.1s linear infinite}
 @keyframes tt-walk{to{stroke-dashoffset:-26}}
 .tt-w.is-done{stroke:var(--amber)}
-.tt-w.is-cut,.tt-w.is-branch{stroke:rgba(233,162,59,.35);stroke-dasharray:3 5}
+.tt-w.is-cut,.tt-w.is-branch{stroke:rgba(var(--amber-rgb),.35);stroke-dasharray:3 5}
 .tt-w.is-alert{stroke:var(--amber);stroke-dasharray:3 5}
-.tt-port{fill:#fff;stroke:rgba(233,162,59,.55);stroke-width:1.5;transition:fill .3s ease,stroke .3s ease}
+.tt-port{fill:#fff;stroke:rgba(var(--amber-rgb),.55);stroke-width:1.5;transition:fill .3s ease,stroke .3s ease}
 .tt-port.is-live,.tt-port.is-done{fill:var(--amber);stroke:var(--amber)}
 .tt-port.is-alert{stroke:var(--amber)}
 /* The trigger on the gates' line to alerting: nothing flows into Alerts, a held gate sets it
@@ -592,9 +597,9 @@
 /* Stated at (0,2,0): .tt-flow>:not(svg) (0,1,1) makes every part of the flow relative. */
 .tt-flow>.tt-trigger{position:absolute;z-index:2}
 .tt-trigger{translate:-50% -50%;display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px 0 7px;border-radius:999px;background:#fff;
-  box-shadow:inset 0 0 0 1px rgba(233,162,59,.4);font-size:11px;font-weight:500;color:var(--amber-ink);white-space:nowrap;transition:background .3s ease,color .3s ease,box-shadow .3s ease}
+  box-shadow:inset 0 0 0 1px rgba(var(--amber-rgb),.4);font-size:11px;font-weight:500;color:var(--amber-ink);white-space:nowrap;transition:background .3s ease,color .3s ease,box-shadow .3s ease}
 .tt-trigger .ti{font-size:12px;color:var(--amber)}
-.tt-trigger.is-live,.tt-trigger.is-alert{background:var(--amber);color:#fff;box-shadow:0 0 0 4px rgba(233,162,59,.18)}
+.tt-trigger.is-live,.tt-trigger.is-alert{background:var(--amber);color:var(--on-amber);box-shadow:0 0 0 4px rgba(var(--amber-rgb),.18)}
 .tt-trigger.is-live .ti,.tt-trigger.is-alert .ti{color:#fff}
 /* What a finished run has to say, under the flow, in the app's own banner. */
 .tt-banner{display:flex;align-items:center;gap:14px;margin:0 18px 14px;padding:9px 10px 9px 14px;border-radius:12px;background:var(--glow);box-shadow:inset 0 0 0 1px var(--glow-line);
@@ -630,7 +635,7 @@
 .tt-grid tr.is-kept td{color:var(--ink-3)}
 /* The alert as the team receives it: a link to the run, never the data. */
 .tt-alert{position:relative;margin:2px 18px 16px;padding:11px 13px 11px 15px;border-radius:14px;background:#fff;display:flex;flex-direction:column;gap:6px;
-  box-shadow:inset 0 0 0 1px var(--glow-line),0 12px 28px -18px rgba(233,162,59,.75);animation:tt-in .4s var(--ease) both}
+  box-shadow:inset 0 0 0 1px var(--glow-line),0 12px 28px -18px rgba(var(--amber-rgb),.75);animation:tt-in .4s var(--ease) both}
 .tt-alert::before{content:"";position:absolute;left:0;top:11px;bottom:11px;width:3px;border-radius:0 3px 3px 0;background:var(--amber)}
 .tt-alert-h{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--ink-3)}
 .tt-alert-h .ti{font-size:15px;color:var(--ink-2)}
@@ -697,7 +702,7 @@
 .tt-merged{display:inline-flex;align-items:center;gap:3px;margin-left:8px;padding:0 7px;height:20px;border-radius:999px;font-size:11px;font-weight:500;color:var(--ok-ink);
   background:var(--ok-soft);vertical-align:1px}
 .tt-merged .ti{font-size:12px}
-.tt-grid tr.is-held td{background:rgba(244,184,96,.08)}
+.tt-grid tr.is-held td{background:rgba(var(--amber-rgb),.08)}
 .tt-grid tr.is-held td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
 .tt-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;height:100%;min-height:180px;padding:24px;text-align:center;color:var(--ink-3);font-size:13px}
 .tt-empty .ti{font-size:26px;color:var(--amber)}
@@ -714,7 +719,7 @@
 .tt-step{position:relative;display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:12px;min-height:58px;padding:8px 18px;animation:tt-in .35s var(--ease) both}
 .tt-step+.tt-step::before{content:"";position:absolute;left:32px;top:-10px;height:20px;width:2px;background:var(--glow-line)}
 .tt-step-n{position:relative;z-index:1;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12.5px;font-weight:600;color:var(--amber-deep);
-  background:radial-gradient(circle at 50% 30%,#FFF8EC,var(--glow-2));box-shadow:inset 0 0 0 1px var(--glow-line)}
+  background:radial-gradient(circle at 50% 30%,var(--glow),var(--glow-2));box-shadow:inset 0 0 0 1px var(--glow-line)}
 .tt-step.is-src .tt-step-n{background:#fff;color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line)}
 .tt-step-n .ti{font-size:15px}
 .tt-step b{display:block;font-size:13.5px;font-weight:500;line-height:1.3;color:var(--ink)}
@@ -729,12 +734,12 @@
 .tt-add b{display:block;font-size:13.5px;font-weight:500;line-height:1.3;color:var(--ink)}
 .tt-add small{display:block;font-size:12.5px;line-height:1.35;color:var(--ink-3)}
 .tt-add>.ti{font-size:17px;color:var(--faint);transition:color .2s ease}
-.tt-add:hover:not(:disabled){box-shadow:inset 0 0 0 1px var(--glow-line),0 12px 26px -16px rgba(233,162,59,.8);transform:translateY(-1px)}
+.tt-add:hover:not(:disabled){box-shadow:inset 0 0 0 1px var(--glow-line),0 12px 26px -16px rgba(var(--amber-rgb),.8);transform:translateY(-1px)}
 .tt-add:hover:not(:disabled) .tt-add-ic{background:var(--glow);color:var(--amber-ink);box-shadow:none}
 .tt-add:hover:not(:disabled)>.ti{color:var(--amber)}
 .tt-add:disabled{cursor:default;opacity:.5}
 .tt-add.is-nudge{animation:tt-nudge-add 2.4s ease-in-out infinite}
-@keyframes tt-nudge-add{0%,100%{box-shadow:inset 0 0 0 1px var(--line),0 0 0 0 rgba(233,162,59,0)}50%{box-shadow:inset 0 0 0 1px var(--glow-line),0 0 0 5px rgba(233,162,59,.18)}}
+@keyframes tt-nudge-add{0%,100%{box-shadow:inset 0 0 0 1px var(--line),0 0 0 0 rgba(var(--amber-rgb),0)}50%{box-shadow:inset 0 0 0 1px var(--glow-line),0 0 0 5px rgba(var(--amber-rgb),.18)}}
 /* The tables a result is built from, and the result, in one line above the steps. */
 .tt-lineage{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:12px 18px 10px;border-bottom:1px solid var(--line-soft)}
 .tt-lin-t{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:500;color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line);
@@ -758,8 +763,8 @@
 /* --- Ask: a conversation beside the table ------------------------------------------- */
 .tt-chat{display:flex;flex-direction:column;gap:14px;padding:16px 16px 18px}
 .tt-msg{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;animation:tt-in .35s var(--ease) both}
-.tt-av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 40%,#FFF8EC,var(--glow-2));box-shadow:inset 0 0 0 1px var(--glow-line)}
-.tt-av img{width:40px;height:40px;margin:-2px 0 0;max-width:none}
+.tt-av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at 50% 40%,var(--glow),var(--glow-2));box-shadow:inset 0 0 0 1px var(--glow-line)}
+.tt-av img{width:16px;height:16px}
 .tt-msg-b{display:flex;flex-direction:column;gap:8px;min-width:0;font-size:13.5px;line-height:1.45;color:var(--ink-2)}
 .tt-msg-b p b{font-weight:500;color:var(--ink)}
 .tt-you{align-self:flex-end;max-width:88%;padding:9px 14px;border-radius:18px 18px 5px 18px;background:var(--ink);color:#fff;font-size:13.5px;line-height:1.4;animation:tt-in .3s var(--ease) both}
@@ -769,7 +774,7 @@
 .tt-noticed button .ti{font-size:15px;color:var(--amber)}
 .tt-noticed button span{color:var(--ink-2)}
 .tt-noticed button i:last-child{color:var(--faint)}
-.tt-noticed button:hover:not(:disabled){box-shadow:inset 0 0 0 1px var(--glow-line),0 8px 20px -14px rgba(233,162,59,.8)}
+.tt-noticed button:hover:not(:disabled){box-shadow:inset 0 0 0 1px var(--glow-line),0 8px 20px -14px rgba(var(--amber-rgb),.8)}
 .tt-noticed button:hover:not(:disabled) i:last-child{color:var(--amber)}
 .tt-noticed button:disabled{opacity:.5;cursor:default}
 .tt-sent{border-radius:12px;box-shadow:inset 0 0 0 1px var(--line);padding:9px 12px;display:flex;flex-direction:column;gap:5px;animation:tt-in .3s var(--ease) both}
@@ -783,7 +788,7 @@
 .tt-wait b:nth-child(2){animation-delay:.15s}
 .tt-wait b:nth-child(3){animation-delay:.3s}
 @keyframes tt-wait{50%{opacity:1;transform:translateY(-2px)}}
-.tt-draft{display:flex;flex-direction:column;gap:8px;padding:12px 13px;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 1px var(--glow-line),0 12px 28px -18px rgba(233,162,59,.7)}
+.tt-draft{display:flex;flex-direction:column;gap:8px;padding:12px 13px;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 1px var(--glow-line),0 12px 28px -18px rgba(var(--amber-rgb),.7)}
 .tt-draft .tt-label{color:var(--amber-ink)}
 .tt-draft b{font-size:14px;font-weight:500;color:var(--ink)}
 .tt-draft p{font-size:13px;color:var(--ink-3)}
@@ -805,12 +810,12 @@
 .tt-try button{display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:5px 12px;border:0;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);
   font-size:12.5px;line-height:1.3;text-align:left;color:var(--ink-2);cursor:pointer;transition:box-shadow .2s ease,color .2s ease}
 .tt-try button .ti{font-size:14px;color:var(--amber)}
-.tt-try button:hover:not(:disabled){box-shadow:inset 0 0 0 1px var(--glow-line),0 6px 16px -10px rgba(233,162,59,.8);color:var(--ink)}
+.tt-try button:hover:not(:disabled){box-shadow:inset 0 0 0 1px var(--glow-line),0 6px 16px -10px rgba(var(--amber-rgb),.8);color:var(--ink)}
 .tt-try button:disabled{opacity:.5;cursor:default}
 .tt-ask .tt-side-f{padding:6px 12px}
 .tt-composer{display:flex;align-items:center;gap:8px;height:44px;padding:0 4px 0 14px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);
   transition:box-shadow .2s ease}
-.tt-composer:focus-within{box-shadow:inset 0 0 0 1.5px var(--amber),0 0 0 5px rgba(233,162,59,.14)}
+.tt-composer:focus-within{box-shadow:inset 0 0 0 1.5px var(--amber),0 0 0 5px rgba(var(--amber-rgb),.14)}
 .tt-composer>.ti{font-size:17px;color:var(--amber)}
 .tt-composer input{flex:1;min-width:0;height:36px;border:0;outline:none;background:none;font-size:13.5px;color:var(--ink)}
 .tt-composer input::placeholder{color:var(--ink-4)}
@@ -1049,7 +1054,7 @@
   .tt-gate small{font-size:var(--ph-th)}
   /* The rail: beside each step and the gap above it, faint until the run reaches the step. */
   .tt-flow>.tt-srcs::before,.tt-flow>.tt-node::before,.tt-flow>.tt-gates::before{content:"";position:absolute;left:-15px;top:-7px;bottom:-1px;width:2px;border-radius:2px;
-    background:rgba(233,162,59,.22);transition:background .3s ease}
+    background:rgba(var(--amber-rgb),.22);transition:background .3s ease}
   .tt-flow>.tt-srcs::before{top:50%}
   .tt-flow>.tt-srcs:has(.is-on)::before,.tt-flow:has(>[data-part="read"]:is(.is-run,.is-done))>.tt-srcs::before,
   .tt-flow>:is(.is-run,.is-done,.is-ok,.is-hold)::before{background:var(--amber)}
@@ -1057,16 +1062,16 @@
   /* Each step's mark on the rail. */
   .tt-flow>.tt-srcs::after,.tt-flow>.tt-node::after,.tt-flow>.tt-gates::after{content:"";position:absolute;top:50%;left:-21px;right:auto;z-index:2;display:grid;place-items:center;
     width:14px;height:14px;margin-top:-7px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px rgba(20,21,24,.18);font:9px/1 "tabler-icons";color:#fff;animation:none}
-  .tt-flow>.tt-srcs:has(.is-on)::after,.tt-flow>.is-run::after{background:var(--amber);box-shadow:0 0 0 4px rgba(233,162,59,.2);animation:tt-breath 1.6s ease-in-out infinite}
+  .tt-flow>.tt-srcs:has(.is-on)::after,.tt-flow>.is-run::after{background:var(--amber);box-shadow:0 0 0 4px rgba(var(--amber-rgb),.2);animation:tt-breath 1.6s ease-in-out infinite}
   .tt-flow>.tt-node.is-done::after,.tt-flow>.tt-gates.is-ok::after,.tt-flow:has(>[data-part="read"].is-done)>.tt-srcs::after{content:"\ea5e";background:var(--ok);box-shadow:none;animation:none}
   .tt-flow>.tt-gates.is-hold::after{content:"\eb55";background:var(--err);box-shadow:none;animation:none}
   .tt-flow>.tt-node.is-skip::after{box-shadow:inset 0 0 0 1.5px rgba(20,21,24,.1)}
   /* Alerts: apart, on a dashed rail, quiet until a gate holds and the alert goes out. */
-  .tt-flow>[data-part="alert"]::before{bottom:50%;background:repeating-linear-gradient(180deg,rgba(233,162,59,.4) 0 3px,transparent 3px 6px)}
+  .tt-flow>[data-part="alert"]::before{bottom:50%;background:repeating-linear-gradient(180deg,rgba(var(--amber-rgb),.4) 0 3px,transparent 3px 6px)}
   .tt-flow>[data-part="alert"].is-sent::before{background:repeating-linear-gradient(180deg,var(--amber) 0 3px,transparent 3px 6px)}
   .tt-flow>[data-part="alert"]:not(.is-sent){opacity:.6;box-shadow:inset 0 0 0 1px var(--line-soft)}
   .tt-flow>[data-part="alert"]:not(.is-sent)::after{content:"";background:#fff;box-shadow:inset 0 0 0 1.5px rgba(20,21,24,.15);animation:none}
-  .tt-flow>[data-part="alert"].is-sent::after{background:var(--amber);box-shadow:0 0 0 4px rgba(233,162,59,.2)}
+  .tt-flow>[data-part="alert"].is-sent::after{background:var(--amber);box-shadow:0 0 0 4px rgba(var(--amber-rgb),.2)}
   /* The line saying what runs heads the table, right under the stepper, so it is in view while
      the rows land under it; the table keeps the height of its rows while they do. */
   .tt-main.is-flow .tt-tour{order:-1}
@@ -1083,7 +1088,7 @@
   .tt-chat{gap:8px;padding:8px 10px}
   .tt-msg{grid-template-columns:22px minmax(0,1fr);gap:8px}
   .tt-msg .tt-av{width:22px;height:22px}
-  .tt-msg .tt-av img{width:32px;height:32px}
+  .tt-msg .tt-av img{width:13px;height:13px}
   .tt-msg-b{gap:6px;font-size:var(--ph-cap);line-height:var(--ph-lh)}
   .tt-you{padding:6px 11px;font-size:var(--ph-cap);line-height:var(--ph-lh)}
   .tt-noticed button{min-height:28px;padding:4px 8px;font-size:var(--ph-sub)}

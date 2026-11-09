@@ -118,18 +118,12 @@ test.describe("@layout Solutions", () => {
     expect.soft(cols, "the promises' columns").toBe(width(page) > 1000 ? 4 : width(page) > 560 ? 2 : 1);
   });
 
-  test("every card holds together at every position of the row", async ({ page }) => {
+  test("every group's cards hold together", async ({ page }) => {
     await openHome(page);
-    const car = page.locator(".sol-car");
-    await scrollToMiddle(page, car);
-    const next = car.getByRole("button", { name: "Next" });
-    for (let step = 0; step < 12; step++) {
-      expect.soft(await layoutProblems(page, { root: ".sol-car" }), `at position ${step}`).toEqual([]);
-      if (await next.isDisabled()) break;
-      await next.click();
-      await settle(page);
+    for (const id of ["sol-reporting", "sol-tables", "sol-automation", "sol-local"]) {
+      await scrollToMiddle(page, page.locator(`#${id}`));
+      expect.soft(await layoutProblems(page, { root: `#${id}` }), id).toEqual([]);
     }
-    await expect(next).toBeDisabled();
   });
 });
 
@@ -227,8 +221,8 @@ test.describe("@layout the design's rules", () => {
       expect.soft(parts[0]?.cls, `#${id}'s first line is its label`).toContain("label");
       expect.soft(parts[0]?.text, `#${id}'s label`).toBe(label);
       expect.soft(parts[2]?.cls, `#${id}'s intro`).toContain("intro");
-      // --sun-text in the day, #A35E0B.
-      expect.soft(parts[0]?.color, `#${id}'s label is amber`).toBe("rgb(163, 94, 11)");
+      // --sun-text in the day: the accent's deep mustard, #856500 (owner, 2026-11-08).
+      expect.soft(parts[0]?.color, `#${id}'s label is mustard`).toBe("rgb(133, 101, 0)");
     }
 
     // Buttons are plain pills: no gradient, fully round, tall enough for a finger.

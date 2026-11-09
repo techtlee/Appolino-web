@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent, type MutableRefObject, type ReactNode, type RefObject } from "react";
-import logo from "../assets/appolino-sun.svg";
+// The assistant's avatar: the logo's mark in its navy (the same file as the tab icon).
+import logo from "../assets/appolino-mark.svg";
 import { fold, mask, readNumber } from "../czech";
 import { count, num, useLang, useT, type Lang } from "../i18n";
 import { prefersLessMotion, useSeen } from "../motion";
+import { useCycle } from "./cycle";
 import { EditCell, Head, I, Side, Th } from "./kit";
 
 /**
@@ -735,6 +737,7 @@ const READ = 1800;
  *  play at all. */
 function useAutoplay(root: RefObject<HTMLElement>, live: MutableRefObject<Live | null>) {
   const seen = useSeen(root, 0.4);
+  const cycle = useCycle();
   // Kept across the effect's runs: a visitor who pressed something before two fifths of the
   // screen were in view has already taken over, and seeing it later must not start the loop.
   const taken = useRef(false);
@@ -809,6 +812,8 @@ function useAutoplay(root: RefObject<HTMLElement>, live: MutableRefObject<Live |
       while (!stopped) {
         // A step that never came starts the conversation over instead of leaving it stuck.
         await round().catch(() => undefined);
+        // The conversation played through: the showcase may move on to the next tab now.
+        if (!stopped) cycle.roundEnd();
         act((s) => s.restart());
       }
     };
@@ -817,6 +822,7 @@ function useAutoplay(root: RefObject<HTMLElement>, live: MutableRefObject<Live |
       // Only the visitor's own hand: the loop never dispatches events, but a script might.
       if (!e.isTrusted) return;
       taken.current = true;
+      cycle.takeover();
       end();
     };
     const end = () => {

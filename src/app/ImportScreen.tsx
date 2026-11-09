@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { count, day, num, useLang, useT, whole, type Lang } from "../i18n";
 import { prefersLessMotion, useSeen } from "../motion";
+import { useCycle } from "./cycle";
 import { Head, I, Side, Status, Th } from "./kit";
 
 /**
@@ -564,6 +565,7 @@ function useAutoplay(root: React.RefObject<HTMLElement>, seen: boolean, done: bo
   // and their cleanups are what clear whatever timer is waiting.
   const [mine, setMine] = useState(false);
   const began = useRef(false);
+  const cycle = useCycle();
 
   const play = useCallback(
     (i: number) => {
@@ -583,9 +585,11 @@ function useAutoplay(root: React.RefObject<HTMLElement>, seen: boolean, done: bo
 
   useEffect(() => {
     if (beat < 0 || !done || mine || !inView) return;
+    // The story told to its last beat: the showcase may move on to the next tab now.
+    if (beat === story.length - 1) cycle.roundEnd();
     const id = window.setTimeout(() => play((beat + 1) % story.length), rest);
     return () => clearTimeout(id);
-  }, [beat, done, mine, inView, rest, play, story]);
+  }, [beat, done, mine, inView, rest, play, story, cycle]);
 
   useEffect(() => {
     const el = root.current;
@@ -594,6 +598,7 @@ function useAutoplay(root: React.RefObject<HTMLElement>, seen: boolean, done: bo
     // run of the visitor's own; isTrusted, so only a person's press counts.
     const stop = (e: Event) => {
       if (!e.isTrusted) return;
+      cycle.takeover();
       setMine(true);
       setBeat(-1);
       off();
@@ -788,8 +793,9 @@ function useEdges(box: React.RefObject<HTMLDivElement>, which: string) {
   return paths;
 }
 
-/** The arrowheads, one per state, filled in the colour of their line. */
-const HEADS: Record<Wire, string> = { idle: "rgba(233,162,59,.45)", live: "#E9A23B", done: "#E9A23B", cut: "rgba(233,162,59,.4)", alert: "#E9A23B" };
+/** The arrowheads, one per state, filled in the colour of their line: the demo's accent tokens
+ *  (app.css, .tt), so they follow it. */
+const HEADS: Record<Wire, string> = { idle: "rgba(var(--amber-rgb),.45)", live: "var(--amber)", done: "var(--amber)", cut: "rgba(var(--amber-rgb),.4)", alert: "var(--amber)" };
 
 /** What a finished run has to say under the flow, as the app says it on a
  *  pipeline: why it was held and the one thing that lets it on, or what a
@@ -907,7 +913,7 @@ function Flow({ p, t, start, running }: { p: Plan; t: number; start: (s: Scn, ac
           <defs>
             {(Object.keys(HEADS) as Wire[]).map((w) => (
               <marker key={w} id={`tt-ah-${w}`} viewBox="0 0 7 7" refX="0.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
-                <path d="M0,0 L7,3.5 L0,7 z" fill={HEADS[w]} />
+                <path d="M0,0 L7,3.5 L0,7 z" style={{ fill: HEADS[w] }} />
               </marker>
             ))}
           </defs>

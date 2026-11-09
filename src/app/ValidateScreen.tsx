@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type Dispatch, type MutableRefObject, type
 import { fold, readNumber } from "../czech";
 import { count, num, useLang, useT, type Lang } from "../i18n";
 import { prefersLessMotion, useSeen } from "../motion";
+import { useCycle } from "./cycle";
 import { EditCell, Head, I, Side, Status, Th } from "./kit";
 
 /**
@@ -600,6 +601,7 @@ function useAutoplay(root: RefObject<HTMLElement>, live: MutableRefObject<Live |
   const seen = useSeen(root, 0.4);
   const taken = useRef(false);
   const halt = useRef(() => {});
+  const cycle = useCycle();
   const waiting = useRef<(() => void) | null>(null);
 
   // Any render may be the one a wait is for: the phase turning done, a removed row gone.
@@ -615,6 +617,7 @@ function useAutoplay(root: RefObject<HTMLElement>, live: MutableRefObject<Live |
     const take = (e: Event) => {
       if (!e.isTrusted) return;
       taken.current = true;
+      cycle.takeover();
       halt.current();
       off();
     };
@@ -686,6 +689,8 @@ function useAutoplay(root: RefObject<HTMLElement>, live: MutableRefObject<Live |
         await wait(1800);
         await fixOne(SUGGESTED_ID);
         await wait(2000);
+        // The first round played through: the showcase may move on to the next tab now.
+        if (round === 0) cycle.roundEnd();
         say(null);
         now().restart();
         await wait(1600);

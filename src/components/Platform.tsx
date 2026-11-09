@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useT } from "../i18n";
 
 /**
@@ -10,6 +11,9 @@ import { useT } from "../i18n";
  */
 export function Platform() {
   const t = useT();
+  /** Which cards are open (owner, 2026-11-08): each shows its heading and its line, and its
+   *  points only when opened - each card on its own. */
+  const [open, setOpen] = useState<boolean[]>(() => PATHS.map(() => false));
   return (
     <section className="platform" id="platform">
       <div className="wrap">
@@ -38,11 +42,27 @@ export function Platform() {
               <small>{t(`Path ${i + 1}`, `Cesta ${i + 1}`)}</small>
               <h3>{t(p.h[0], p.h[1])}</h3>
               <p>{t(p.p[0], p.p[1])}</p>
-              <ul>
-                {p.list.map(([en, cs]) => (
-                  <li key={en}>{t(en, cs)}</li>
-                ))}
-              </ul>
+              <div className={open[i] ? "path-more is-open" : "path-more"}>
+                <button
+                  type="button"
+                  className="path-toggle"
+                  aria-expanded={open[i]}
+                  aria-controls={`path-list-${i}`}
+                  onClick={() => setOpen((o) => o.map((v, k) => (k === i ? !v : v)))}
+                >
+                  {open[i] ? t("Show less", "Méně") : t(`What's included (${p.list.length})`, `Co obsahuje (${p.list.length})`)}
+                  <i className="ti ti-chevron-down" aria-hidden />
+                </button>
+                {/* Kept in the page while closed, so the card opens by sliding; hidden from
+                    screen readers until then (it holds nothing to focus). */}
+                <div className="path-list" id={`path-list-${i}`} aria-hidden={!open[i]}>
+                  <ul>
+                    {p.list.map(([en, cs]) => (
+                      <li key={en}>{t(en, cs)}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
           ))}
         </div>

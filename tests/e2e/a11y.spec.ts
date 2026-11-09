@@ -2,16 +2,8 @@
 // five sizes the site is designed at. A serious or critical violation fails; moderate and minor
 // ones are attached to the report as the work to do, not as a wall.
 //
-// Two exceptions, each one rule on one element, never a rule switched off for the page:
-//
-// - color-contrast on `.btn`: the amber buttons' white text is about 2.5:1, below AA's 4.5:1, by
-//   the owner's choice (docs/design-system.md section 4.1, 2026-11-01: "use the colour like in the hero", then
-//   "slightly darker"; the brown #AB630E that passes was tried and turned down). Every other
-//   element's contrast is still checked, the buttons' outline sibling `.btn2` included.
-// - label-content-name-mismatch on the logo's link (`.brand`): the wordmark is set with a
-//   dotless ı and its dot drawn as an amber disc (docs/design-system.md section 2), so its text in the page
-//   reads "appolıno" while a reader sees, and the link's name says, "appolino". The name holds
-//   what is seen; axe compares characters.
+// No exceptions: every rule is checked on every element. The amber buttons' contrast exception
+// went with the amber buttons (2026-11-08: white on the app's navy passes AA).
 
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
@@ -31,8 +23,6 @@ type Defect = { rule: string; on: string; where: string; defect: string; fix: st
 const DEFECTS: Defect[] = [];
 
 const EXCEPTIONS: { rule: string; on: string }[] = [
-  { rule: "color-contrast", on: ".btn" },
-  { rule: "label-content-name-mismatch", on: ".brand" },
   ...DEFECTS.map(({ rule, on }) => ({ rule, on })),
 ];
 

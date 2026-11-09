@@ -6,21 +6,12 @@
 // With motion, as the words only turn then; and a second part with less motion asked for, where
 // nothing may turn at all.
 
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { expect, test } from "./support/test";
 import { expectUnchanged, openHome } from "./support/page";
 
 const turning = (page: Page) => page.locator(".hero h1 .turn-w.is-on");
 const meets = (page: Page) => page.locator(".hero h1 .w", { hasText: /^Meets$/ });
-
-/** A fingerprint of what a canvas holds now: a hash of its pixels as an image. */
-const drawn = (canvas: Locator) =>
-  canvas.evaluate((c: HTMLCanvasElement) => {
-    const s = c.toDataURL();
-    let h = 2166136261;
-    for (let i = 0; i < s.length; i += 7) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
-    return `${s.length}:${h >>> 0}`;
-  });
 
 type Turn = { word: string; at: number; meetsX: number; offset?: number };
 
@@ -107,23 +98,9 @@ test.describe("@flow the hero's turning word", () => {
 });
 
 test.describe("@flow the hero with less motion asked for", () => {
-  test("the word does not turn and the sky is drawn still", async ({ page }) => {
+  test("the word does not turn", async ({ page }) => {
     await openHome(page);
     await expect(turning(page)).toHaveText("Precision.");
-    const sky = page.locator(".hero canvas");
-    const sun = page.locator("canvas.dawn");
-    await expectUnchanged(page, async () => [await turning(page).textContent(), await drawn(sky), await drawn(sun)], 4_500, "the hero stands still");
-  });
-});
-
-test.describe("@flow the hero with motion", () => {
-  test.use({ motion: "play" });
-
-  test("the sky and the sun move", async ({ page }) => {
-    await openHome(page);
-    for (const canvas of [page.locator(".hero canvas"), page.locator("canvas.dawn")]) {
-      const first = await drawn(canvas);
-      await expect.poll(() => drawn(canvas), { timeout: 10_000 }).not.toBe(first);
-    }
+    await expectUnchanged(page, async () => [await turning(page).textContent()], 4_500, "the word stands still");
   });
 });

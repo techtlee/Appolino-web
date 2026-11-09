@@ -1,5 +1,4 @@
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { runField } from "./heroField";
+import { Fragment, useEffect, useState } from "react";
 import { prefersLessMotion } from "../motion";
 import { useLang, useT } from "../i18n";
 
@@ -22,35 +21,23 @@ const HEAD_CS = {
   turn: ["přesností.", "automatizací.", "kontrolou.", "spolehlivostí.", "konzistencí.", "dohledatelností.", "důvěrou."],
 };
 
-/** When the words come out, in seconds: after the sun has risen, slowly,
- *  one after another, as stars do at dusk. */
-const FIRST_WORD = 1.6;
-const PER_WORD = 0.24;
+/** When the words come out, in seconds: at once, one after another - no sky to wait for now
+ *  (owner, 2026-11-08: the hero is the slogan and the demo, as on productlasso.com). */
+const FIRST_WORD = 0.1;
+const PER_WORD = 0.12;
 /** How long each turning word stands before the next takes its place: long enough to be read
  *  and to rest a moment (owner, 2026-11-01: "slower between the words"; it was 2.6 s). */
 const TURN_MS = 3600;
 
-/** The turning word: all of them stacked at one starting point (owner, 2026-11-01: "Meets in
- *  the second row, staying in place; the word changes from the same starting spot"). The whole
- *  word rolls up into place from below and the one before rolls on up and away (index.css,
- *  .turn-w; owner: "just it appears from the bottom, no crazy effects" - a letter-by-letter
- *  turn was tried and dropped the same day). The place is as wide as a typical
- *  word - the mean of them all - and never changes, so "Meets" never moves and nothing jumps;
- *  a longer word runs on past it to the right. It was as wide as the widest, which pushed the
- *  slogan left of the middle while a short word showed (owner: "fit always in the middle,
- *  Meets should not change, text should not jump"). */
+/** The turning word, on a line of its own under "Where Simplicity Meets" and larger than it
+ *  (owner, 2026-11-08). Every word sits in one cell of a grid, so the place is as wide as the
+ *  widest and each word stands centred in it: nothing above or below moves as they turn. The
+ *  whole word rolls up into place from below and the one before rolls on up and away
+ *  (index.css, .turn-w; owner, 2026-11-01: "just it appears from the bottom, no crazy
+ *  effects"). */
 function Turning({ words, delay }: { words: string[]; delay: number }) {
   const [i, setI] = useState(0);
   const [prev, setPrev] = useState(-1);
-  const [widths, setWidths] = useState<number[]>([]);
-  const refs = useRef<(HTMLSpanElement | null)[]>([]);
-  useLayoutEffect(() => {
-    const measure = () => setWidths(refs.current.map((el) => el?.offsetWidth ?? 0));
-    measure();
-    document.fonts?.ready.then(measure);
-    addEventListener("resize", measure);
-    return () => removeEventListener("resize", measure);
-  }, [words]);
   useEffect(() => {
     setI(0);
     setPrev(-1);
@@ -63,16 +50,16 @@ function Turning({ words, delay }: { words: string[]; delay: number }) {
           return (x + 1) % words.length;
         });
       }, TURN_MS);
-    }, delay * 1000 + 1400);
+    }, delay * 1000 + 600);
     return () => {
       clearTimeout(start);
       clearInterval(id);
     };
   }, [words, delay]);
   return (
-    <span className="turn" style={widths.length ? { width: `${Math.round(widths.reduce((a, b) => a + b, 0) / widths.length)}px` } : undefined} aria-live="off">
+    <span className="turn" aria-live="off">
       {words.map((w, k) => (
-        <span key={w} ref={(el) => (refs.current[k] = el)} className={`turn-w grad-text${k === i ? " is-on" : k === prev ? " is-off" : ""}`} aria-hidden={k !== i}>
+        <span key={w} className={`turn-w${k === i ? " is-on" : k === prev ? " is-off" : ""}`} aria-hidden={k !== i}>
           {w}
         </span>
       ))}
@@ -81,21 +68,14 @@ function Turning({ words, delay }: { words: string[]; delay: number }) {
 }
 
 export function Hero() {
-  const canvas = useRef<HTMLCanvasElement>(null);
   const t = useT();
   const lang = useLang();
 
-  useEffect(() => {
-    const cv = canvas.current;
-    if (!cv?.parentElement) return;
-    return runField(cv, cv.parentElement, prefersLessMotion());
-  }, []);
-
   const head = lang === "cs" ? HEAD_CS : HEAD_EN;
   let k = 0;
-  const word = (w: string, i: number, last: boolean, amber = false) => (
+  const word = (w: string, i: number, last: boolean) => (
     <Fragment key={i}>
-      <span className={amber ? "w grad-text" : "w"} style={{ animationDelay: `${FIRST_WORD + k++ * PER_WORD}s` }}>
+      <span className="w" style={{ animationDelay: `${FIRST_WORD + k++ * PER_WORD}s` }}>
         {w}
       </span>
       {!last ? " " : ""}
@@ -104,19 +84,15 @@ export function Hero() {
   const turnDelay = FIRST_WORD + (head.first.length + head.second.length) * PER_WORD;
   return (
     <section className="hero" id="top">
-      <canvas ref={canvas} aria-hidden />
       <div className="wrap">
         {/* The slogan's lines on one left edge, the rest centred (index.css, .hero-copy). */}
         <div className="hero-copy">
           {/* Read by a screen reader as the slogan itself, not as its turning words. */}
           <h1 aria-label={t("Where Simplicity Meets Precision.", "Kde se jednoduchost potkává s přesností.")}>
             <span className="line" aria-hidden>
-              {head.first.map((w, i) => word(w, i, i === head.first.length - 1))}
-            </span>
-            <span className="line" aria-hidden>
-              {/* "Meets" in the first line's white; only the turning word is in the sun's colour
-                (owner, 2026-11-01). */}
-            {head.second.map((w, i) => word(w, 10 + i, false))}
+              {[...head.first, ...head.second].map((w, i, all) => word(w, i, i === all.length - 1))}
+            </span>{" "}
+            <span className="line line-turn" aria-hidden>
               <span className="w" style={{ animationDelay: `${turnDelay}s` }}>
                 <Turning words={head.turn} delay={turnDelay} />
               </span>

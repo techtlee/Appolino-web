@@ -13,14 +13,20 @@
 :root,.night{
   color-scheme:dark;
   /* Amber as text: bright on navy, deepened on white to stay readable. */
-  --sun-text:var(--sun); --sun-text-2:var(--sun-2);
+  --sun-text:var(--mark); --sun-text-2:var(--sun-2);
   --field-shade:rgba(0,0,0,.5);
-  --bg:#0E1526; --bg-2:#141D33; --bg-3:#1A2540;
+  /* The night in the app's navy (owner, 2026-11-08: "Noc v modré aplikace"; the app's accent is
+     #082058): a shade under it for the page, so white text keeps its contrast. */
+  --bg:#061844; --bg-2:#0A2052; --bg-3:#10295F;
   --fg:#EEF2FB; --fg-2:#BCC5D8; --fg-3:#8590A8; --fg-4:#717C94;
   --accent:#95ADD8; --accent-dim:#3E5A8E; --accent-hover:#4C6BA1; --problem:#A7B4CC;
   /* The sun of the mark, and the navy it sits on: orange is the light on the page. */
   --sun:#E9A23B; --sun-2:#F4B860; --sun-dim:#C97F23; --sun-ink:#1F2A44; --navy:#1F2A44; --cream:#F2EFE6;
   --grad-sun:linear-gradient(90deg,#F4B860,#E9A23B);
+  /* What marks, selects and lights a thing: the sun's amber on the night, the app's navy on
+     daylight (.daylight). --mark-rgb is the same colour as channels, for its tints. The amber
+     buttons (.btn) and the hero's turning word keep the sun's colour everywhere. */
+  --mark:#E9A23B; --mark-2:#F4B860; --mark-rgb:233,162,59;
   /* Height, as bdop sets it (its ui-ux-and-app-flow, "Light and depth"): one light straight
      above, so every shadow falls straight down under its box (x = 0, never sideways), inked
      with the navy, never black; each a hairline of the ink for the edge, then soft falls of
@@ -55,15 +61,23 @@
    tags; selection and hover keep their own faint tints. */
 .daylight{
   color-scheme:light;
-  --bg:#FFFFFF; --bg-2:#FFFFFF; --bg-3:#EEEEEA;
-  /* --fg-4 a hair darker than #76797F, which gave the footer 4.36:1 on white, under AA's 4.5:1
-     (the e2e accessibility check, 2026-11-01); #73767C is 4.56:1. */
-  --fg:#141518; --fg-2:#2C2E33; --fg-3:#5C5F66; --fg-4:#73767C;
-  --accent:#A35E0B; --accent-dim:#2C2E33; --accent-hover:#7E4708; --problem:#5C5F66;
-  /* Badges, step marks and the avatar sit on a light amber here, not on black. */
-  --sun-text:#A35E0B; --sun-text-2:#8A4F08; --navy:#FCEBD2;
-  --field-shade:rgba(20,21,24,.05);
-  --line:rgba(20,21,24,.07); --line-2:rgba(20,21,24,.12); --line-3:rgba(20,21,24,.2);
+  /* Navy & International Orange (owner, 2026-11-09, variant 5 of design-variants/hero.html):
+     the logo's and the app's navy for the ink, a paper white for the page, every surface on it
+     white (--bg-2), told apart by thin cool lines and soft navy shadows. Grey (--bg-3) is the
+     app's soft navy, for chips and tags. */
+  --bg:#FBFAF7; --bg-2:#FFFFFF; --bg-3:#EEF1F8;
+  /* Navy ink, and a slate for the quieter text: 6:1 on the page, over AA's 4.5:1. */
+  --fg:#0B1B3F; --fg-2:#2E3A57; --fg-3:#56607A; --fg-4:#56607A;
+  /* One signal orange, only on what acts or marks. #FF4F1F itself is 3.2:1 on the page - a
+     stroke or a fill, never small type - so: the buttons a step deeper (.btn, white on it
+     4.5:1); --mark for lines, dots and large words (3.9:1); --sun-text and --accent deeper
+     still for small text and icons (5.2:1, AA); --navy and --mark-2 the light fills; --on-mark
+     the ink on a filled mark. The token names are the old sun's. */
+  --accent:#C2380A; --accent-dim:#2E3A57; --accent-hover:#A8300A; --problem:#56607A;
+  --sun-text:#C2380A; --sun-text-2:#A8300A; --navy:#FFE7DD;
+  --mark:#E5440F; --mark-2:#FF7A4D; --mark-rgb:229,68,15; --on-mark:#FFFFFF;
+  --field-shade:rgba(11,27,63,.05);
+  --line:#ECEDF1; --line-2:#E2E5EB; --line-3:#CBD0DA;
   color:var(--fg-2);
 }
 .night{color:var(--fg-2)}
@@ -97,36 +111,25 @@ p{margin:0}
 .intro{font-size:var(--fs-intro);color:var(--fg-3);max-width:62ch}
 .note{font-size:13px;color:var(--fg-4)}
 a{color:var(--accent)}
-:focus-visible{outline:2px solid var(--sun);outline-offset:3px;border-radius:6px}
+:focus-visible{outline:2px solid var(--mark);outline-offset:3px;border-radius:6px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .grad-text{background:var(--grad-sun);-webkit-background-clip:text;background-clip:text;color:transparent}
 
-/* Buttons, plain (owner, 2026-11-01: "simpler"): a flat pill of the sun's amber, and an
-   outlined one beside it - no gradient, glow or arrow. Under the pointer the first lightens
-   and the second takes a faint fill. */
+/* Buttons, plain: a flat pill of the orange, a step deeper than #FF4F1F so the white on it reads
+   (4.5:1; owner, 2026-11-09, variant 5), and an outlined navy one beside it - no gradient, glow
+   or arrow. Under the pointer the first deepens a step, the second takes a faint fill. */
 .btn,.btn2{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 22px;border-radius:var(--r-pill);border:0;cursor:pointer;
   font:500 15px/1 var(--font);text-decoration:none;white-space:nowrap;transition:background .18s ease,box-shadow .18s ease}
-/* White on a vivid amber (owner, 2026-11-01: "why is the text in the yellow buttons not white -
-   put it there", after navy on the bright sun). White on the bright sun itself is about 2:1 and
-   barely reads, and the 4.5:1 WCAG AA asks of text this size needs the brown #AB630E the owner
-   found dull; the fill is the sun's amber a step deeper, #DE9228 - the hero's own colour
-   (owner, 2026-11-01: "use the colour like in the hero"), then "slightly darker, for better
-   visibility" of the white on it, about 2.5:1, the owner's choice; it went #D47B0B, #DD8714,
-   #E9A23B - with a shadow under the letters to hold them. Under the pointer and when pressed
-   it deepens, so the contrast only grows, as the button guide the owner pointed to asks (designerup.co, "UI
-   design pro tips: buttons"). One radius for every button, the full pill; generous padding; the
-   label never wraps; every state drawn - hover, pressed, focus, disabled. The second button is
-   an outline clear enough to be seen (the guide: ghost buttons are easily missed). */
-.btn{color:#fff;font-weight:600;background:#DE9228;text-shadow:0 1px 1px rgba(110,55,0,.3)}
-.btn:hover{background:#D0861F}
-.btn:active{background:#C17A18}
-.btn:disabled{opacity:.5;cursor:default;background:#DE9228}
+.btn{color:#fff;font-weight:600;background:#D63D0B}
+.btn:hover{background:#C2380A}
+.btn:active{background:#A8300A}
+.btn:disabled{opacity:.5;cursor:default;background:#D63D0B}
 .btn2{color:var(--fg);background:transparent;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.42)}
 .btn2:hover{background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.62)}
 .btn2:active{background:rgba(255,255,255,.14)}
-.daylight .btn2{box-shadow:inset 0 0 0 1.5px rgba(20,21,24,.32)}
-.daylight .btn2:hover{background:rgba(20,21,24,.04);box-shadow:inset 0 0 0 1.5px rgba(20,21,24,.5)}
-.btn:focus-visible,.btn2:focus-visible{outline:2px solid var(--sun-2);outline-offset:3px}
+.daylight .btn2{box-shadow:inset 0 0 0 1.5px rgba(11,27,63,.32)}
+.daylight .btn2:hover{background:rgba(11,27,63,.04);box-shadow:inset 0 0 0 1.5px rgba(11,27,63,.5)}
+.btn:focus-visible,.btn2:focus-visible{outline:2px solid var(--mark);outline-offset:3px}
 /* A finger needs some 44px (WCAG 2.5.5): on a touch screen every button is at least that tall. */
 @media(pointer:coarse){.btn,.btn2,.top .btn,.top .btn2{min-height:44px}}
 .ghost{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--fg-3);text-decoration:none;background:none;border:0;font:500 16px var(--font);cursor:pointer;padding:0;transition:color .2s ease}
@@ -137,31 +140,25 @@ a{color:var(--accent)}
 .daylight .glass{background:#fff;box-shadow:var(--e2)}
 
 /* Header: brand, the nav beside it, actions on the right */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(14,21,38,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);transition:background .35s ease,border-color .35s ease}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(6,24,68,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);transition:background .35s ease,border-color .35s ease}
 /* At the top of the page the bar is no bar at all: the sky runs up behind it. Scrolled,
    it is a pane of night glass; past the horizon it turns to day with the page under it. */
+.top.daylight{background:rgba(255,255,255,.86)}
 .top.clear{background:transparent;border-bottom-color:transparent;backdrop-filter:none;-webkit-backdrop-filter:none}
-.top.daylight{background:rgba(255,255,255,.84)}
 .top .wrap{display:flex;align-items:center;gap:8px;height:68px}
-/* The lockup as the logo sheet sets it, the sun a little closer: its box is mostly its own
-   air - beams above the disc, its light on the water below - so the box is drawn larger
-   than the room it takes, the negative margins giving the air back. The disc then stands
-   about an x-height tall, its top at the ascender and its horizon through the lower half
-   of the letters, and the name keeps the logo's tighter tracking. */
-.brand{display:flex;align-items:center;gap:4px;text-decoration:none;margin-right:12px}
-.brand .mark{width:54px;height:54px;display:block;margin:-7px -4px -7px -7px}
-.brand .prod{color:var(--fg);font-weight:500;font-size:20px;letter-spacing:-.025em;line-height:1;white-space:nowrap}
-/* A phone's bar holds the logo, the language and the one button: the name never breaks. */
-@media(max-width:420px){.brand .mark{width:44px;height:44px}.brand .prod{font-size:18px}}
-/* The i is dotless and its dot is drawn: a disc of the sun's amber, an eighth of an em wide,
-   its top just over the x-height, centred on the stem - the logo's construction, so the dot
-   sits as it does in the logo files rather than where the typeface's own dot falls. */
-.wordmark .i{position:relative;display:inline-block}
-.wordmark .i::after{content:"";position:absolute;left:50%;top:.115em;width:.125em;height:.125em;border-radius:50%;background:var(--sun);transform:translateX(-50%)}
+/* The logo (Logo.tsx): the owner's file, white over the night, navy on daylight. */
+.brand{display:flex;align-items:center;text-decoration:none;margin-right:16px}
+.brand .logo{display:block;height:30px}
+.brand .logo img{display:block;height:100%;width:auto}
+.brand .logo img.logo-day{display:none}
+.daylight .brand .logo img.logo-night{display:none}
+.daylight .brand .logo img.logo-day{display:block}
+/* A phone's bar holds the logo, the language and the one button: the logo a little smaller. */
+@media(max-width:420px){.brand .logo{height:25px}}
 .nav{position:relative;display:flex;gap:2px;height:100%;font-size:14px}
 .nav a{display:flex;align-items:center;padding:0 12px;color:var(--fg-3);text-decoration:none;font-weight:450;transition:color .2s ease}
 .nav a:hover,.nav a.on{color:var(--fg)}
-.nav-ind{position:absolute;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--sun) 50%,transparent);transition:left .38s var(--ease),width .38s var(--ease),opacity .3s ease;pointer-events:none}
+.nav-ind{position:absolute;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--mark) 50%,transparent);transition:left .38s var(--ease),width .38s var(--ease),opacity .3s ease;pointer-events:none}
 .top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
 .top .btn,.top .btn2{min-height:36px;padding:0 16px;font-size:14px}
 @media(max-width:900px){.nav{display:none}.top .btn2{display:none}}
@@ -186,7 +183,7 @@ a{color:var(--accent)}
 .lang-car{opacity:.6;transition:transform .2s var(--ease)}
 .lang.is-open .lang-car{transform:rotate(180deg)}
 .lang-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:30;display:grid;gap:2px;min-width:172px;padding:6px;border-radius:14px;
-  background:rgba(14,21,38,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 24px 48px -18px rgba(0,0,0,.6);
+  background:rgba(6,24,68,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 24px 48px -18px rgba(0,0,0,.6);
   animation:lang-in .18s var(--ease) both;transform-origin:top right}
 @keyframes lang-in{from{opacity:0;transform:translateY(-4px) scale(.97)}to{opacity:1;transform:none}}
 .lang-menu button{display:grid;grid-template-columns:minmax(0,1fr) auto 16px;align-items:center;gap:10px;height:38px;padding:0 10px 0 12px;border:0;border-radius:9px;background:none;
@@ -195,41 +192,17 @@ a{color:var(--accent)}
 .lang-menu button[aria-checked="true"]{color:var(--fg)}
 .lang-menu small{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--fg-4)}
 .lang-menu button svg{color:var(--sun-2);stroke-width:2.2}
-.top.daylight .lang-btn{color:var(--fg-2);box-shadow:inset 0 0 0 1px rgba(20,21,24,.14)}
-.top.daylight .lang-btn:hover,.top.daylight .lang.is-open .lang-btn{background:rgba(20,21,24,.04);box-shadow:inset 0 0 0 1px rgba(20,21,24,.26)}
+.top.daylight .lang-btn{color:var(--fg-2);box-shadow:inset 0 0 0 1px rgba(11,27,63,.14)}
+.top.daylight .lang-btn:hover,.top.daylight .lang.is-open .lang-btn{background:rgba(11,27,63,.04);box-shadow:inset 0 0 0 1px rgba(11,27,63,.26)}
 .top.daylight .lang-menu{background:rgba(255,255,255,.96);box-shadow:var(--e4)}
-.top.daylight .lang-menu button:hover{background:rgba(20,21,24,.05)}
+.top.daylight .lang-menu button:hover{background:rgba(11,27,63,.05)}
 .top.daylight .lang-menu button svg{color:var(--sun-text)}
 
-/* Hero: centred, with the field of dots behind it */
-/* The night is pinned while the day rises over it: the sky holds still for one screen of
-   scrolling and the light section slides up across it, its edge a long fade from the
-   night's navy through twilight blues to white; only then does the page move on. The
-   hero reaches up under the bar, so the sky fills the window from its very top, the
-   night's own navy all the way down - the warmth belongs to the sun alone. */
-.night-pin{height:200svh;margin-top:-68px}
-/* Deep space over the hero: near black at the zenith and darker than the navy well down the
-   sky (owner, 2026-11-01: "a little darker"), the faintest violet and teal of distant light in
-   the dark, the night's own navy only from seven tenths down - so where the daybreak band
-   takes over (locked, docs/design-system.md section 6.3) nothing changed. */
-.hero{position:sticky;top:0;overflow:hidden;display:grid;height:100svh;
-  background:radial-gradient(42% 38% at 16% 28%,rgba(112,78,168,.05),rgba(112,78,168,0) 72%),
-    radial-gradient(38% 34% at 86% 20%,rgba(46,110,150,.04),rgba(46,110,150,0) 72%),
-    radial-gradient(130% 75% at 50% 0%,#010207 0%,rgba(1,2,7,.92) 42%,rgba(1,2,7,.5) 60%,rgba(1,2,7,0) 70%),
-    linear-gradient(180deg,#070B16 0%,var(--bg) 70%,#141D38 100%)}
-.curtain{position:relative;z-index:1;margin-top:-100svh}
-/* The night's edge fades to a soft, cool daybreak, not to glare: pale blue at the fold while
-   the sun stands on it, and the page turns fully white only below it (.showcase.ground). */
-.curtain::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:clamp(200px,34vh,340px);pointer-events:none;
-  background:linear-gradient(180deg,rgba(14,21,38,0) 0%,rgba(26,38,70,.3) 30%,rgba(54,74,122,.5) 55%,rgba(110,130,176,.7) 78%,rgba(176,190,218,.88) 93%,#D3DAE8 100%)}
-.hero canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;transform:scale(calc(1 + var(--day,0) * .08))}
-/* The first screen is the sky alone: the hero fills the window, the sun sits on its lower
-   edge, and the words come out slowly once it has risen - the headline word by word as stars
-   do at dusk, then the rest. No line over the slogan: "The data platform for business teams"
-   stood there until the owner had it removed (2026-11-01). */
-.hero .wrap{position:relative;z-index:1;display:grid;justify-items:center;align-content:center;text-align:center;gap:22px;padding-block:calc(68px + clamp(40px,7vh,96px)) clamp(170px,26vh,260px);pointer-events:none;
-  opacity:calc(1 - var(--day,0) * 1.6);transform:translateY(calc(var(--day,0) * -60px))}
-.hero .wrap a,.hero .wrap button{pointer-events:auto}
+/* Hero (owner, 2026-11-08, after productlasso.com): the slogan, the line under it and the two
+   buttons centred on the page's light, and the platform's demo straight under them (Showcase),
+   its tabs and the top of its window on the first screen. */
+.hero{position:relative;background:radial-gradient(circle,rgba(8,32,88,.09) 1px,transparent 1.4px) 0 0/24px 24px,var(--bg)}
+.hero .wrap{display:grid;justify-items:center;text-align:center;padding-block:clamp(56px,9vh,110px) clamp(40px,6vh,64px)}
 /* The slogan's two lines start at one edge, "Meets" under "Where", the slogan centred as a
    block; the line under it and the buttons stand in the middle (owner, 2026-11-01:
    "Meets should start at the same point as Where"; then "make work simpler always in the
@@ -237,20 +210,22 @@ a{color:var(--accent)}
    place is as wide as a typical word (Hero.tsx, Turning), so the slogan sits in the middle
    whichever word shows, and nothing moves while it turns. */
 .hero-copy{display:grid;justify-items:center;text-align:center;gap:22px;max-width:100%}
-.hero h1{max-width:none;text-align:left}
-.hero h1 .line{display:block;white-space:nowrap}
-/* On a phone the turning word stays beside "Meets" (owner, 2026-11-01: "why on a small screen
-   is Reliability under Meets"): the slogan is never wider than 9.4% of the screen a line, which
-   keeps "Meets Consistency.", the widest pair, 16px clear of either edge down to 320px (measured
-   in the browser: it fits up to 9.65vw). Above 375px the usual size is smaller than that anyway,
-   so only the smallest phones see it shrink. Czech's longest word ("dohledatelností.") does not
-   fit at any readable size, so in Czech the word still takes a line of its own. */
-@media(max-width:600px){
-  .hero h1{font-size:min(var(--fs-h1),9.4vw)}
-  html[lang="cs"] .hero h1 .line{white-space:normal}
-  html[lang="cs"] .hero h1 .w:has(> .turn){display:block}
-}
-.hero h1 .w{display:inline-block;animation:emerge 1.8s var(--ease) both}
+/* The slogan in two sizes (owner, 2026-11-08): "Where Simplicity Meets" smaller on its own
+   line, and under it the turning word, larger, centred. Sized from the window's width, so the
+   widest word ("Traceability.", Czech "dohledatelností.") fits a phone's column. */
+.hero h1{max-width:none;text-align:center;font-size:clamp(46px,min(7.4vw,13svh),118px);line-height:1}
+.hero h1 .line{display:block;white-space:nowrap;font-size:.5em;line-height:1.15;letter-spacing:-.025em}
+.hero h1 .line-turn{font-size:1em;line-height:1.05;letter-spacing:-.035em}
+@media(max-width:600px){.hero h1{font-size:min(15vw,72px)}.hero h1 .line{font-size:.56em}.hero h1 .line-turn{font-size:1em}}
+html[lang="cs"] .hero h1 .line-turn{font-size:.82em}
+.hero h1 .w{display:inline-block;animation:emerge 1.2s var(--ease) both}
+/* An underline, as a pen draws one (owner, 2026-11-09, variant 5: the orange "only on the action
+   and the underline"): a stroke of #FF4F1F under the word, a little uneven, thicker in the
+   middle and thinning at its ends - drawn left to right when the word is marked. The word stays
+   in navy; the orange as type would be 3.2:1. */
+:root{--hl:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'><path d='M2 7.2C30 5.6 62 4.6 100 4.2C136 3.9 168 3.6 198 3.2C199 5 198.6 6.6 197.4 7.6C166 8 134 8.4 100 8.9C66 9.4 34 10.1 3 10.9C1.4 9.8 1.2 8.4 2 7.2Z' fill='%23FF4F1F'/></svg>")}
+/* The turning word: underlined a moment after it has rolled into place. */
+.hero h1 .turn-w{color:var(--fg);padding-inline:.04em;background:var(--hl) no-repeat 0 100%/0% .13em}
 /* The slogan's turning word: every word stacked at one starting point; the place keeps one
    width, a typical word's, and a longer word runs on past it, so nothing else on the line
    moves. Hero.tsx, Turning.
@@ -265,67 +240,39 @@ a{color:var(--accent)}
 /* The line clips the word above and below (never sideways, so a long word runs on): the word
    going leaves upward out of it first, and the new one comes up from its lower edge a moment
    later, so the two are never seen over each other. */
-.hero h1 .turn{position:relative;display:inline-block;vertical-align:baseline;white-space:nowrap;text-align:left;
+.hero h1 .turn{display:inline-grid;justify-items:center;vertical-align:baseline;white-space:nowrap;
   clip-path:inset(-.08em -50vw -.22em -50vw)}
-.hero h1 .turn-w{position:absolute;left:0;bottom:0;opacity:0;transform-origin:50% 100%;transform:perspective(800px) translateY(95%) rotateX(-40deg);transition:none}
-.hero h1 .turn-w.is-on{position:relative;opacity:1;transform:none;transition:transform .65s cubic-bezier(.2,.75,.25,1) .18s,opacity .35s ease .18s}
+.hero h1 .turn-w{grid-area:1/1;opacity:0;transform-origin:50% 100%;transform:perspective(800px) translateY(95%) rotateX(-40deg);transition:none}
+.hero h1 .turn-w.is-on{opacity:1;transform:none;background-size:100% .13em;transition:transform .65s cubic-bezier(.2,.75,.25,1) .18s,opacity .35s ease .18s,background-size .6s cubic-bezier(.45,.05,.3,1) .75s}
 .hero h1 .turn-w.is-off{opacity:0;transform-origin:50% 0;transform:perspective(800px) translateY(-95%) rotateX(40deg);transition:transform .45s cubic-bezier(.5,0,.75,0),opacity .3s ease .1s}
 /* The line under the slogan (owner, 2026-11-01): quiet and light, out of the dark just after
    the last word, a moment before the buttons. */
 /* On one row where there is room (owner: "make work simpler in one row"); a phone wraps it. */
-.hero .lede{max-width:none;white-space:nowrap;margin:-4px auto 2px;font-size:clamp(17px,1.6vw,21px);line-height:1.4;color:rgba(232,236,247,.78);animation:emerge 2s var(--ease) 3.3s both}
+.hero .lede{max-width:none;white-space:nowrap;margin:-4px auto 2px;font-size:clamp(17px,1.6vw,21px);line-height:1.4;color:var(--fg-3);animation:emerge 1.4s var(--ease) .5s both}
 @media(max-width:720px){.hero .lede{white-space:normal;max-width:30ch;text-wrap:balance}}
-.hero .ctas{animation:emerge 2s var(--ease) 3.9s both}
+.hero .ctas{animation:emerge 1.4s var(--ease) .7s both}
 @keyframes emerge{from{opacity:0;filter:blur(10px);transform:translateY(12px)}to{opacity:1;filter:none;transform:none}}
 .ctas{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px}
 
-/* Showcase: the sun rises behind a window of the app, its tabs on top */
-.showcase{position:relative;padding-block:clamp(90px,14vh,150px) clamp(40px,6vw,72px)}
-@media(max-width:600px){.showcase{padding-top:40px}.show-intro{margin-bottom:28px}}
-/* Under the horizon it is day: from the daybreak's pale blue to clean white over the first
-   stretch, the only warmth the sun's own glow above it. */
-.showcase.ground{background:linear-gradient(180deg,#D3DAE8 0,#F1F4F9 160px,#FFFFFF 300px)}
-/* Between the statement and the window: what the demo is, said before it is shown. The
-   words come up out of a soft blur as they arrive (--intro), the window right after them
-   (--p); both set by the section as it scrolls, and both 1 when less motion is asked for. */
-.show-intro{display:grid;justify-items:center;text-align:center;gap:14px;margin-bottom:clamp(40px,6vh,64px);
-  opacity:var(--intro,1);filter:blur(calc((1 - var(--intro,1)) * 10px));transform:translateY(calc((1 - var(--intro,1)) * 34px))}
-.show-intro .eyebrow{font-size:12px;font-weight:600;letter-spacing:.32em;text-transform:uppercase;color:var(--sun-text)}
-.show-intro h2{max-width:18ch}
-.show-intro .lede{max-width:52ch}
-/* The window rises out of the day leaning back, and stands upright as it arrives - as a
-   screen does when it is opened. */
-.stage{transform-origin:50% 100%;will-change:transform;
-  transform:perspective(2200px) rotateX(calc((1 - var(--p,1)) * 24deg)) translateY(calc((1 - var(--p,1)) * 70px)) scale(calc(.9 + var(--p,1) * .1));
-  opacity:calc(.3 + var(--p,1) * .7)}
-/* On a phone the window stands upright from the first: its rise read as a stretch of empty
-   white under the intro before the table came (owner, 2026-11-01: "on mobile not such a big
-   delay on a white screen - the table should be visible"). */
-@media(max-width:600px){.stage{transform:none;opacity:1;will-change:auto}}
+/* Showcase: the demo, the hero's picture - its tabs on top of the window, upright from the
+   first, straight under the buttons. */
+.showcase{position:relative;padding-block:0 clamp(40px,6vw,72px)}
 .showcase .wrap{position:relative}
-/* The sun is a canvas 4R wide and 1.5R tall whose disc centre sits below its bottom edge,
-   so a dome of 0.6R shows above the window; the air around it carries the embers. */
-/* As the day rises the sun dissolves into it rather than sliding away: it blooms a little
-   larger and brighter, softens, and melts into the light. */
-.dawn{position:absolute;left:50%;bottom:calc(100% - 1px);width:calc(min(48vw,520px) * 2);aspect-ratio:8/3;pointer-events:none;z-index:0;transform-origin:50% 100%;
-  transform:translateX(-50%) scale(calc(1 + var(--day,0) * .32));
-  filter:blur(calc(var(--day,0) * 10px)) brightness(calc(1 + var(--day,0) * .6));
-  opacity:calc(1.3 - var(--day,0) * 1.7)}
-.dawn-glow{position:absolute;left:50%;top:0;width:min(78vw,860px);aspect-ratio:2/1;transform:translate(-50%,-58%);border-radius:50%;pointer-events:none;z-index:0;opacity:calc(1.4 - var(--day,0) * 2.2);
-  background:radial-gradient(ellipse at 50% 50%,rgba(233,162,59,.26) 0%,rgba(233,162,59,.08) 32%,transparent 60%)}
-/* On a phone the sun a quarter larger (owner, 2026-11-01: "on mobile the sun a little
-   bigger"): its canvas wider than the screen, which main clips, so the disc fills more of the
-   horizon. The only change to the locked sun, by the owner's word; a desktop is as it was. */
-@media(max-width:600px){.dawn{width:120vw}.dawn-glow{width:100vw}}
+/* The demo is the app, so its tabs' line and progress are the app's navy too (owner, 2026-11-09),
+   whatever the page's own accent. */
+.stage{--mark:#082058;--mark-2:#16336B;--mark-rgb:8,32,88}
 /* The tabs are the window's own top: exactly its width on every screen, the rounded corners
    theirs, so tab strip and window line up as one piece whatever the platform. */
-.tabs{position:relative;z-index:2;display:flex;margin:0;border:1px solid var(--line-2);border-bottom:0;border-radius:18px 18px 0 0;overflow:hidden;background:var(--bg)}
+.tabs{position:relative;z-index:2;display:flex;margin:0;border:1px solid var(--line-2);border-bottom:0;border-radius:18px 18px 0 0;overflow:hidden;background:var(--bg-2)}
 .tabs button{position:relative;flex:1 1 0;min-width:max-content;min-height:54px;padding:0 20px;border:0;border-right:1px solid var(--line-2);background:transparent;color:var(--fg-3);font:500 15px var(--font);cursor:pointer;transition:color .2s ease,background .2s ease}
 .tabs button:last-of-type{border-right:0}
 .tabs button:hover{color:var(--fg)}
 .tabs button[aria-selected="true"]{color:var(--fg);background:rgba(188,197,216,.07)}
-.tab-ind{position:absolute;bottom:0;height:2px;background:var(--grad-sun);transition:left .38s var(--ease),width .38s var(--ease)}
-.tab-ind::before{content:"";position:absolute;left:10%;right:10%;bottom:0;height:18px;filter:blur(6px);background:radial-gradient(ellipse 60% 100% at 50% 100%,rgba(233,162,59,.5),transparent 75%)}
+.tab-ind{position:absolute;bottom:0;height:2px;background:rgba(var(--mark-rgb),.16);transition:left .38s var(--ease),width .38s var(--ease)}
+/* The fill: how far the active tab's round has played until the next tab opens (Showcase,
+   useTour); full once the visitor has taken the screen over. */
+.tab-prog{position:absolute;inset:0;background:var(--mark);transform-origin:0 50%;transform:scaleX(0)}
+.tab-ind::before{content:"";position:absolute;left:10%;right:10%;bottom:0;height:18px;filter:blur(6px);background:radial-gradient(ellipse 60% 100% at 50% 100%,rgba(var(--mark-rgb),.5),transparent 75%)}
 /* On a phone the four tabs share the width rather than scrolling, so none is cut off. */
 @media(max-width:720px){.tabs button{flex:1 1 0;min-width:0;min-height:48px;padding:0 4px;font-size:13px}}
 /* On a small phone the five names share 360 to 390 pixels, so the type follows the width -
@@ -361,17 +308,14 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 
 /* Statement: pinned - the section is two and a half screens tall and its sentences hold the
    middle of the window while the page scrolls past, the way a statement on most product sites
-   stops the reader for a moment; not pinned when less motion is asked for. It is the first
-   thing under the horizon (Showcase), rising with the day under the sun, and it hands over
-   to the demo without a rule between them: held lit a moment, it dissolves - fades, softens
-   and lifts away (--out, set by Statement) - by the time the pin lets go, while the demo's
-   intro comes up under it. The pin is the middle half of the window rather than all of it:
-   held there its words are still centred, and while the day rises they come up a quarter
-   of a window under the horizon instead of half of one, so the space under the sun is
-   never empty. */
-.statement{height:250svh;text-align:center}
+   stops the reader for a moment; not pinned when less motion is asked for. It comes after the
+   demo, on a field of faint dots, and its words colour in from grey to ink as the page scrolls
+   and stay so (owner, 2026-11-08, after productlasso.com). The pin is the middle half of the
+   window, so the words stand centred while held. */
+.statement{height:250svh;text-align:center;border-top:1px solid var(--line);
+  background:radial-gradient(circle,rgba(8,32,88,.09) 1px,transparent 1.4px) 0 0/24px 24px,var(--bg)}
 .statement .pin{position:sticky;top:25svh;height:50svh;display:grid;align-content:center;
-  opacity:calc(1 - var(--out,0));filter:blur(calc(var(--out,0) * 8px));transform:translateY(calc(var(--out,0) * -28px))}
+}
 /* On a phone the sentence is short to read and the screen short to scroll, so it holds for
    less (owner, 2026-11-01: "on small screens too much space, a delay between the daylight
    text and the table"); Statement.tsx measures its stages from this height. */
@@ -383,9 +327,11 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 /* A word that lights up turns dark and bold - bold by an outline of its own ink rather than a
    heavier weight, which would widen it and reflow the lines while they are being read; the
    promises light in the sun's amber. */
-.statement .w{color:rgba(20,21,24,.16);-webkit-text-stroke:0 currentColor;transition:color .45s ease,-webkit-text-stroke-width .5s ease}
-.statement .w.lit{color:var(--fg);-webkit-text-stroke-width:.026em}
-.statement .w.gold.lit{color:var(--sun-text)}
+.statement .w{color:rgba(11,27,63,.2);transition:color .4s ease}
+.statement .w.lit{color:var(--fg)}
+/* A promise, once coloured in: ink over the mustard band, as the hero's turning word. */
+.statement .w.gold{padding-inline:.03em;margin-inline:-.03em;background:var(--hl) no-repeat 0 100%/0% .14em;transition:color .4s ease,background-size .55s cubic-bezier(.45,.05,.3,1) .1s}
+.statement .w.gold.lit{color:var(--fg);background-size:100% .14em}
 
 /* Deliver: the one part of the platform the demo does not show - a head, one load written four
    ways on a destination's rows, and two notes under it. It was five themes beside a sticky
@@ -397,14 +343,28 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 /* The two paths share their rows (subgrid) - mark, tag, title, text, list - so their parts
    stand level and the lists, seven lines each, end together (owner, 2026-11-01: "the same
    ending, not an empty box at the end"). */
-.paths{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:repeat(5,auto);column-gap:18px;margin-bottom:24px}
-.path{display:grid;grid-row:span 5;grid-template-rows:subgrid;row-gap:6px;padding:24px 26px;border-radius:18px;background:#fff;box-shadow:var(--e1)}
-.path:first-child{box-shadow:inset 0 0 0 1px rgba(233,162,59,.4),var(--e1);background:linear-gradient(160deg,rgba(233,162,59,.07),#fff 55%)}
-.path-ic{display:grid;place-items:center;width:42px;height:42px;margin-bottom:8px;border-radius:12px;font-size:21px;color:var(--sun-text);background:rgba(233,162,59,.1);box-shadow:inset 0 0 0 1px rgba(233,162,59,.32)}
+/* Each card as tall as itself (owner, 2026-11-08: only the card opened grows), so the two are
+   not tied by shared rows; closed, their lines are given one height so the cards still match. */
+.paths{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;column-gap:18px;margin-bottom:24px}
+.path{display:grid;row-gap:6px;padding:24px 26px;border-radius:18px;background:#fff;box-shadow:var(--e1)}
+@media(min-width:701px){.path>p{min-height:calc(4 * 1.45em)}}
+.path:first-child{box-shadow:inset 0 0 0 1px rgba(var(--mark-rgb),.4),var(--e1);background:linear-gradient(160deg,rgba(var(--mark-rgb),.07),#fff 55%)}
+.path-ic{display:grid;place-items:center;width:42px;height:42px;margin-bottom:8px;border-radius:12px;font-size:21px;color:var(--sun-text);background:rgba(var(--mark-rgb),.1);box-shadow:inset 0 0 0 1px rgba(var(--mark-rgb),.32)}
 .path small{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--sun-text)}
 .path h3{font-size:20px}
 .path p{color:var(--fg-3);font-size:15px;max-width:48ch}
-.path ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:0}
+.path ul{list-style:none;margin:0;padding:0;display:grid;gap:0}
+/* A card's points open under its line (Platform.tsx): a quiet button with a chevron, and the list
+   sliding open under it - its row growing from nothing to its height. */
+.path-more{margin-top:10px;align-self:start}
+.path-toggle{display:inline-flex;align-items:center;gap:6px;padding:8px 0;border:0;background:none;cursor:pointer;font:500 14px var(--font);color:var(--accent)}
+.path-toggle:hover{color:var(--accent-hover)}
+.path-toggle .ti{font-size:16px;transition:transform .3s var(--ease)}
+.path-more.is-open .path-toggle .ti{transform:rotate(180deg)}
+.path-list{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s var(--ease),opacity .3s ease;opacity:0}
+.path-list>ul{overflow:hidden;min-height:0}
+.path-more.is-open .path-list{grid-template-rows:1fr;opacity:1}
+.path-more.is-open .path-list>ul{margin-top:6px}
 .path li{position:relative;padding:8px 0 8px 24px;border-top:1px solid var(--line);font-size:14.5px;color:var(--fg-2);line-height:1.4}
 .path li::before{content:"";position:absolute;left:3px;top:13px;width:9px;height:5px;border-left:1.6px solid var(--sun-text);border-bottom:1.6px solid var(--sun-text);transform:rotate(-45deg)}
 @media(max-width:700px){.paths{grid-template-columns:minmax(0,1fr);grid-template-rows:none;row-gap:18px}.path{grid-row:auto;grid-template-rows:none}}
@@ -424,18 +384,41 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 .why h2 span{display:block;color:var(--fg-4)}
 /* Each card is a white sheet resting on the page: what it means, then its picture under a warm
    light. */
-/* The cards are one row that scrolls sideways (owner, 2026-11-01: "like 3 visible with arrows
-   beside them, that you can scroll, click"): three to a view, two on a small laptop or a tablet,
-   one and the edge of the next on a phone, each snapping to the row's start; no scrollbar, the
-   bar under the row (.sol-progress) says where the view is. The row is a grid of three rows and
-   every card spans them (subgrid), so all the cards are one height and their drawings, titles
-   and texts stand level whichever is tallest. The padding above and below - taken back by the
-   margins - is room for the cards' shadows, which the scrolling box would otherwise clip. */
-.sol-car{position:relative;display:grid;grid-template-columns:minmax(0,1fr);margin-top:48px}
-.ben-grid{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 36px) / 3);grid-template-rows:auto auto auto;column-gap:18px;
-  overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:6px;scrollbar-width:none;padding:8px 6px 56px;margin:-8px -6px -40px}
-.ben-grid::-webkit-scrollbar{display:none}
-.ben-grid:focus-visible{outline-offset:6px}
+/* Solutions as Lasso tells its features (owner, 2026-11-08): a navigation on the left that
+   stays put while the groups scroll past on the right, a hairline between them. Each group is
+   its lead - the claim in ink, what it means in grey - and its cards two to a row, the cards of a
+   row sharing its three rows (subgrid), so titles, texts and pictures stand level. */
+.sol-layout{display:grid;grid-template-columns:220px minmax(0,1fr);margin-top:56px}
+.sol-side{border-right:1px solid var(--line-2);padding-right:24px}
+.sol-nav{position:sticky;top:110px;display:grid;gap:2px}
+.sol-nav a{position:relative;display:block;padding:10px 0 10px 22px;font-size:18px;line-height:1.3;color:var(--fg-4);text-decoration:none;transition:color .25s ease}
+.sol-nav a:hover{color:var(--fg-2)}
+.sol-nav a[aria-current="true"]{color:var(--fg)}
+.sol-nav-ind{position:absolute;left:0;width:2px;border-radius:2px;background:var(--fg);transition:top .35s var(--ease),height .35s var(--ease)}
+.sol-groups{display:grid;gap:clamp(72px,8vw,112px);padding-left:clamp(32px,4vw,56px);min-width:0}
+/* A group chosen in the navigation lands level with it: its top where the navigation's top is
+   held (110px), less the page's own scroll padding (html, 84px), which is added to this; the lead
+   set down by the links' own padding, so its first line stands beside the first link's. */
+.sol-group{scroll-margin-top:26px}
+.sol-lead{max-width:44ch;margin-bottom:28px;padding-top:7px;font-size:clamp(20px,1.7vw,26px);line-height:1.3;letter-spacing:-.012em;color:var(--fg-4)}
+.sol-lead b{font-weight:500;color:var(--fg)}
+.sol-pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-auto-rows:auto;column-gap:18px;row-gap:18px}
+.sol-pair>.sol-wide{grid-column:1/-1}
+/* Under 1100px the two columns would leave the cards too narrow for their pictures: the
+   navigation becomes a row of chips held under the bar, and the groups take the full width. */
+@media(max-width:1099px){
+  .sol-layout{grid-template-columns:minmax(0,1fr);margin-top:36px}
+  .sol-side{position:sticky;top:calc(68px + env(safe-area-inset-top,0px));z-index:5;border-right:0;padding:10px 0;margin-inline:-16px;padding-inline:16px;
+    background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .sol-nav{position:static;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+  .sol-nav::-webkit-scrollbar{display:none}
+  .sol-nav a{flex:none;padding:8px 14px;font-size:14px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line-2);white-space:nowrap}
+  .sol-nav a[aria-current="true"]{background:var(--fg);color:#fff;box-shadow:none}
+  .sol-nav-ind{display:none}
+  .sol-groups{padding-left:0;padding-top:32px;gap:64px}
+  .sol-group{scroll-margin-top:62px}
+}
+@media(max-width:700px){.sol-pair{grid-template-columns:minmax(0,1fr)}.sol-lead{margin-bottom:20px}}
 /* A card is its title and a line or two first, then its picture filling the rest (owner,
    2026-11-01: "headlines on top of the card, not such big empty spaces"): one padding all round,
    one gap between the text and the picture, the picture's box running to the card's foot. */
@@ -443,8 +426,8 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
    bdop"): one light straight above, so every shadow falls straight down, inked navy; a card rests
    at the first height (--e1, which carries its own hairline edge) and does not rise under the
    pointer - only what can be pressed answers with height. */
-.ben{scroll-snap-align:start;display:grid;grid-row:span 3;grid-template-rows:subgrid;align-content:start;gap:12px;padding:14px;border-radius:22px;background:var(--bg);
-  box-shadow:var(--e1,0 0 0 1px rgba(20,21,24,.1),0 1px 2px rgba(20,21,24,.04),0 12px 28px -18px rgba(20,21,24,.25))}
+.ben{display:grid;grid-row:span 3;grid-template-rows:subgrid;align-content:start;gap:12px;padding:14px;border-radius:22px;background:var(--bg);
+  box-shadow:var(--e1,0 0 0 1px rgba(11,27,63,.1),0 1px 2px rgba(11,27,63,.04),0 12px 28px -18px rgba(11,27,63,.25))}
 .ben h3{font-size:19px;padding:10px 10px 0}
 .ben p{color:var(--fg-3);font-size:15px;padding:0 10px 4px}
 /* Every picture is one height (owner, 2026-11-01: "perfectly aligned, no empty space"), its parts
@@ -452,12 +435,12 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
    line or two and texts of two or three, the cards stand level and meet at the bottom with an
    even margin. A phone's narrower card wraps more, so its pictures are a little taller. */
 .ben .vis{--vis-h:310px;height:var(--vis-h);margin:0;padding:20px 18px;border:0;border-radius:16px;display:grid;place-items:center;align-content:space-evenly;box-shadow:none;
-  background:radial-gradient(ellipse 80% 70% at 50% 0%,rgba(233,162,59,.13),transparent 72%),var(--bg-2)}
+  background:radial-gradient(ellipse 80% 70% at 50% 0%,rgba(var(--mark-rgb),.13),transparent 72%),var(--bg-2)}
 @media(max-width:640px){.ben .vis{--vis-h:352px}}
 /* A picture's source, a pill over it: the statement both of Numbers people agree on's reports
    read. (The schedule's day and time zone and the country's tag were pills like it until the owner
    took them off, 2026-11-01: "don't put this tag in the card".) */
-.ben .vis .src{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--fg-2);padding:5px 12px;border-radius:999px;background:var(--bg);box-shadow:inset 0 0 0 1px rgba(233,162,59,.45)}
+.ben .vis .src{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--fg-2);padding:5px 12px;border-radius:999px;background:var(--bg);box-shadow:inset 0 0 0 1px rgba(var(--mark-rgb),.45)}
 .ben .vis .src small{color:var(--fg-4);font-size:11.5px}
 /* One income statement, Sales' figures beside Finance's, equal line by line - each = lighting in
    turn - and the gross margin ruled off as a statement rules it. */
@@ -481,13 +464,13 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 .ben .vis.rail-day{align-content:stretch}
 .rail-day ol{position:relative;list-style:none;margin:0;padding:4px 0 4px 26px;display:grid;align-self:stretch;align-content:space-between;width:100%;max-width:300px}
 .rail-day ol::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;border-radius:2px;
-  background:linear-gradient(180deg,#1F2A44 0%,#3B4A78 20%,#E9A23B 34%,#F4D2A0 62%,#E6EBF3 100%)}
+  background:linear-gradient(180deg,#061844 0%,#082058 20%,#16336B 34%,#8EA0C8 62%,#E6EBF3 100%)}
 .rail-day li{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13.5px;color:var(--fg-2)}
-.rail-day li::before{content:"";position:absolute;left:-24px;top:50%;width:12px;height:12px;margin-top:-6px;border-radius:50%;background:var(--sun);box-shadow:0 0 0 3px var(--bg-2)}
+.rail-day li::before{content:"";position:absolute;left:-24px;top:50%;width:12px;height:12px;margin-top:-6px;border-radius:50%;background:var(--mark);box-shadow:0 0 0 3px var(--bg-2)}
 .rail-day li:first-child::before{background:#2E3B63}
 .rail-day li.due::before{background:var(--bg);box-shadow:0 0 0 3px var(--bg-2),inset 0 0 0 2px var(--line-3)}
 .rail-day li.run::before{animation:run-dot 1.4s ease-in-out infinite}
-@keyframes run-dot{50%{box-shadow:0 0 0 3px var(--bg-2),0 0 0 8px rgba(233,162,59,.25)}}
+@keyframes run-dot{50%{box-shadow:0 0 0 3px var(--bg-2),0 0 0 8px rgba(var(--mark-rgb),.25)}}
 .rail-day .t{color:var(--fg-4);font-variant-numeric:tabular-nums;font-size:12.5px}
 .rail-day .n{min-width:0;line-height:1.25}
 .rail-day .n small{display:block;font-size:11.5px;color:var(--fg-4)}
@@ -505,7 +488,7 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 .gate .log{width:100%;padding:10px 12px;border-radius:10px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);font:12px/1.65 var(--mono);color:var(--fg-3)}
 .gate .log b{color:var(--fg);font-weight:500}
 .gate .keep{font-size:12.5px;color:var(--fg-3)}
-.gate .keep::before{content:"● ";color:var(--sun)}
+.gate .keep::before{content:"● ";color:var(--mark)}
 /* Six branch files, each ticked in turn as it is checked, gathered by two lines into one report
    with its little chart and when it rebuilds itself. */
 .sol-merge{gap:6px;justify-items:center;width:100%}
@@ -518,13 +501,13 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 .sol-file b{flex:none;font-size:11px;font-weight:600;color:var(--sun-text);animation:file-ok 7s var(--ease) calc(var(--i) * .35s) infinite both}
 @keyframes file-ok{0%,3%{opacity:0;transform:scale(.3)}9%,86%{opacity:1;transform:none}94%,100%{opacity:0;transform:none}}
 .sol-join{display:block;width:100%;max-width:290px;height:18px;overflow:visible}
-.sol-join path{fill:none;stroke:var(--sun);stroke-width:1.5;stroke-linecap:round;vector-effect:non-scaling-stroke;opacity:.7}
+.sol-join path{fill:none;stroke:var(--mark);stroke-width:1.5;stroke-linecap:round;vector-effect:non-scaling-stroke;opacity:.7}
 .sol-report{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 14px;width:100%;max-width:290px;padding:10px 12px;border-radius:12px;background:var(--bg);
-  box-shadow:inset 0 0 0 1px rgba(233,162,59,.45)}
+  box-shadow:inset 0 0 0 1px rgba(var(--mark-rgb),.45)}
 .sol-report .h{font-size:13.5px;font-weight:500;color:var(--fg)}
 .sol-report .m{grid-row:2;font-size:11.5px;color:var(--fg-4)}
 .sol-report .bars{grid-row:1/3;grid-column:2;display:flex;align-items:flex-end;gap:3px;height:32px}
-.sol-report .bars i{width:7px;border-radius:2px 2px 0 0;background:linear-gradient(180deg,var(--sun-2),var(--sun))}
+.sol-report .bars i{width:7px;border-radius:2px 2px 0 0;background:linear-gradient(180deg,var(--mark-2),var(--mark))}
 .sol-report .next{grid-column:1/-1;margin-top:6px;padding-top:7px;border-top:1px solid var(--line);font-size:11.5px;color:var(--sun-text)}
 /* A plan kept by hand, moved in: three typed columns, a region picked from its list (open over
    the rows under it), the edited figure lit, and the edit as History names it. */
@@ -541,17 +524,17 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 .sol-sheet .r>span:last-child{text-align:right;font-variant-numeric:tabular-nums}
 .sol-sheet .hd>span{font-size:11px;color:var(--fg-4)}
 .sol-sheet .hd i{margin-right:4px;font-size:12px;vertical-align:-1px}
-.sol-sheet .r>.pick{position:relative;overflow:visible;display:flex;align-items:center;gap:4px;box-shadow:inset 0 0 0 1.5px var(--sun);border-radius:4px}
+.sol-sheet .r>.pick{position:relative;overflow:visible;display:flex;align-items:center;gap:4px;box-shadow:inset 0 0 0 1.5px var(--mark);border-radius:4px}
 .sol-sheet .pick em{flex:1;min-width:0;font-style:normal;overflow:hidden;text-overflow:ellipsis}
 .sol-sheet .pick>i{flex:none;font-size:12px;color:var(--sun-text)}
-.sol-sheet .r>.ed{background:rgba(233,162,59,.12);color:var(--fg)}
+.sol-sheet .r>.ed{background:rgba(var(--mark-rgb),.12);color:var(--fg)}
 .sol-menu{position:absolute;left:-1px;right:-1px;top:calc(100% + 3px);z-index:1;display:grid;gap:1px;padding:4px;border-radius:9px;background:var(--bg);
-  box-shadow:var(--e4,inset 0 0 0 1px var(--line-2),0 12px 24px -10px rgba(20,21,24,.3))}
+  box-shadow:var(--e4,inset 0 0 0 1px var(--line-2),0 12px 24px -10px rgba(11,27,63,.3))}
 .sol-menu span{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:2px 7px;border-radius:5px;line-height:16px}
-.sol-menu .on{background:rgba(233,162,59,.12);color:var(--fg)}
+.sol-menu .on{background:rgba(var(--mark-rgb),.12);color:var(--fg)}
 .sol-menu i{font-size:12px;color:var(--sun-text)}
 .sol-hist{display:flex;align-items:center;gap:8px;min-width:0;font-size:12px;color:var(--fg-3)}
-.sol-hist .av{flex:none;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--sun);color:#fff;font-size:11px;font-weight:600}
+.sol-hist .av{flex:none;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--mark);color:var(--on-mark,#fff);font-size:11px;font-weight:600}
 .sol-hist .w{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums}
 .sol-hist small{flex:none;display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--sun-text)}
 /* The workbook a team keeps, still open, and the routine round it - files gathered, the same
@@ -563,7 +546,7 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 .sol-book .bar i{flex:none;font-size:15px;color:var(--sun-text)}
 .sol-book .bar b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;font-weight:500;color:var(--fg)}
 .sol-book .bar small{flex:none;margin-left:auto;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--fg-4)}
-.sol-book .bar small::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--sun)}
+.sol-book .bar small::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--mark)}
 .sol-cells{display:grid;grid-template-columns:24px repeat(3,minmax(0,1fr))}
 .sol-cells span{padding:5px 8px;line-height:16px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
 .sol-cells span:nth-child(4n){border-right:0}
@@ -572,11 +555,11 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 .sol-cells .k{font-weight:500;color:var(--fg)}
 .sol-cells .n{text-align:right;font-variant-numeric:tabular-nums}
 .sol-cells .w{animation:cell-back 7s ease calc(1.2s + var(--i) * .6s) infinite both}
-@keyframes cell-back{0%,4%{background:transparent;box-shadow:none}10%{background:rgba(233,162,59,.32);box-shadow:inset 0 0 0 1.5px var(--sun)}24%,90%{background:rgba(233,162,59,.1);box-shadow:none}100%{background:transparent}}
+@keyframes cell-back{0%,4%{background:transparent;box-shadow:none}10%{background:rgba(var(--mark-rgb),.32);box-shadow:inset 0 0 0 1.5px var(--mark)}24%,90%{background:rgba(var(--mark-rgb),.1);box-shadow:none}100%{background:transparent}}
 .sol-flow{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 5px}
 .sol-flow span{padding:3px 8px;border-radius:999px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);font-size:11.5px;color:var(--fg-2);white-space:nowrap}
 .sol-flow span.ok::before{content:"✓ ";color:var(--sun-text)}
-.sol-flow span.on{color:var(--fg);background:rgba(233,162,59,.12);box-shadow:inset 0 0 0 1px rgba(233,162,59,.5)}
+.sol-flow span.on{color:var(--fg);background:rgba(var(--mark-rgb),.12);box-shadow:inset 0 0 0 1px rgba(var(--mark-rgb),.5)}
 .sol-flow b{font-weight:400;font-size:11.5px;color:var(--fg-4)}
 .sol-run{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--fg-3)}
 .sol-run i{flex:none;font-size:14px;color:var(--sun-text)}
@@ -584,7 +567,7 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
    their end state rather than looping at the global rule's near-zero length. */
 @media (prefers-reduced-motion:reduce){
   .sol-file b,.sol-cells .w,.agree .pl .e{animation:none}
-  .sol-cells .w{background:rgba(233,162,59,.1)}
+  .sol-cells .w{background:rgba(var(--mark-rgb),.1)}
 }
 /* The files of a team's own country, one row of three cards (owner, 2026-11-01: "maybe add it as
    a card", "sort them somehow into cards to fit"), drawn as one system (owner: "make these cards'
@@ -602,14 +585,14 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 .sol-views>span:not(.on){opacity:0;visibility:hidden}
 .sol-kind-hd{display:flex;align-items:center;gap:10px;min-width:0}
 .sol-kind-hd b{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-2)}
-.sol-ic{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:9px;font-size:16px;color:var(--sun-text);background:rgba(233,162,59,.1);box-shadow:inset 0 0 0 1px rgba(233,162,59,.3)}
+.sol-ic{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:9px;font-size:16px;color:var(--sun-text);background:rgba(var(--mark-rgb),.1);box-shadow:inset 0 0 0 1px rgba(var(--mark-rgb),.3)}
 /* Every row in three columns, headed "As written" and "Read as": the value in mono, the arrow in
    a column of its own, the reading - the same sizes in all three cards. A value or a reading too
    long for its column wraps inside it, so the arrows stay in line and nothing is cut short. */
 .sol-list{display:grid;grid-template-rows:min-content;grid-auto-rows:auto;align-content:stretch;list-style:none;margin:0;padding:4px;border-radius:12px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2)}
 .sol-list li{display:grid;grid-template-columns:minmax(0,1.2fr) 14px minmax(0,1fr);gap:0 8px;align-items:baseline;align-content:center;padding:3px 8px;border-radius:7px;font-size:12.5px;line-height:1.4;transition:background .4s ease}
 .sol-list li+li{box-shadow:0 -1px 0 var(--line)}
-.sol-list li.on{background:rgba(233,162,59,.11);box-shadow:none}
+.sol-list li.on{background:rgba(var(--mark-rgb),.11);box-shadow:none}
 .sol-list li.on+li{box-shadow:none}
 .sol-list li.hd{padding-block:5px 4px;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-4)}
 .sol-list .from{font:11.5px/1.4 var(--mono);color:var(--fg-3);overflow-wrap:anywhere}
@@ -629,45 +612,20 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
    stood in Trust (owner: "keep it under it like before") - its name in small amber capitals,
    then the four promises in a row, each an icon in a small amber seal, its name and its
    sentence; two by two on a tablet, one under another on a phone. */
-.sol-safe{margin-top:18px;padding:22px 24px 24px;border-radius:18px;background:var(--bg);box-shadow:var(--e1,0 0 0 1px rgba(20,21,24,.1),0 1px 2px rgba(20,21,24,.04),0 12px 28px -18px rgba(20,21,24,.25))}
+.sol-safe{margin-top:18px;padding:22px 24px 24px;border-radius:18px;background:var(--bg);box-shadow:var(--e1,0 0 0 1px rgba(11,27,63,.1),0 1px 2px rgba(11,27,63,.04),0 12px 28px -18px rgba(11,27,63,.25))}
 .sol-safe-h{display:block;margin-bottom:16px;font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--sun-text)}
 .sol-safe-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
 .sol-safe-i{display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;align-items:start;font-size:14px;line-height:1.45;color:var(--fg-3)}
-.sol-safe-i>.ti{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:rgba(233,162,59,.1);box-shadow:inset 0 0 0 1px rgba(233,162,59,.32);color:var(--sun-text);font-size:18px}
+.sol-safe-i>.ti{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:rgba(var(--mark-rgb),.1);box-shadow:inset 0 0 0 1px rgba(var(--mark-rgb),.32);color:var(--sun-text);font-size:18px}
 .sol-safe-i b{display:block;margin-bottom:2px;font-weight:500;color:var(--fg)}
 @media(max-width:1000px){.sol-safe-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.sol-safe{padding:20px 18px}.sol-safe-row{grid-template-columns:minmax(0,1fr);gap:18px}}
 /* The two arrows, round, beside the row - outside it where the window leaves room, over its
    edges where it does not, and under it on a phone, either side of the bar. Grey at an end. */
-.sol-arrow{position:absolute;top:50%;translate:0 -50%;z-index:2;display:grid;place-items:center;width:46px;height:46px;padding:0;border:0;border-radius:50%;background:var(--bg);
-  color:var(--fg);font-size:20px;cursor:pointer;box-shadow:var(--e1,0 0 0 1px rgba(20,21,24,.1),0 1px 2px rgba(20,21,24,.04),0 12px 28px -18px rgba(20,21,24,.25));
-  transition:background .2s ease,box-shadow .2s ease,opacity .2s ease}
-.sol-arrow:hover:not(:disabled){background:#FFF8EE;box-shadow:var(--e3,0 0 0 1px rgba(20,21,24,.1),0 2px 4px rgba(20,21,24,.06),0 18px 36px -16px rgba(20,21,24,.32))}
-.sol-arrow:disabled{opacity:.35;cursor:default}
-.sol-arrow.prev{left:-72px}
-.sol-arrow.next{right:-72px}
-.sol-progress{position:relative;justify-self:center;width:140px;height:3px;margin-top:8px;border-radius:3px;background:var(--line-2);overflow:hidden}
-.sol-progress span{position:absolute;top:0;bottom:0;border-radius:3px;background:var(--sun);transition:left .15s linear,width .15s linear}
-@media(max-width:1379px){.sol-arrow.prev{left:-14px}.sol-arrow.next{right:-14px}}
-@media(max-width:1279px){.ben-grid{grid-auto-columns:calc((100% - 18px) / 2)}}
-@media(max-width:640px){
-  .ben-grid{grid-column:1/-1;grid-auto-columns:88%;column-gap:12px}
-  .sol-car{grid-template-columns:auto minmax(0,1fr) auto;align-items:center;column-gap:16px}
-  .sol-arrow{position:static;translate:none;grid-row:2;margin-top:8px}
-  .sol-arrow.prev{grid-column:1}
-  .sol-arrow.next{grid-column:3}
-  .sol-progress{grid-row:2;grid-column:2;justify-self:stretch;width:auto;margin-top:8px}
-}
-/* On a phone (owner, 2026-11-01: "better visible on small screens, 3 cards like just edges,
-   smaller, empty spaces limited"): the row runs the full width of the screen and one card sits
-   in its middle, the cards either side showing only their edges; each card snaps to the centre,
-   the padding at both ends letting the first and last centre too. The cards are tighter - less
-   padding, smaller type, the picture as tall as the tallest picture needs rather than a fixed
-   box, so all stay one height with no blank band - and the arrows stand either side of the bar
-   under the row, raised so they read as buttons. */
+/* On a phone the cards are tighter: less padding, smaller type, the picture as tall as it
+   needs rather than a fixed box. */
 @media(max-width:600px){
-  .ben-grid{grid-auto-columns:84vw;column-gap:10px;margin-inline:-16px;padding-inline:8vw;scroll-padding-inline:0}
-  .ben{scroll-snap-align:center;gap:10px;padding:12px}
+  .ben{gap:10px;padding:12px}
   .ben h3{font-size:18px;padding:6px 8px 0}
   .ben p{font-size:14.5px;line-height:1.45;padding:0 8px 2px}
   .ben .vis{height:auto;padding:14px 12px}
@@ -678,33 +636,19 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
   .agree .pl{padding:6px 10px;font-size:12px}
   .agree .pl .k{padding-right:6px}
   .agree .pl{grid-template-columns:minmax(0,1fr) auto 18px auto}
-  /* The arrows sit on the centred card's edges, half way down it - over the picture, never the
-     title or text (owner, 2026-11-01: "on mobile keep those arrows in the middle of the card") -
-     and the bar alone under the row. Out of the grid's areas, they are placed against the whole
-     row: its middle, less half the bar under it, and the card's edge, 8vw in from the screen's
-     less the page's 16px gutter. */
-  .sol-car{grid-template-columns:minmax(0,1fr)}
-  .ben-grid{grid-column:1}
-  .sol-arrow{position:absolute;grid-row:auto;grid-column:auto;top:calc(50% - 14px);translate:0 -50%;margin:0;width:38px;height:38px;font-size:18px;
-    box-shadow:var(--e3,0 0 0 1px rgba(20,21,24,.1),0 2px 4px rgba(20,21,24,.06),0 18px 36px -16px rgba(20,21,24,.32))}
-  .sol-arrow.prev{left:calc(8vw - 16px - 19px)}
-  .sol-arrow.next{right:calc(8vw - 16px - 19px)}
-  .sol-arrow:not(:disabled){color:var(--sun-text)}
-  .sol-arrow:disabled{opacity:.35;pointer-events:none}
-  .sol-progress{grid-row:2;grid-column:1;justify-self:center;width:120px;height:4px}
 }
 /* The road from a file to a report: the demo's four tabs as four numbered steps on one line,
    joined by a rule, as a process reads - under the owner's line that headed About - and Ask
    under them. A sheet like the cards, white. */
 .sol-road{margin-top:18px;padding:clamp(22px,3.2vw,40px);border-radius:22px;background:var(--bg);
-  box-shadow:var(--e1,0 0 0 1px rgba(20,21,24,.1),0 1px 2px rgba(20,21,24,.04),0 12px 28px -18px rgba(20,21,24,.25))}
+  box-shadow:var(--e1,0 0 0 1px rgba(11,27,63,.1),0 1px 2px rgba(11,27,63,.04),0 12px 28px -18px rgba(11,27,63,.25))}
 .sol-road-head{display:grid;gap:10px;margin-bottom:30px}
 .sol-kicker{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--sun-text)}
 .sol-road h3{font-size:clamp(22px,2.6vw,30px);font-weight:450;letter-spacing:-.02em;line-height:1.15}
 .sol-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px;position:relative}
-.sol-steps::before{content:"";position:absolute;left:18px;right:18px;top:18px;height:1px;background:linear-gradient(90deg,rgba(233,162,59,.6),rgba(233,162,59,.15))}
+.sol-steps::before{content:"";position:absolute;left:18px;right:18px;top:18px;height:1px;background:linear-gradient(90deg,rgba(var(--mark-rgb),.6),rgba(var(--mark-rgb),.15))}
 .sol-steps li{position:relative;display:grid;gap:8px;align-content:start}
-.sol-n{display:grid;place-items:center;width:36px;height:36px;margin-bottom:6px;border-radius:50%;background:var(--sun);color:#fff;font-weight:600;font-size:15px;box-shadow:0 0 0 6px var(--bg)}
+.sol-n{display:grid;place-items:center;width:36px;height:36px;margin-bottom:6px;border-radius:50%;background:var(--mark);color:var(--on-mark,#fff);font-weight:600;font-size:15px;box-shadow:0 0 0 6px var(--bg)}
 .sol-steps h4{font-size:17px;font-weight:500;color:var(--fg)}
 .sol-steps p{font-size:14.5px;color:var(--fg-3)}
 .sol-ask{margin-top:28px;padding-top:20px;border-top:1px solid var(--line);font-size:15px;color:var(--fg-3)}
@@ -722,7 +666,7 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
   .sol-steps{grid-template-columns:minmax(0,1fr);gap:22px}
   .sol-steps li{grid-template-columns:36px minmax(0,1fr);column-gap:16px;row-gap:4px}
   .sol-steps li .sol-n{grid-row:1/3;margin:0}
-  .sol-steps li:not(:last-child)::before{content:"";position:absolute;left:17.5px;top:42px;bottom:-18px;width:1px;background:rgba(233,162,59,.4)}
+  .sol-steps li:not(:last-child)::before{content:"";position:absolute;left:17.5px;top:42px;bottom:-18px;width:1px;background:rgba(var(--mark-rgb),.4)}
   .sol-steps h4{align-self:center}
 }
 
@@ -743,12 +687,12 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
    "less bright yellow, like before"): the top stays a pale cream with a faint glow, and what
    sets it off is drawn - a thin amber line along the card's top edge, a hairline under the
    head, a firmer edge and shadow round the card - as product sites set off a feature card. */
-.frame-top{position:relative;display:flex;align-items:center;gap:14px;padding:24px 22px 20px;color:var(--fg);border-bottom:1px solid rgba(233,162,59,.24);
-  background:radial-gradient(110% 100% at 50% 150%,rgba(244,184,96,.34),rgba(244,184,96,0) 62%),
-    linear-gradient(180deg,#FFFCF7 0%,#FFF3E2 100%)}
-.frame-top::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,rgba(233,162,59,.35),#E9A23B 50%,rgba(233,162,59,.35))}
+.frame-top{position:relative;display:flex;align-items:center;gap:14px;padding:24px 22px 20px;color:var(--fg);border-bottom:1px solid rgba(var(--mark-rgb),.24);
+  background:radial-gradient(110% 100% at 50% 150%,rgba(var(--mark-rgb),.34),rgba(var(--mark-rgb),0) 62%),
+    linear-gradient(180deg,#FFFFFF 0%,#F4F6FB 100%)}
+.frame-top::before{content:"";position:absolute;inset:0 0 auto;height:3px;background:linear-gradient(90deg,rgba(var(--mark-rgb),.35),var(--mark) 50%,rgba(var(--mark-rgb),.35))}
 .frame-ic{flex:none;display:grid;place-items:center;width:50px;height:50px;border-radius:50%;font-size:24px;color:var(--sun-text);
-  background:#fff;box-shadow:inset 0 0 0 1.5px rgba(233,162,59,.6),var(--e1)}
+  background:#fff;box-shadow:inset 0 0 0 1.5px rgba(var(--mark-rgb),.6),var(--e1)}
 .frame h3{font-size:18px;font-weight:500;color:var(--fg);margin:0}
 /* The line at the top, what it rests on at the foot: the three cards are one height, so their
    texts start level and their tags stand on one line however long each text runs (owner,
@@ -756,11 +700,11 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 .frame-b{padding:16px 22px 20px;display:flex;flex-direction:column;align-items:flex-start;gap:14px}
 .frame p{font-size:14.5px;line-height:1.5;color:var(--fg-2);margin:0}
 .frame-tags{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px}
-.frame small{white-space:nowrap;font-size:11.5px;font-weight:600;letter-spacing:.04em;color:var(--sun-text);padding:4px 10px;border-radius:999px;background:rgba(233,162,59,.08);box-shadow:inset 0 0 0 1px rgba(233,162,59,.3)}
+.frame small{white-space:nowrap;font-size:11.5px;font-weight:600;letter-spacing:.04em;color:var(--sun-text);padding:4px 10px;border-radius:999px;background:rgba(var(--mark-rgb),.08);box-shadow:inset 0 0 0 1px rgba(var(--mark-rgb),.3)}
 @media(max-width:900px){.frames{grid-template-columns:minmax(0,1fr)}}
 .pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:18px}
 .pillar{padding:24px 24px 14px;border-radius:18px;background:var(--bg);box-shadow:var(--e1)}
-.pillar-ic{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:rgba(233,162,59,.1);box-shadow:inset 0 0 0 1px rgba(233,162,59,.32);color:var(--sun-text);font-size:20px}
+.pillar-ic{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:rgba(var(--mark-rgb),.1);box-shadow:inset 0 0 0 1px rgba(var(--mark-rgb),.32);color:var(--sun-text);font-size:20px}
 .pillar h3{font-size:18px;margin:18px 0 6px}
 .pillar p{font-size:14.5px;color:var(--fg-3);margin-bottom:14px}
 /* Where data lives is a choice of two, so it is drawn as two: stacked tiles, each with its
@@ -770,7 +714,7 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 /* Both plain and alike (owner: "option 2 more plain"): white, a hairline, an amber outline
    icon - the choice is in the words, not in two different looks. */
 .opt{position:relative;display:grid;grid-template-columns:38px minmax(0,1fr);gap:12px;align-items:start;padding:13px 14px;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 1px var(--line-2)}
-.opt-ic{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;font-size:19px;color:var(--sun-text);background:rgba(233,162,59,.08);box-shadow:inset 0 0 0 1px rgba(233,162,59,.3)}
+.opt-ic{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;font-size:19px;color:var(--sun-text);background:rgba(var(--mark-rgb),.08);box-shadow:inset 0 0 0 1px rgba(var(--mark-rgb),.3)}
 .opt-t{display:grid;gap:2px;min-width:0}
 .opt-t small{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--sun-text)}
 .opt-t b{font-size:15px;font-weight:500;color:var(--fg)}
@@ -786,7 +730,7 @@ section.blk{padding-block:clamp(64px,9vw,104px);border-top:1px solid var(--line)
 .svc-h{display:block;margin-bottom:18px;font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--sun-text)}
 .svc-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px 26px}
 .svc-i{display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;align-items:start;margin:0;font-size:14px;line-height:1.45;color:var(--fg-3)}
-.svc-i>.ti{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:rgba(233,162,59,.1);box-shadow:inset 0 0 0 1px rgba(233,162,59,.32);color:var(--sun-text);font-size:18px}
+.svc-i>.ti{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:rgba(var(--mark-rgb),.1);box-shadow:inset 0 0 0 1px rgba(var(--mark-rgb),.32);color:var(--sun-text);font-size:18px}
 .svc-i b{display:block;margin-bottom:2px;font-weight:500;color:var(--fg)}
 @media(max-width:1000px){.svc-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.svc{padding:20px 18px}.svc-row{grid-template-columns:minmax(0,1fr);gap:16px}}
@@ -823,7 +767,7 @@ form{padding:28px;display:grid;gap:16px}
 .fld input,.fld textarea{width:100%;padding:12px 14px;border-radius:10px;border:0;background:var(--bg);color:var(--fg);font:400 16px/1.4 var(--font);
   box-shadow:inset 0 0 0 1px var(--line-2),inset 0 2px 4px var(--field-shade);transition:box-shadow .2s ease}
 .fld textarea{min-height:120px;resize:vertical}
-.fld input:focus,.fld textarea:focus{outline:none;box-shadow:inset 0 0 0 1px var(--sun),0 0 0 3px rgba(233,162,59,.18)}
+.fld input:focus,.fld textarea:focus{outline:none;box-shadow:inset 0 0 0 1px var(--mark),0 0 0 3px rgba(var(--mark-rgb),.18)}
 .fld .err{font-size:13px;color:var(--problem)}
 .fld.bad input{box-shadow:inset 0 0 0 1px var(--problem)}
 .done{padding:28px;display:grid;gap:16px;animation:tray-pop .34s var(--spring) both}
@@ -852,7 +796,7 @@ footer ul a:hover{color:var(--fg)}
 .grid tbody tr:hover td{background:rgba(188,197,216,.03)}
 .grid .num{text-align:right}
 .grid.mini{font-size:13px}
-@keyframes cell-fix{0%{background:rgba(233,162,59,.4);color:#fff}100%{background:transparent}}
+@keyframes cell-fix{0%{background:rgba(var(--mark-rgb),.4);color:var(--on-mark,#fff)}100%{background:transparent}}
 
 /* A segmented choice: Deliver's write modes */
 .seg{display:inline-flex;padding:3px;gap:2px;border-radius:12px;background:var(--bg);box-shadow:inset 0 0 0 1px var(--line-2);position:relative}

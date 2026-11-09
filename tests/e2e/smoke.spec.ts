@@ -1,7 +1,7 @@
 // @smoke - the page a visitor lands on, on every device the suite knows: it loads under its own
 // name, says its slogan to a screen reader, has every section the bar and the footer point to,
-// every link lands where it says, and a whole scroll from the sky to the footer - with motion,
-// as most visitors see it, the canvases drawing and the demo playing - raises no error. If this
+// every link lands where it says, and a whole scroll from the hero to the footer - with motion,
+// as most visitors see it, the demo playing - raises no error. If this
 // fails, nothing else matters: stop and fix it first.
 
 import { expect, test } from "./support/test";
@@ -117,7 +117,7 @@ test.describe("@smoke the page", () => {
 test.describe("@smoke with motion, as most visitors see it", () => {
   test.use({ motion: "play" });
 
-  test("a whole scroll from the sky to the footer and back raises no error", async ({ page }) => {
+  test("a whole scroll from the hero to the footer and back raises no error", async ({ page }) => {
     // The fixture (support/test.ts) fails the test on any page or console error, failed request
     // or request to another site; the scroll is what gives them a chance to happen.
     await openHome(page);

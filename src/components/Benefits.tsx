@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState, type CSSProperties, type ReactNode, type RefObject, useRef } from "react";
+import { Fragment, useEffect, useLayoutEffect, useState, type CSSProperties, type ReactNode, type RefObject, useRef } from "react";
 import { prefersLessMotion, useSeen } from "../motion";
 import { icoOk, readBool, readDate, readNumber } from "../czech";
 import { day, num, whole, useLang, useT, type Lang } from "../i18n";
@@ -30,9 +30,9 @@ import { FLAGS } from "../flags";
  *  filling the rest of the card (owner, 2026-11-01: "headlines on top of the card, not such big
  *  empty spaces"). The cards share the row's three rows (index.css, .ben), so titles, texts and
  *  pictures stand level and every card is one height. */
-function Card({ vis, h, p }: { vis: ReactNode; h: string; p: string }) {
+function Card({ vis, h, p, wide }: { vis: ReactNode; h: string; p: string; wide?: boolean }) {
   return (
-    <article className="ben">
+    <article className={wide ? "ben sol-wide" : "ben"}>
       <h3>{h}</h3>
       <p>{p}</p>
       {vis}
@@ -561,66 +561,112 @@ function SafeBand() {
   );
 }
 
-/** The cards in one row that scrolls sideways (owner, 2026-11-01: "these cards - like 3 visible
- *  with arrows beside them, that you can scroll, click, you know"): three to a view on a wide
- *  screen, two on a small laptop or a tablet, one and the edge of the next on a phone, each
- *  snapping to the row's start (index.css, .ben-grid). It moves by a trackpad, a finger, the
- *  wheel with shift, the arrow keys once the row has focus, or the two arrows, which step one card
- *  and grey out at either end; a thin bar under the row shows where in it the view is. Smooth
- *  steps, unless less motion is asked for. */
-function Carousel({ label, children }: { label: string; children: ReactNode }) {
+/** The four groups the solutions are told in (owner, 2026-11-08: "postavit podobně jako to má
+ *  lasso"): each a name for the navigation beside them and a lead, said as Lasso says its own -
+ *  the claim in ink, then what it means in grey. */
+const GROUPS: { id: string; nav: [string, string]; claim: [string, string]; more: [string, string] }[] = [
+  {
+    id: "sol-reporting",
+    nav: ["Reporting", "Reporting"],
+    claim: ["Reporting that builds itself.", "Reporting, který se sestaví sám."],
+    more: [
+      "Files gathered, checked and combined into one report that everyone reads the same way.",
+      "Soubory posbírané, zkontrolované a spojené do jednoho reportu, který všichni čtou stejně.",
+    ],
+  },
+  {
+    id: "sol-tables",
+    nav: ["Team tables", "Týmové tabulky"],
+    claim: ["Team tables, under control.", "Týmové tabulky pod kontrolou."],
+    more: [
+      "Plans, budgets and price lists move in with types, history and rights, and Excel keeps working.",
+      "Plány, rozpočty a ceníky se přesunou dovnitř i s typy, historií a právy a Excel funguje dál.",
+    ],
+  },
+  {
+    id: "sol-automation",
+    nav: ["Automation", "Automatizace"],
+    claim: ["Runs on its own, stops when it should.", "Běží samo, zastaví se, když má."],
+    more: [
+      "Pipelines run on schedule or when a file arrives, and a failed rule holds the run before anyone reads a wrong number.",
+      "Pipeliny běží podle plánu nebo když přijde soubor a chybné pravidlo běh zastaví dřív, než někdo přečte špatné číslo.",
+    ],
+  },
+  {
+    id: "sol-local",
+    nav: ["Local formats", "Místní formáty"],
+    claim: ["Built for local data.", "Postavené pro místní data."],
+    more: [
+      "Each country's dates, amounts, IDs, bank files and e-invoices read as they are written.",
+      "Data, částky, IČO, bankovní výpisy a e-faktury každé země přečtené tak, jak jsou zapsané.",
+    ],
+  },
+];
+
+/** The navigation beside the groups, as Lasso's: it stays in place while the groups scroll past,
+ *  the group crossing the window's upper third is the one lit - ink, with a bar beside it that
+ *  slides from item to item - and a press scrolls to a group. Under 1100px it is a row of chips
+ *  held under the bar instead (index.css, .sol-nav). */
+function SolNav() {
   const t = useT();
-  const track = useRef<HTMLDivElement>(null);
-  const [at, setAt] = useState({ start: true, end: false, pos: 0, size: 1 });
+  const [on, setOn] = useState(GROUPS[0].id);
+  const nav = useRef<HTMLElement>(null);
+  const [ind, setInd] = useState({ top: 0, height: 0 });
   useEffect(() => {
-    const el = track.current;
-    if (!el) return;
-    let raf = 0;
-    const look = () => {
-      raf = 0;
-      const max = el.scrollWidth - el.clientWidth;
-      setAt({ start: el.scrollLeft < 4, end: el.scrollLeft > max - 4, pos: max > 0 ? el.scrollLeft / max : 0, size: el.clientWidth / el.scrollWidth });
-    };
-    const on = () => {
-      if (!raf) raf = requestAnimationFrame(look);
-    };
-    look();
-    el.addEventListener("scroll", on, { passive: true });
-    addEventListener("resize", on);
-    // Asked again whenever the row or a card changes size - fonts arriving, pictures laying out -
-    // since a first look taken before the cards had their widths left Next greyed out until a
-    // swipe (the e2e carousel check, iPad Mini in WebKit, 2026-11-01).
-    const ro = new ResizeObserver(on);
-    ro.observe(el);
-    for (const card of el.children) ro.observe(card);
-    return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
-      el.removeEventListener("scroll", on);
-      removeEventListener("resize", on);
-    };
+    const els = GROUPS.map((g) => document.getElementById(g.id)).filter((e): e is HTMLElement => !!e);
+    const io = new IntersectionObserver(
+      (es) => {
+        for (const e of es) if (e.isIntersecting) setOn(e.target.id);
+      },
+      { rootMargin: "-30% 0px -60% 0px" },
+    );
+    els.forEach((e) => io.observe(e));
+    return () => io.disconnect();
   }, []);
-  const go = (dir: number) => {
-    const el = track.current;
-    const card = el?.querySelector<HTMLElement>(".ben");
-    if (!el || !card) return;
-    const gap = parseFloat(getComputedStyle(el).columnGap) || 0;
-    el.scrollBy({ left: dir * (card.offsetWidth + gap), behavior: prefersLessMotion() ? "auto" : "smooth" });
-  };
+  useLayoutEffect(() => {
+    const place = () => {
+      const a = nav.current?.querySelector<HTMLAnchorElement>(`a[href="#${on}"]`);
+      if (!a || !nav.current) return;
+      setInd({ top: a.offsetTop, height: a.offsetHeight });
+      // In the row of chips, the lit one is kept in view sideways.
+      const row = nav.current;
+      if (row.scrollWidth > row.clientWidth) row.scrollTo({ left: a.offsetLeft - 16, behavior: prefersLessMotion() ? "auto" : "smooth" });
+    };
+    place();
+    addEventListener("resize", place);
+    return () => removeEventListener("resize", place);
+  }, [on, t]);
   return (
-    <div className="sol-car">
-      <button type="button" className="sol-arrow prev" aria-label={t("Previous", "Předchozí")} onClick={() => go(-1)} disabled={at.start}>
-        <i className="ti ti-chevron-left" aria-hidden />
-      </button>
-      <div className="ben-grid" ref={track} tabIndex={0} role="region" aria-label={label}>
-        {children}
-      </div>
-      <button type="button" className="sol-arrow next" aria-label={t("Next", "Další")} onClick={() => go(1)} disabled={at.end}>
-        <i className="ti ti-chevron-right" aria-hidden />
-      </button>
-      <span className="sol-progress" aria-hidden>
-        <span style={{ width: `${at.size * 100}%`, left: `${at.pos * (1 - at.size) * 100}%` }} />
-      </span>
+    <nav className="sol-nav" ref={nav} aria-label={t("Solutions", "Řešení")}>
+      {GROUPS.map((g) => (
+        <a
+          key={g.id}
+          href={`#${g.id}`}
+          aria-current={on === g.id ? "true" : undefined}
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById(g.id)?.scrollIntoView({ behavior: prefersLessMotion() ? "auto" : "smooth", block: "start" });
+            setOn(g.id);
+          }}
+        >
+          {t(g.nav[0], g.nav[1])}
+        </a>
+      ))}
+      <span className="sol-nav-ind" style={ind} aria-hidden />
+    </nav>
+  );
+}
+
+/** One group: its lead, then its cards two to a row. */
+function Group({ i, children }: { i: number; children: ReactNode }) {
+  const t = useT();
+  const g = GROUPS[i];
+  return (
+    <div className="sol-group" id={g.id}>
+      <p className="sol-lead">
+        <b>{t(g.claim[0], g.claim[1])}</b> {t(g.more[0], g.more[1])}
+      </p>
+      <div className="sol-pair">{children}</div>
     </div>
   );
 }
@@ -707,91 +753,107 @@ export function Benefits() {
             )}
           </p>
         </div>
-        <Carousel label={t("Solutions, card by card", "Řešení, karta po kartě")}>
-          <Card
-            vis={<MergeVis />}
-            h={t("Monthly reporting", "Měsíční reporting")}
-            p={t(
-              "From six spreadsheets to one report: files gathered, checked and combined into one table that rebuilds itself on schedule.",
-              "Ze šesti tabulek jeden report: soubory posbírané, zkontrolované a spojené do jedné tabulky, která se sama sestaví podle plánu.",
-            )}
-          />
-          <Card
-            vis={<AgreeVis />}
-            h={t("Numbers people agree on", "Jedno číslo pro všechny")}
-            p={t(
-              "One table, one definition, one result. Sales and finance read the same figure, and either can click it to see the rows it came from.",
-              "Jedna tabulka, jedna definice, jeden výsledek. Obchod i finance čtou stejné číslo a kdokoli si rozklikne řádky, ze kterých vzniklo.",
-            )}
-          />
-          <Card
-            vis={<PlanVis />}
-            h={t("Plans, budgets and price lists", "Plány, rozpočty a ceníky")}
-            p={t(
-              "The tables a team keeps by hand move in: typed columns, lists to pick from, every edit in History and who may change what.",
-              "Ruční tabulky týmu se přesunou dovnitř: sloupce s typy, výběr ze seznamu, každá změna v historii a jasno, kdo smí co měnit.",
-            )}
-          />
-          <Card
-            vis={<RailVis />}
-            h={t("Runs while you sleep", "Běží, zatímco spíte")}
-            p={t(
-              "Pipelines run on their own schedule in your time zone, or when a file arrives. You see the next runs ahead; a failed rule stops one.",
-              "Pipeliny běží podle plánu ve vašem časovém pásmu, nebo když přijde soubor. Další běhy vidíte dopředu; chybné pravidlo běh zastaví.",
-            )}
-          />
-          <Card
-            vis={<GateVis />}
-            h={t("Errors caught early", "Chyby zachycené včas")}
-            p={t(
-              "A failed rule holds the run and names what to fix. The report keeps its last good load, so nobody corrects it after it is read.",
-              "Pravidlo, které neprojde, běh zastaví a řekne, co opravit. Report si drží poslední dobrá data, takže ho nikdo neopravuje po přečtení.",
-            )}
-          />
-          {/* Deliver's writeback, after the owner's "a simple tool to easily do the stuff you
-              do", in three lines like every card's (owner: "no empty space"); the picture shows
-              the files in, the same steps and the cells written back. */}
-          <Card
-            vis={<BookVis />}
-            h={t("Keep working in Excel", "Dál pracovat v Excelu")}
-            p={t(
-              "A simple way to keep what you do: appolino writes the results back into your workbook on schedule, even while it is open.",
-              "Jednoduše zůstanete u toho, co děláte: appolino podle plánu zapíše výsledky zpátky do sešitu, i když je otevřený.",
-            )}
-          />
-          {/* The country's files, three cards: the one that says it, then dates, numbers and yes
-              or no in one looping card, and IDs and the bank files in another. */}
-          <Card
-            vis={<CountryVis list={KINDS} tick={tick} />}
-            h={t("Local formats, read right", "Čte místní formáty")}
-            p={t(
-              "Most tools were built for English spreadsheets. appolino reads each country's own dates, amounts, IDs and bank files as they are.",
-              "Většina nástrojů vznikla pro anglické tabulky. appolino čte data, částky, identifikační čísla a bankovní soubory každé země tak, jak jsou.",
-            )}
-          />
-          {/* Each kind's rules in one text of three lines that stays put while the picture loops
-              (owner: "no empty space"); what the lists show for themselves - the ways of writing
-              a date, the spellings, the languages, each check - is left to the lists. */}
-          <LoopCard
-            tick={tick}
-            list={KINDS.slice(0, 3)}
-            h={t("Read right, however it's written", "Vždy správně přečteno")}
-            p={t(
-              "Dates, numbers, yes and no as you write them: an impossible date stays empty, a postcode stays a postcode.",
-              "Data, čísla, ano a ne, jak je píšete: nemožné datum zůstane prázdné, PSČ zůstane PSČ.",
-            )}
-          />
-          <LoopCard
-            tick={tick}
-            lag={2}
-            list={KINDS.slice(3)}
-            h={t("IDs, bank files, e-invoices", "ID, výpisy a e-faktury")}
-            p={t(
-              "IČO, IBAN and ISIN checked, personal data spotted, bank statements and e-invoices read as they arrive, debits signed.",
-              "IČO, IBAN a ISIN zkontrolované, osobní údaje rozpoznané, výpisy a e-faktury načtené, jak přijdou, debety se znaménkem.",
-            )}
-          />
-        </Carousel>
+        {/* The groups scroll past the navigation beside them, as on productlasso.com (owner,
+            2026-11-08); every card the row held is here, four groups of them. */}
+        <div className="sol-layout">
+          <div className="sol-side">
+            <SolNav />
+          </div>
+          <div className="sol-groups">
+            <Group i={0}>
+              <Card
+                vis={<MergeVis />}
+                h={t("Monthly reporting", "Měsíční reporting")}
+                p={t(
+                  "From six spreadsheets to one report: files gathered, checked and combined into one table that rebuilds itself on schedule.",
+                  "Ze šesti tabulek jeden report: soubory posbírané, zkontrolované a spojené do jedné tabulky, která se sama sestaví podle plánu.",
+                )}
+              />
+              <Card
+                vis={<AgreeVis />}
+                h={t("Numbers people agree on", "Jedno číslo pro všechny")}
+                p={t(
+                  "One table, one definition, one result. Sales and finance read the same figure, and either can click it to see the rows it came from.",
+                  "Jedna tabulka, jedna definice, jeden výsledek. Obchod i finance čtou stejné číslo a kdokoli si rozklikne řádky, ze kterých vzniklo.",
+                )}
+              />
+            </Group>
+            <Group i={1}>
+              <Card
+                vis={<PlanVis />}
+                h={t("Plans, budgets and price lists", "Plány, rozpočty a ceníky")}
+                p={t(
+                  "The tables a team keeps by hand move in: typed columns, lists to pick from, every edit in History and who may change what.",
+                  "Ruční tabulky týmu se přesunou dovnitř: sloupce s typy, výběr ze seznamu, každá změna v historii a jasno, kdo smí co měnit.",
+                )}
+              />
+              {/* Deliver's writeback, after the owner's "a simple tool to easily do the stuff you
+                  do", in three lines like every card's (owner: "no empty space"); the picture shows
+                  the files in, the same steps and the cells written back. */}
+              <Card
+                vis={<BookVis />}
+                h={t("Keep working in Excel", "Dál pracovat v Excelu")}
+                p={t(
+                  "A simple way to keep what you do: appolino writes the results back into your workbook on schedule, even while it is open.",
+                  "Jednoduše zůstanete u toho, co děláte: appolino podle plánu zapíše výsledky zpátky do sešitu, i když je otevřený.",
+                )}
+              />
+            </Group>
+            <Group i={2}>
+              <Card
+                vis={<RailVis />}
+                h={t("Runs while you sleep", "Běží, zatímco spíte")}
+                p={t(
+                  "Pipelines run on their own schedule in your time zone, or when a file arrives. You see the next runs ahead; a failed rule stops one.",
+                  "Pipeliny běží podle plánu ve vašem časovém pásmu, nebo když přijde soubor. Další běhy vidíte dopředu; chybné pravidlo běh zastaví.",
+                )}
+              />
+              <Card
+                vis={<GateVis />}
+                h={t("Errors caught early", "Chyby zachycené včas")}
+                p={t(
+                  "A failed rule holds the run and names what to fix. The report keeps its last good load, so nobody corrects it after it is read.",
+                  "Pravidlo, které neprojde, běh zastaví a řekne, co opravit. Report si drží poslední dobrá data, takže ho nikdo neopravuje po přečtení.",
+                )}
+              />
+            </Group>
+            <Group i={3}>
+              {/* The country's files, three cards: the one that says it, then dates, numbers and yes
+                  or no in one looping card, and IDs and the bank files in another. */}
+              <Card
+                wide
+                vis={<CountryVis list={KINDS} tick={tick} />}
+                h={t("Local formats, read right", "Čte místní formáty")}
+                p={t(
+                  "Most tools were built for English spreadsheets. appolino reads each country's own dates, amounts, IDs and bank files as they are.",
+                  "Většina nástrojů vznikla pro anglické tabulky. appolino čte data, částky, identifikační čísla a bankovní soubory každé země tak, jak jsou.",
+                )}
+              />
+              {/* Each kind's rules in one text of three lines that stays put while the picture loops
+                  (owner: "no empty space"); what the lists show for themselves - the ways of writing
+                  a date, the spellings, the languages, each check - is left to the lists. */}
+              <LoopCard
+                tick={tick}
+                list={KINDS.slice(0, 3)}
+                h={t("Read right, however it's written", "Vždy správně přečteno")}
+                p={t(
+                  "Dates, numbers, yes and no as you write them: an impossible date stays empty, a postcode stays a postcode.",
+                  "Data, čísla, ano a ne, jak je píšete: nemožné datum zůstane prázdné, PSČ zůstane PSČ.",
+                )}
+              />
+              <LoopCard
+                tick={tick}
+                lag={2}
+                list={KINDS.slice(3)}
+                h={t("IDs, bank files, e-invoices", "ID, výpisy a e-faktury")}
+                p={t(
+                  "IČO, IBAN and ISIN checked, personal data spotted, bank statements and e-invoices read as they arrive, debits signed.",
+                  "IČO, IBAN a ISIN zkontrolované, osobní údaje rozpoznané, výpisy a e-faktury načtené, jak přijdou, debety se znaménkem.",
+                )}
+              />
+            </Group>
+          </div>
+        </div>
         <SafeBand />
         {/* Put away behind a flag (owner, 2026-11-01), kept whole for when it comes back; off, the
             row of cards is the last thing in the section and its own padding closes it. */}

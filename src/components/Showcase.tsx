@@ -1,7 +1,6 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { runSun } from "./sunField";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { CycleCtx, ROUND_MS, type Cycle } from "../app/cycle";
 import { prefersLessMotion } from "../motion";
-import { Statement } from "./Statement";
 import { TablesScreen } from "../app/TablesScreen";
 import { ImportScreen } from "../app/ImportScreen";
 import { ValidateScreen } from "../app/ValidateScreen";
@@ -30,63 +29,90 @@ const TABS: { id: TabId; en: string; cs: string; screen: () => ReactNode }[] = [
   { id: "ask", en: "✦ Ask", cs: "✦ Zeptat se", screen: () => <AskScreen /> },
 ];
 
-/** How far `el` has come up into the window: 0 while its top is still at
- *  the bottom edge or below, 1 once it has risen `over` of the window's
- *  height. */
-function risen(el: HTMLElement, over: number): number {
-  return Math.min(1, Math.max(0, (innerHeight - el.getBoundingClientRect().top) / (innerHeight * over)));
-}
+/** Holds the line under the active tab full a moment once its round has ended, before the next
+ *  tab opens. */
+const HOLD_MS = 700;
 
-/** The window comes up out of the day as it scrolls into view - leaning
- *  back at first, upright once its top is two fifths of the way up the
- *  screen, so it is square by the time anyone stops to look at it, on a
- *  short laptop screen as on a tall one: --p on the section, 0 to 1, which
- *  the stylesheet turns into the tilt. The words over it come up out of a
- *  blur a moment before, within the first three tenths of the screen:
- *  --intro. */
-function riseWithScroll(section: HTMLElement, intro: HTMLElement, stage: HTMLElement): () => void {
-  let raf = 0;
-  const set = () => {
-    raf = 0;
-    section.style.setProperty("--intro", risen(intro, 0.3).toFixed(3));
-    section.style.setProperty("--p", risen(stage, 0.4).toFixed(3));
-  };
-  const on = () => {
-    if (!raf) raf = requestAnimationFrame(set);
-  };
-  set();
-  addEventListener("scroll", on, { passive: true });
-  addEventListener("resize", on);
-  return () => {
-    cancelAnimationFrame(raf);
-    removeEventListener("scroll", on);
-    removeEventListener("resize", on);
-  };
+/** The tour through the tabs (owner, 2026-11-08): it starts on Deliver, each tab plays its round
+ *  while the line under it fills - how long until the next one opens - and when the round has
+ *  played the next tab opens, round and round. A visitor who takes a screen over (presses or
+ *  types in it) keeps it: the tour stops there, the line stands full, until a tab is chosen,
+ *  which starts the tour again from that tab. The time counts only while the demo is on
+ *  screen. With less motion asked for nothing plays, so nothing moves on. */
+function useTour(tab: TabId, setTab: (t: TabId) => void, stage: React.RefObject<HTMLElement>, prog: React.RefObject<HTMLElement>) {
+  const [auto, setAuto] = useState(() => !prefersLessMotion());
+  const ended = useRef(false);
+  const autoRef = useRef(auto);
+  autoRef.current = auto;
+  const cycle = useMemo<Cycle>(
+    () => ({
+      roundEnd: () => {
+        if (autoRef.current) ended.current = true;
+      },
+      takeover: () => setAuto(false),
+    }),
+    [],
+  );
+
+  useEffect(() => {
+    const bar = prog.current;
+    const el = stage.current;
+    if (!bar || !el) return;
+    ended.current = false;
+    if (!auto) {
+      bar.style.transform = "scaleX(1)";
+      return;
+    }
+    const round = ROUND_MS[tab];
+    const total = round.phone && matchMedia("(max-width:600px)").matches ? round.phone : round.wide;
+    let inView = false;
+    const io = new IntersectionObserver((es) => (inView = es[0].isIntersecting), { threshold: 0.25 });
+    io.observe(el);
+    let elapsed = 0;
+    let last = performance.now();
+    let doneAt = 0;
+    let shown = 0;
+    let raf = 0;
+    const frame = (now: number) => {
+      const dt = now - last;
+      last = now;
+      if (inView) elapsed += dt;
+      // The round's time is up: move on even if the screen has not said so, so the tour never
+      // hangs on a screen whose round runs long.
+      if (elapsed >= total) ended.current = true;
+      // Fills over the round's length - or runs full sooner if the screen says it is done -
+      // then holds a moment.
+      const goal = ended.current ? 1 : Math.min(0.96, elapsed / total);
+      shown += (goal - shown) * Math.min(1, ended.current ? dt / 160 : 1);
+      bar.style.transform = `scaleX(${shown.toFixed(4)})`;
+      if (ended.current && !doneAt) doneAt = now;
+      if (doneAt && now - doneAt > HOLD_MS) {
+        const i = TABS.findIndex((x) => x.id === tab);
+        setTab(TABS[(i + 1) % TABS.length].id);
+        return;
+      }
+      raf = requestAnimationFrame(frame);
+    };
+    bar.style.transform = "scaleX(0)";
+    raf = requestAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(raf);
+      io.disconnect();
+    };
+  }, [tab, auto, setTab, stage, prog]);
+
+  return { cycle, choose: (t: TabId) => (setAuto(!prefersLessMotion()), setTab(t)) };
 }
 
 export function Showcase() {
-  const [tab, setTab] = useState<TabId>("import");
+  const [tab, setTab] = useState<TabId>("deliver");
+  const stageRef = useRef<HTMLDivElement>(null);
+  const progRef = useRef<HTMLSpanElement>(null);
+  const { cycle, choose } = useTour(tab, setTab, stageRef, progRef);
   const lang = useLang();
   const tr = useT();
   const tabsRef = useRef<HTMLDivElement>(null);
   const [ind, setInd] = useState({ left: 0, width: 0 });
-  const sun = useRef<HTMLCanvasElement>(null);
-  const section = useRef<HTMLElement>(null);
-  const intro = useRef<HTMLDivElement>(null);
-  const stage = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (sun.current) return runSun(sun.current, prefersLessMotion());
-  }, []);
-
-  useEffect(() => {
-    const el = section.current;
-    const words = intro.current;
-    const st = stage.current;
-    if (!el || !words || !st) return;
-    if (prefersLessMotion()) return;
-    return riseWithScroll(el, words, st);
-  }, []);
 
   useLayoutEffect(() => {
     const place = () => {
@@ -101,38 +127,25 @@ export function Showcase() {
   const t = TABS.find((x) => x.id === tab)!;
 
   return (
-    <section className="showcase ground" ref={section}>
-      {/* The sun stands on the horizon - this section's top edge - not on the window. */}
-      <span className="dawn-glow" aria-hidden />
-      <canvas className="dawn" ref={sun} aria-hidden />
-      {/* The first thing the day shows: what appolino is for, pinned while it lights up;
-          the demo comes after it, and "Try it" links land on the demo, not on this. */}
-      <Statement />
+    <section className="showcase" aria-label={tr("The platform", "Platforma")}>
       <div className="wrap" id="try">
-        <div className="show-intro" ref={intro}>
-          <p className="eyebrow">{tr("At first light", "Za úsvitu")}</p>
-          <h2>{tr("Daylight on every number.", "Denní světlo na každém čísle.")}</h2>
-          <p className="lede">
-            {tr(
-              "By sunrise, the work is done: processes simplified, information validated and every step documented and traceable.",
-              "Než vyjde slunce, je hotovo: procesy zjednodušené, informace ověřené a každý krok zdokumentovaný a dohledatelný.",
-            )}
-          </p>
-        </div>
-        <div className="stage" ref={stage}>
+        <div className="stage" ref={stageRef}>
           <div className="tabs" role="tablist" aria-label={tr("Screens of appolino", "Obrazovky appolina")} ref={tabsRef}>
             {TABS.map((x) => (
-              <button key={x.id} role="tab" id={`tab-${x.id}`} aria-selected={tab === x.id} aria-controls="screen" onClick={() => setTab(x.id)}>
+              <button key={x.id} role="tab" id={`tab-${x.id}`} aria-selected={tab === x.id} aria-controls="screen" onClick={() => choose(x.id)}>
                 {tr(x.en, x.cs)}
               </button>
             ))}
-            <span className="tab-ind" style={ind} aria-hidden />
+            {/* The line under the active tab: how far its round has played until the next tab opens. */}
+            <span className="tab-ind" style={ind} aria-hidden>
+              <span className="tab-prog" ref={progRef} />
+            </span>
           </div>
           <div className="win-wrap app">
             {/* Keyed by the language too: a switch starts the screen afresh in the other
                 language, its example data with it. */}
             <div className="win app" role="tabpanel" id="screen" aria-labelledby={`tab-${tab}`} key={`${tab}-${lang}`}>
-              {t.screen()}
+              <CycleCtx.Provider value={cycle}>{t.screen()}</CycleCtx.Provider>
             </div>
           </div>
         </div>

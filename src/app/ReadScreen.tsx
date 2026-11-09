@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { num, useT } from "../i18n";
 import { prefersLessMotion, useSeen } from "../motion";
+import { useCycle } from "./cycle";
 import { Head, I, Side } from "./kit";
 
 /**
@@ -95,6 +96,7 @@ export function ReadScreen() {
   const [ms, setMs] = useState(prefersLessMotion() ? END : -1);
   const timer = useRef(0);
   const auto = useRef(true);
+  const cycle = useCycle();
 
   /** The file arrives and is read: the clock runs from its arrival to the table, then stops. */
   const read = useCallback(() => {
@@ -117,14 +119,18 @@ export function ReadScreen() {
     if (!seen || !el) return;
     if (ms < 0) return read();
     if (ms < END || !auto.current) return;
+    // Read through once: the showcase may move on to the next tab now.
+    cycle.roundEnd();
     const id = window.setTimeout(() => auto.current && read(), REST);
     return () => clearTimeout(id);
-  }, [seen, ms, read]);
+  }, [seen, ms, read, cycle]);
   useEffect(() => {
     const el = root.current;
     if (!el) return;
     const stop = (e: Event) => {
-      if (e.isTrusted) auto.current = false;
+      if (!e.isTrusted) return;
+      auto.current = false;
+      cycle.takeover();
     };
     el.addEventListener("pointerdown", stop, true);
     el.addEventListener("keydown", stop, true);
@@ -132,7 +138,7 @@ export function ReadScreen() {
       el.removeEventListener("pointerdown", stop, true);
       el.removeEventListener("keydown", stop, true);
     };
-  }, []);
+  }, [cycle]);
 
   const S = FILE;
   const stage = ms < 0 ? 0 : stageAt(ms);

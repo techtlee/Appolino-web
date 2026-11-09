@@ -10,16 +10,13 @@
 // system, and one set of baselines can only hold one - so a run anywhere else skips these:
 // `npm run test:e2e:docker` compares, `npm run test:e2e:update` remakes (README, "Tests").
 //
-// Motion is frozen (less motion asked for, animations finished) and the clock fixed. The two
-// canvases - the sky, drawn from today's date, and the sun - are blanked by the screenshot's
-// stylesheet rather than masked: the sky fills the hero, and a mask paints over everything in
-// its box, the words standing on it included.
+// Motion is frozen (less motion asked for, animations finished) and the clock fixed. 
 
 import { fileURLToPath } from "node:url";
 import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "./support/test";
 import { DEMO_STATES, reach } from "./support/demo";
-import { fontsReady, openHome, scrollToMiddle, scrollToTop, settle } from "./support/page";
+import { fontsReady, openHome, scrollToTop, settle } from "./support/page";
 
 const STILL = fileURLToPath(new URL("./support/shots/still.css", import.meta.url));
 const NO_BAR = fileURLToPath(new URL("./support/shots/no-bar.css", import.meta.url));
@@ -69,15 +66,12 @@ test.describe("@visual the page, part by part", () => {
     await shoot(page, page.locator("header.top"), "bar-day", { bar: true });
   });
 
-  test("Solutions, at every position of the row", async ({ page }) => {
+  test("Solutions, group by group", async ({ page }) => {
     await openHome(page);
-    const car = page.locator(".sol-car");
-    await scrollToMiddle(page, car);
-    const next = car.getByRole("button", { name: "Next" });
-    for (let i = 0; i < 10; i++) {
-      await shoot(page, car, `solutions-${i}`);
-      if (await next.isDisabled()) break;
-      await next.click();
+    for (const id of ["sol-reporting", "sol-tables", "sol-automation", "sol-local"]) {
+      const g = page.locator(`#${id}`);
+      await scrollToTop(page, g);
+      await shoot(page, g, `solutions-${id}`);
     }
   });
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { readBool, readDate } from "../czech";
 import { count, useLang, useT, type Lang } from "../i18n";
 import { prefersLessMotion, useSeen } from "../motion";
+import { useCycle } from "./cycle";
 import { Head, I, Side } from "./kit";
 import { readFigure, ResultGrid, StepsPanel, tableName, type StepId } from "./planSteps";
 
@@ -872,6 +873,7 @@ function useTour(
   live: React.MutableRefObject<Live>,
 ) {
   const t = useT();
+  const cycle = useCycle();
   useEffect(() => {
     const el = root.current;
     // Every time the tab is opened and seen, as every tab plays (owner: "always a loop").
@@ -940,6 +942,8 @@ function useTour(
         live.current.act.transform(null);
       });
       at(5200, () => {
+        // One round played: the showcase may move on to the next tab now.
+        cycle.roundEnd();
         setTour(null);
         live.current.act.reset();
       });
@@ -948,6 +952,7 @@ function useTour(
     at(0, round);
     const stop = (e: Event) => {
       if (!e.isTrusted) return;
+      cycle.takeover();
       timers.forEach(clearTimeout);
       setTour(null);
       if (open) setEditing(null);

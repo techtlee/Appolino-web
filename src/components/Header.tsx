@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import sun from "../assets/appolino-sun.svg";
 import { FLAGS } from "../flags";
 import { useLang, useSetLang, useT, type Lang } from "../i18n";
+import { Logo } from "./Logo";
 
 /** The sections the nav links to, named in English and Czech, as a product site's bar names
  *  them (owner, 2026-11-01: Platform, Solutions, About, Contact): the platform is the demo,
@@ -90,47 +90,24 @@ function LangSwitch() {
   );
 }
 
-/** The name as the logo sets it: lower case, the i dotless (U+0131) and its
- *  dot a disc of the sun's amber drawn over the stem - the logo sheet's own
- *  construction, a size and a height in em, so it is the same mark at any
- *  size. The link around it carries the name for screen readers. */
-export function Wordmark() {
-  return (
-    <span className="prod wordmark">
-      appol<span className="i">ı</span>no
-    </span>
-  );
-}
-
-type Bar = "clear" | "night" | "day";
-
-/** The bar's look from where the page is: clear over the top of the sky,
- *  night glass further down it, day once the rising light section has
- *  reached the bar - the night is pinned, so this is a matter of scroll. */
-function useBarLook(): Bar {
-  const [look, setLook] = useState<Bar>("clear");
+/** Whether the page has moved under the bar: at the very top the bar is no bar at all, the
+ *  hero's light running up behind it; scrolled, it is a pane of the page's own light. */
+function useScrolled(): boolean {
+  const [moved, setMoved] = useState(false);
   useEffect(() => {
-    const set = () => {
-      const bar = document.querySelector<HTMLElement>("header.top")?.offsetHeight ?? 68;
-      // Day once the light's soft edge - a fifth of the window tall - is under the bar.
-      setLook(scrollY < 24 ? "clear" : scrollY < innerHeight * 0.8 - bar ? "night" : "day");
-    };
+    const set = () => setMoved(scrollY >= 24);
     set();
     addEventListener("scroll", set, { passive: true });
-    addEventListener("resize", set);
-    return () => {
-      removeEventListener("scroll", set);
-      removeEventListener("resize", set);
-    };
+    return () => removeEventListener("scroll", set);
   }, []);
-  return look;
+  return moved;
 }
 
 /** Brand, the nav beside it, actions on the right; a line of light under the section in view. */
 export function Header({ active }: { active: string }) {
   const navRef = useRef<HTMLElement>(null);
   const [ind, setInd] = useState({ left: 0, width: 0, opacity: 0 });
-  const look = useBarLook();
+  const moved = useScrolled();
   const t = useT();
 
   useLayoutEffect(() => {
@@ -144,11 +121,10 @@ export function Header({ active }: { active: string }) {
   }, [active, t]);
 
   return (
-    <header className={look === "day" ? "top daylight" : look === "clear" ? "top clear" : "top"}>
+    <header className={moved ? "top daylight" : "top daylight clear"}>
       <div className="wrap">
         <a href="#top" className="brand" aria-label={t("appolino, back to top", "appolino, zpět nahoru")}>
-          <img className="mark" src={sun} alt="" />
-          <Wordmark />
+          <Logo />
         </a>
         <nav className="nav" ref={navRef} aria-label={t("Sections", "Sekce")}>
           {NAV.map(([id, en, cs]) => (

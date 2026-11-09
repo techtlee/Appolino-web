@@ -1,29 +1,22 @@
-// The browser tab's icon: the logo itself (src/assets/appolino-sun.svg), unchanged but for its
-// viewBox, cut closer round the sun, and a dark tile laid under it. The logo's box is mostly its own glow, so at a tab's 16px
-// the disc was 8px across and read as a faint smudge; this crop makes the disc and its beams
-// some 1.5 times larger while the glow still fades before the edge on a dark tab strip (the
-// owner, 2026-11-01: "tab favicon more stunning"). Nothing is redrawn: run this again whenever
-// the logo changes. Usage: node scripts/tab-icon.mjs
+// The browser tab's icon: the logo's mark alone - its dome and bar, the paths of the owner's logo
+// file (src/assets/appolino-logo.svg) unchanged, in its own navy, on no background (owner,
+// 2026-11-08: "jen to logo, ideálně v té tmavěmodré"). Nothing is redrawn: run this again
+// whenever the logo changes. The file has a new name from the old sun's (appolino-tab.svg) so
+// browsers holding that one cached fetch this. Usage: node scripts/tab-icon.mjs
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const logo = readFileSync(join(root, "src/assets/appolino-sun.svg"), "utf8");
-// The sun a little smaller in its tile than the first cut (owner: "a little bit smaller"), with
-// room round it for the night.
-const CROP = "-94 -86 188 188";
-// On a tile of the hero's night (owner, 2026-11-01: "with that darker background", "stunning"):
-// near black at the top going to the night's navy at the horizon, and a warm glow rising behind
-// the disc as at daybreak - the hero in sixteen pixels.
-const TILE =
-  `<defs><linearGradient id="tabSky" x1="0" y1="-86" x2="0" y2="102" gradientUnits="userSpaceOnUse">` +
-  `<stop offset="0" stop-color="#03050B"/><stop offset="0.6" stop-color="#0E1526"/><stop offset="1" stop-color="#1A2445"/></linearGradient>` +
-  `<radialGradient id="tabDawn" cx="0" cy="18" r="92" gradientUnits="userSpaceOnUse">` +
-  `<stop offset="0" stop-color="#F4B860" stop-opacity="0.42"/><stop offset="0.45" stop-color="#E9A23B" stop-opacity="0.14"/><stop offset="1" stop-color="#E9A23B" stop-opacity="0"/></radialGradient></defs>` +
-  `<rect x="-94" y="-86" width="188" height="188" rx="42" fill="url(#tabSky)"/>` +
-  `<rect x="-94" y="-86" width="188" height="188" rx="42" fill="url(#tabDawn)"/>`;
-const icon = logo.replace(/viewBox="[^"]+"/, `viewBox="${CROP}"`).replace(/(<svg\b[^>]*>)/, `$1${TILE}`);
-if (!icon.includes(`viewBox="${CROP}"`) || !icon.includes(TILE)) throw new Error("The logo has no viewBox to crop or no svg tag to tile");
-writeFileSync(join(root, "public/appolino-tab.svg"), icon);
-console.log(`public/appolino-tab.svg written, viewBox ${CROP}`);
+const logo = readFileSync(join(root, "src/assets/appolino-logo.svg"), "utf8");
+// The logo's paths are the name, then the bar, then the dome: the mark is the last two.
+const paths = logo.match(/<path [^>]+\/>/g);
+if (!paths || paths.length !== 3) throw new Error("Expected the logo's three paths: name, bar, dome");
+const mark = paths.slice(1).join("");
+// The mark spans x 0 to 102.5, y 13.5 to 81.5: a square round its middle, as wide as the mark.
+const S = 103;
+const X = 51.25 - S / 2;
+const Y = 47.5 - S / 2;
+const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${X} ${Y} ${S} ${S}">${mark}</svg>\n`;
+writeFileSync(join(root, "public/appolino-icon.svg"), icon);
+console.log(`public/appolino-icon.svg written, viewBox ${X} ${Y} ${S} ${S}`);

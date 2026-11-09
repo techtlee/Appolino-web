@@ -3,8 +3,8 @@
    drawings, the country-specific cases among them, are in index.css (.why). */
 
 :root,.night{--ok:#E9A23B;--held:#8C9BC0;--fail:#D27C7C;--run:#FFF3DF;--blue:#95ADD8}
-.daylight{--held:#6B6E75;--fail:#B04A4A;--run:#A35E0B;--blue:#4A4D54}
-.daylight .seg.sm button[aria-checked="true"]{background:#fff;color:var(--fg);box-shadow:0 1px 3px rgba(20,21,24,.12),inset 0 0 0 1px var(--line-2)}
+.daylight{--held:#56607A;--fail:#D64545;--run:#C2380A;--blue:#2E3A57}
+.daylight .seg.sm button[aria-checked="true"]{background:#fff;color:var(--fg);box-shadow:0 1px 3px rgba(11,27,63,.12),inset 0 0 0 1px var(--line-2)}
 
 /* Shared bits */
 .seg.sm button{min-height:30px;padding:4px 12px;font-size:13px}

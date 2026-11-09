@@ -3,7 +3,7 @@
 The marketing site for **appolino**, the data platform for business teams, live at
 [www.appolino.com](https://www.appolino.com).
 
-It is a single page: a night-sky hero with the slogan, a live product demo that runs in the browser
+It is a single page: a light hero with the slogan and, right under it, a live product demo that runs in the browser
 on example data (Extract, Transform, Validate, Deliver and Ask), and sections on delivery,
 solutions, trust and contact. All figures on the site are examples, not customer data.
 
@@ -12,8 +12,6 @@ solutions, trust and contact. All figures on the site are examples, not customer
 - **React 18** and **TypeScript 5**, built with **Vite 5**.
 - Plain CSS with custom properties, no CSS framework: `src/index.css` (tokens and the page),
   `src/features.css`, and `src/app/app.css` for the demo window.
-- Canvas 2D for the hero's sky and sun; the constellation drawings are prepared ahead of time by
-  scripts, never in the visitor's browser.
 - Fonts are vendored, nothing is loaded from another site: Google Sans Flex (`src/assets/`) and a
   subset of Tabler Icons (`src/app/fonts/`).
 - **Playwright** and **axe-core** for the end-to-end, layout and accessibility tests.
@@ -43,12 +41,11 @@ src/
   motion.ts            reduced-motion check and in-view helper
   czech.ts             readers for local dates, numbers, yes/no and IDs, shared by the page and the demo
   components/          the page's sections (Header, Hero, Showcase, Statement, Platform, Benefits,
-                       Trust, Changelog, Contact) and the hero's canvases (heroField.ts for the sky,
-                       sunField.ts for the sun; skyData.ts is generated)
+                       Trust, Changelog, Contact)
   app/                 the demo window: kit.tsx (shared parts), one *Screen.tsx per tab,
                        planSteps.tsx (Transform's steps), app.css, the icon font
   assets/              the logo (appolino-sun.svg) and the vendored fonts
-public/                the browser-tab icon (appolino-tab.svg) and the constellation drawings (sky/*.webp)
+public/                the browser-tab icon (appolino-icon.svg)
 scripts/               build-time generators (see below)
 tests/e2e/             the Playwright suite; playwright.config.ts at the root
 .github/workflows/     CI (e2e.yml)
@@ -60,8 +57,7 @@ Run by hand when their source changes; their output is committed.
 
 | Command | What it does |
 |---|---|
-| `node scripts/sky-data.mjs` | Fetches the star catalogue, the constellation figures and the drawings, and writes `src/components/skyData.ts` and `public/sky/*.webp`. Needs network access and Playwright's Chromium (`sky-art.mjs` is its helper and does nothing on its own) |
-| `node scripts/tab-icon.mjs` | Writes `public/appolino-tab.svg` from the logo file. Run it whenever the logo changes |
+| `node scripts/tab-icon.mjs` | Writes `public/appolino-icon.svg` from the logo file. Run it whenever the logo changes |
 
 ## Feature flags
 

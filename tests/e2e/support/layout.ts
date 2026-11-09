@@ -35,7 +35,7 @@ export async function layoutProblems(page: Page, options: AuditOptions = {}): Pr
 
 /** The selectors whose labels must stay on one line: the page's two buttons and the demo's
  *  (docs/design-system.md section 4.1: "labels never wrap"), the demo's tabs, and every segmented choice. */
-export const BUTTONS = ".btn, .btn2, .tt-btn, .tabs [role=tab], .tt-seg > button, .sol-arrow";
+export const BUTTONS = ".btn, .btn2, .tt-btn, .tabs [role=tab], .tt-seg > button, .sol-nav a";
 
 function audit({ root, ignore, buttons }: { root: string; ignore: string[]; buttons: string }): string[] {
   const W = document.documentElement.clientWidth;
